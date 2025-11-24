@@ -25,6 +25,7 @@
 | **Step 11** | **테스트 코드 작성** | 단위 테스트, 통합 테스트, Mocking 등을 사용하여 테스트 전략 | 완료 |
 | **Step 12** | **운영 환경 배포 및 모니터링** | Actuator, 프로파일, 로깅 설정 및 배포 전략 이해 | 완료 |
 | **Step 13** | **성능 최적화** | 캐싱, 비동기 처리, 쿼리 최적화 등 성능 개선 기법 학습 | 완료 |
+| **Step 14** | **API 문서화 (OpenAPI/Swagger)** | 실무에서 자주 사용되는 OpenAPI 어노테이션을 사용하여 API 문서를 자동 생성하고 관리하는 방법 학습 | 완료 |
 
 ---
 
@@ -76,6 +77,7 @@ learning-code/springboot/
 ├── Step11_TestCodeWriting.java
 ├── Step12_DeploymentAndMonitoring.java
 ├── Step13_PerformanceOptimization.java
+├── Step14_APIDocumentation.java
 
 
 ---

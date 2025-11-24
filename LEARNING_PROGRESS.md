@@ -11,7 +11,7 @@
 |:----:|:-----|:--------:|:--------:|:-----|
 | 1 | **Java** | 완료 (12/12) | 진행 중 | 가상 스레드, GraalVM 등 |
 | 2 | **PostgreSQL** | 완료 (10/10) | 진행 중 | pg_stat_statements, Window Functions 등 |
-| 3 | **Spring Boot** | 완료 (13/13) | 진행 중 | WebFlux, Spring Cloud 등 |
+| 3 | **Spring Boot** | 완료 (14/14) | 진행 중 | WebFlux, Spring Cloud 등 |
 | 4 | **Spring Batch** | 완료 (10/10) | 진행 중 | Multi-threaded Step, Remote Partitioning 등 |
 | 5 | **Vue 2** | 완료 (10/10) | 진행 중 | Vue 3 마이그레이션, Vuex 고급 패턴 등 |
 | 6 | **Vue 3** | 완료 (10/10) | 진행 중 | Composables, Nuxt 3, Suspense 등 |
@@ -86,7 +86,7 @@
 | Vue 3 | 10/10 | 완료 |
 | Python | 10/10 | 완료 |
 | TypeScript | 10/10 | 완료 |
-| **Spring Boot** | **13/13** | **완료** |
+| **Spring Boot** | **14/14** | **완료** |
 
 ### 진행 예정 주제
 | 기술 | 현재 상태 | 비고 |
@@ -99,6 +99,8 @@
 | PostgreSQL | 10 Steps 구현됨 | 성능 최적화 중심 |
 | Kubernetes | 5 Steps 구현됨 | 학습 계획 수립 완료 |
 | ArgoCD | 5 Steps 구현됨 | GitOps 학습 |
+| Swagger | 디렉토리 구조 생성 | 학습 계획 수립 완료 |
+| Argos | 디렉토리 구조 생성 | 학습 계획 수립 완료 |
 
 ---
 

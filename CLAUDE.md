@@ -21,6 +21,8 @@ learning-code/
 ├── docker/         # Docker 컨테이너화 (10 Steps)
 ├── kubernetes/     # Kubernetes 오케스트레이션 (5 Steps)
 ├── postgresql/     # PostgreSQL 성능 최적화 (10 Steps)
+├── swagger/        # Swagger/OpenAPI를 이용한 API 문서화
+├── argos_interface/ # Argos (분산 트랜잭션 솔루션) 연동 학습
 ├── comparisons/    # 언어간 비교 분석
 └── LEARNING_PROGRESS.md  # 진행 상황 추적
 ```
