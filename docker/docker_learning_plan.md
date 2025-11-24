@@ -1,55 +1,60 @@
-# ?�무 Docker 코드 ?�습 계획
+# 실무 Docker 코드 학습 계획
 
-?�녕?�세?? 미래???��???Docker 개발???�러�?
+안녕하세요! 미래의 멋진 Docker 개발자 여러분!
 
-???�습 계획?� ?�러분이 ?�순??문법 지?�을 ?�어, ?�제 ?�로?�트?�서 마주?�게 ???�황???�비하�?견고?�며 ?��?보수?�기 ?�운 컨테?�너 기반 ?�플리�??�션???�성?�고 관리하?????�요???�심 ??��??길러주기 ?�해 ?�계?�었?�니?? �??�계?�서 ?�시?�는 '?�쁜 ?�시'�??�해 ?�히 ?�지르는 ?�수�??�악?�고, '좋�? ?�시'�??�해 모범 ?��??� �?배경???�는 ?�칙??깊이 ?�게 ?�해?�는 것이 중요?�니??
+이 학습 계획은 여러분이 단순한 문법 지식을 넘어, 실제 프로젝트에서 마주하게 될 상황에 대비하여 견고하고 유지보수하기 쉬운 컨테이너 기반 애플리케이션을 구성하고 관리하는 데 필요한 핵심 역량을 길러주기 위해 기획되었습니다. 각 단계에서 제시하는 '나쁜 예시'를 통해 흔히 저지르는 실수를 파악하고, '좋은 예시'를 통해 모범 사례와 그 배경에 있는 원칙을 깊이 있게 이해하는 것이 중요합니다.
 
-�??�습 주제???�세???�명�?코드 ?�시�??�함???�정?�며, '?�제', '?�떤 ?�황?�서', '?? ?�당 ?�턴???�용?�야 ?�는지???�??깊이 ?�는 ?�해�??�습?�다. ?�동?�인 ?�습???�해 직접 ?�시 코드�??�행?�보�? ?�쁜 코드�?좋�? 코드�?리팩?�링?�는 ?�습???�보??것을 강력??추천?�니?? 모든 ?�습 과정???�공?�으�?마치�??�면, ?�러분�? ???�신�??�는 개발?�로 ?�장???�을 것입?�다. ?? 그럼 ?�작?�볼까요!
+각 학습 주제는 상세한 설명과 코드 예시를 포함하며, '왜', '어떤 상황에서', '이 해당 패턴을 사용해야 하는지'를 깊이 있게 이해하는 학습이 되도록 합니다. 주도적인 학습을 위해 직접 예시 코드를 실행해보고, 나쁜 코드를 좋은 코드로 리팩토링하는 연습을 해볼 것을 강력히 추천합니다! 모든 학습 과정을 성공적으로 마치고 나면, 여러분은 자신감 넘치는 개발자로 성장해 있을 것입니다. 자, 그럼 시작해볼까요!
 
 ---
 
-### **?�습 로드�?*
+### **학습 로드맵**
 
-| ?�계 | 주제 | ?�습 목표 | ?�태 |
+| 단계 | 주제 | 학습 목표 | 상태 |
 | :-- | :--- | :--- | :--- |
-| **Step 1** | **컨테?�너?� Docker???�해** | 가?�화?� 컨테?�너??차이, Docker???�심 구성 ?�소 (Daemon, CLI, Images, Containers) ?�해 | ?�료 |
-| **Step 2** | **Docker Image ?�성 �?관�?* | `Dockerfile` ?�성�? ?��?지 빌드 (`docker build`), ?��?지 ?��??�트�?(Docker Hub) ?�용 | ?�료 |
-| **Step 3** | **Docker Container ?�행 �?관�?* | 컨테?�너 ?�행 (`docker run`), ?�명주기 관�?(`start`, `stop`, `rm`), 컨테?�너 ?�태 ?�인 | ?�료 |
-| **Step 4** | **Docker Volume ?�용** | 컨테?�너 ?�이???�속?�을 ?�한 Volume 개념 ?�해 �??�용�??�습 | ?�료 |
-| **Step 5** | **Docker Network 구성** | 컨테?�너 �??�신 �??��? ?�출???�한 ?�트?�크 ?�라?�버 �??�용???�의 ?�트?�크 | ?�료 |
-| **Step 6** | **Docker Compose�??�용???�중 컨테?�너 관�?* | `docker-compose.yml` ?�일 ?�성, ?�비???�의, ?�중 컨테?�너 ?�플리�??�션 ?�행 | ?�료 |
-| **Step 7** | **Dockerize ?�플리�??�션 (Node.js, Java, Python ?�시)** | ?�제 ?�플리�??�션??Docker ?��?지�?만들�??�행?�는 ?�습 | ?�료 |
-| **Step 8** | **컨테?�너 보안** | Dockerfile 모범 ?��?, ?��?지 취약???�캔, Rootless 모드 ??보안 고려?�항 | ?�료 |
-| **Step 9** | **Docker Swarm ?�는 Kubernetes 기초** | ?�규모 컨테?�너 ?��??�트?�이?�을 ?�한 Swarm ?�는 Kubernetes??기본 개념 | ?�료 |
-| **Step 10** | **CI/CD ?�이?�라?�에 Docker ?�용** | Jenkins, GitLab CI ??CI/CD ?�과 Docker�??�동?�여 ?�동?�된 배포 ?�스??구축 | ?�료 |
+| **Step 1** | **컨테이너와 Docker의 이해** | 가상화와 컨테이너의 차이, Docker의 핵심 구성 요소 (Daemon, CLI, Images, Containers) 이해 | 완료 |
+| **Step 2** | **Docker Image 생성 및 관리** | `Dockerfile` 작성과 이미지 빌드 (`docker build`), 이미지 레지스트리(Docker Hub) 사용 | 완료 |
+| **Step 3** | **Docker Container 실행 및 관리** | 컨테이너 실행 (`docker run`), 생명주기 관리(`start`, `stop`, `rm`), 컨테이너 상태 확인 | 완료 |
+| **Step 4** | **Docker Volume 사용** | 컨테이너 데이터의 영속성을 위한 Volume 개념 이해 및 활용법 학습 | 완료 |
+| **Step 5** | **Docker Network 구성** | 컨테이너 간 통신 및 외부 노출을 위한 네트워크 드라이버 및 사용자 정의 네트워크 | 완료 |
+| **Step 6** | **Docker Compose를 사용한 다중 컨테이너 관리** | `docker-compose.yml` 파일 작성, 서비스 정의, 다중 컨테이너 애플리케이션 실행 | 완료 |
+| **Step 7** | **Dockerize 애플리케이션 (Node.js, Java, Python 예시)** | 실제 애플리케이션을 Docker 이미지로 만들고 실행하는 실습 | 완료 |
+| **Step 8** | **컨테이너 보안** | Dockerfile 모범 사례, 이미지 취약점 스캔, Rootless 모드 등 보안 고려사항 | 완료 |
+| **Step 9** | **Docker Swarm 또는 Kubernetes 기초** | 대규모 컨테이너 오케스트레이션을 위한 Swarm 또는 Kubernetes의 기본 개념 | 완료 |
+| **Step 10** | **CI/CD 파이프라인에 Docker 활용** | Jenkins, GitLab CI 등 CI/CD 도구와 Docker를 연동하여 자동화된 배포 프로세스 구축 | 완료 |
 
 ---
 
-### **�??�계�??�세 ?�용 (?�시)**
+### **각 단계별 상세 내용 (예시)**
 
-#### **Step 1: 컨테?�너?� Docker???�해**
-- **?�쁜 ?�시**: 모든 ?�플리�??�션???�일 ?�버??직접 ?�치?�고, ?�존??충돌?�나 ?�경 불일�?문제??직면?�니??
-- **좋�? ?�시**: Docker�??�용?�여 ?�플리�??�션�?�??�존?�을 격리??컨테?�너�??�키징하�? ?�떤 ?�경?�서???��??�게 ?�행?�도�??�니??
-- **?�습 ?�인??*: Docker??개발 ?�경�??�영 ?�경???��??�을 보장?�고, ?�플리�??�션 배포�?간소?�하?????�혁??공을 ?�웠?�니?? 컨테?�너??격리?? ?�식?? 경량???�의 ?�점???�해?�는 것이 중요?�니??
+#### **Step 2: Docker Image 생성 및 관리**
+- **나쁜 예시**: 하나의 레이어에 모든 명령을 넣거나, 불필요한 파일(로그, 임시 파일)을 포함하여 이미지 크기를 비대하게 만듭니다.
+- **좋은 예시**: 멀티-스테이지 빌드를 사용하여 최종 이미지 크기를 최소화하고, `.dockerignore`를 사용하여 불필요한 파일이 이미지에 포함되지 않도록 합니다. 각 `RUN` 명령을 논리적으로 분리하여 레이어 캐시를 효율적으로 활용합니다.
+- **학습 포인트**: 작고 효율적인 이미지는 배포 속도를 높이고 보안 위험을 줄입니다. Dockerfile의 각 명령이 이미지 레이어를 생성하는 원리를 이해하고, 레이어 캐시와 멀티-스테이지 빌드를 적극적으로 활용하는 것이 중요합니다.
 
 ---
 
-### **?�성??Docker ?�일 목록**
+### **생성될 Docker 파일 목록**
 
-`c:/Users/Nam/Documents/Cursor/Workspace/origin/learning-code/docker` 경로???�음 ?�일?�이 ?�성???�정?�니?? �??�일?� ?�쁜 ?�시?� 좋�? ?�시 코드�??�함?�며, ?�세??주석�?JavaDoc???�해 �??�턴???�층?�으�??�습?????�도�?구성??것입?�다.
+`c:/Users/Nam/Documents/Cursor/Workspace/origin/learning-code/docker` 경로에 다음 파일들이 생성될 예정입니다. 각 파일은 특정 단계의 Docker 명령어 또는 Dockerfile 예시를 포함할 것입니다.
 
 ```
 learning-code/docker/
-?��??� Step1_ContainersAndDockerUnderstanding.docker
-?��??� Step2_DockerImageCreationAndManagement.docker
-?��??� Step3_DockerContainerExecutionAndManagement.docker
-?��??� Step4_DockerVolumeUsage.docker
-?��??� Step5_DockerNetworkConfiguration.docker
-?��??� Step6_DockerComposeMultiContainerManagement.docker
-?��??� Step7_DockerizeApplications.docker
-?��??� Step8_ContainerSecurity.docker
-?��??� Step9_DockerSwarmOrKubernetesBasics.docker
-?��??� Step10_DockerInCICD.docker
+├── Step1_UnderstandingContainers.md
+├── Step2_CreatingImages/
+│   ├── Dockerfile.bad
+│   └── Dockerfile.good
+├── Step3_ManagingContainers.sh
+├── Step4_UsingVolumes.sh
+├── Step5_ConfiguringNetworks.sh
+├── Step6_UsingDockerCompose/
+│   └── docker-compose.yml
+├── Step7_DockerizingApps/
+│   ├── nodejs/
+│   └── java/
+├── Step8_ContainerSecurity.md
+├── Step9_OrchestrationBasics.md
+└── Step10_CI_CD_Integration.md
 ```
 
 ---
