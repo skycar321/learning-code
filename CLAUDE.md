@@ -23,6 +23,8 @@ learning-code/
 ├── postgresql/     # PostgreSQL 성능 최적화 (10 Steps)
 ├── swagger/        # Swagger/OpenAPI를 이용한 API 문서화
 ├── argos_interface/ # Argos (분산 트랜잭션 솔루션) 연동 학습
+├── shrimp_task_manager/ # MCP Shrimp Task Manager 사용 가이드
+├── gemini_skills/   # Gemini 관련 CLI 및 모델 연동 스킬
 ├── comparisons/    # 언어간 비교 분석
 └── LEARNING_PROGRESS.md  # 진행 상황 추적
 ```
