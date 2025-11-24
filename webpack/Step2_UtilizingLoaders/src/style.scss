@@ -1,0 +1,15 @@
+/* webpack/Step2_UtilizingLoaders/src/style.scss */
+
+$primary-color: #f44336; // Material Design Red
+$secondary-color: #ff9800; // Material Design Orange
+
+.scss-text {
+  color: $primary-color;
+  font-size: 20px;
+  text-decoration: underline;
+  margin-top: 10px;
+
+  &:hover {
+    color: $secondary-color;
+  }
+}

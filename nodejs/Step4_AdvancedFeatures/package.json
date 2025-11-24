@@ -1,0 +1,42 @@
+// nodejs/Step4_AdvancedFeatures/package.json
+// Node.js 학습 계획 - 4단계: 고급 기능 및 모범 사례
+// 이 파일은 Node.js의 클러스터링(`cluster`) 모듈, 환경 변수(`dotenv`),
+// 그리고 로깅(`winston`)과 같은 고급 기능 및 모범 사례를 위한 `package.json` 파일입니다.
+
+{
+  "name": "step4-advanced-features",
+  "version": "1.0.0",
+  "description": "Node.js advanced features and best practices learning project.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": [
+    "node.js",
+    "cluster",
+    "dotenv",
+    "winston",
+    "logging"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.3.1",        // 환경 변수 로드를 위한 라이브러리
+    "express": "^4.18.2",       // 간단한 웹 서버 구축용
+    "winston": "^3.11.0"        // 로깅 라이브러리
+  },
+  "devDependencies": {}
+}
+
+/*
+이 코드를 실행하려면:
+
+1. Node.js 및 npm 설치.
+2. `nodejs/Step4_AdvancedFeatures` 디렉토리를 생성하고 이 파일을 `package.json`으로 저장.
+3. `nodejs/Step4_AdvancedFeatures` 디렉토리에 `index.js` 파일을 생성.
+4. `nodejs/Step4_AdvancedFeatures` 디렉토리에 `.env` 파일을 생성.
+5. 터미널에서 `nodejs/Step4_AdvancedFeatures` 디렉토리로 이동.
+6. `npm install` 명령을 실행하여 의존성 설치.
+7. `npm start` 또는 `npm run dev` 명령으로 애플리케이션 실행.
+*/

@@ -1,0 +1,48 @@
+// webpack/Step3_UtilizingPlugins/package.json
+// Webpack 학습 계획 - 3단계: 플러그인 (Plugins) 활용
+// 이 파일은 `HtmlWebpackPlugin`, `MiniCssExtractPlugin`, `DefinePlugin`,
+// `CleanWebpackPlugin` 등 Webpack 플러그인 의존성을 정의하는 `package.json` 파일입니다.
+
+{
+  "name": "step3-utilizing-plugins",
+  "version": "1.0.0",
+  "description": "Webpack project to learn about different plugins.",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack serve --mode development --open",
+    "build": "webpack --mode production",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webpack",
+    "plugins",
+    "html-webpack-plugin",
+    "mini-css-extract-plugin",
+    "define-plugin",
+    "clean-webpack-plugin"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1",
+    "html-webpack-plugin": "^5.5.3",           // HTML 파일 생성 및 번들 삽입
+    "mini-css-extract-plugin": "^2.7.6",        // CSS 파일을 별도의 파일로 추출
+    "css-loader": "^6.8.1",                     // CSS 파일을 JavaScript 모듈로 변환
+    "clean-webpack-plugin": "^4.0.0"            // 빌드 전 dist 디렉토리 정리
+  }
+}
+
+/*
+이 코드를 실행하려면:
+
+1. Node.js 및 npm 설치.
+2. `webpack/Step3_UtilizingPlugins` 디렉토리를 생성하고 이 파일을 `package.json`으로 저장.
+3. `webpack/Step3_UtilizingPlugins` 디렉토리에 `webpack.config.js`, `src/index.js`, `src/index.html`, `src/style.css` 파일 생성.
+4. 터미널에서 `webpack/Step3_UtilizingPlugins` 디렉토리로 이동.
+5. `npm install` 명령을 실행하여 `package.json`에 정의된 개발 의존성 설치.
+6. `npm start` 명령으로 개발 서버 시작.
+7. `npm run build` 명령으로 프로덕션 빌드.
+*/

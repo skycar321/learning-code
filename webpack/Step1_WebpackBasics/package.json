@@ -1,0 +1,41 @@
+// webpack/Step1_WebpackBasics/package.json
+// Webpack 학습 계획 - 1단계: Webpack 기본 개념 및 시작
+// 이 파일은 Webpack 프로젝트의 메타데이터 및 의존성을 정의하는 `package.json` 파일입니다.
+// `webpack`과 `webpack-cli`, `webpack-dev-server`를 포함한 필수 개발 의존성을 정의합니다.
+
+{
+  "name": "step1-webpack-basics",
+  "version": "1.0.0",
+  "description": "Webpack basics and getting started learning project.",
+  "private": true, // 이 프로젝트는 private이며 npm에 게시되지 않습니다.
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack serve --mode development --open", // 개발 서버 시작
+    "build": "webpack --mode production",             // 프로덕션 빌드
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webpack",
+    "basics",
+    "learning"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.88.2",                 // Webpack 코어
+    "webpack-cli": "^5.1.4",               // Webpack 명령줄 인터페이스
+    "webpack-dev-server": "^4.15.1"        // 개발 서버
+  }
+}
+
+/*
+이 코드를 실행하려면:
+
+1. Node.js 및 npm 설치.
+2. `webpack/Step1_WebpackBasics` 디렉토리를 생성하고 이 파일을 `package.json`으로 저장.
+3. `webpack/Step1_WebpackBasics` 디렉토리에 `webpack.config.js`, `src/index.js`, `src/index.html` 파일 생성.
+4. 터미널에서 `webpack/Step1_WebpackBasics` 디렉토리로 이동.
+5. `npm install` 명령을 실행하여 `package.json`에 정의된 개발 의존성 설치.
+6. `npm start` 명령으로 개발 서버 시작.
+7. `npm run build` 명령으로 프로덕션 빌드.
+*/

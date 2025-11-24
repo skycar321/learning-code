@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    maven/Step4_AdvancedConfigAndDeployment/pom.xml
+    Maven 고급 설정 및 배포 학습을 위한 pom.xml 파일 예시입니다.
+    이 파일은 Maven의 프로파일(Profiles), 필터링(Filtering), 스냅샷/릴리즈 버전 관리,
+    그리고 로컬/원격 저장소 설정 및 배포 (`maven deploy`)에 대한 개념을 보여줍니다.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example.maven</groupId>
+    <artifactId>step4-advanced-config-deployment</artifactId>
+    <version>1.0-SNAPSHOT</version> <!-- SNAPSHOT 버전: 개발 중인 버전을 나타냅니다. -->
+    <packaging>jar</packaging>
+
+    <name>Step4 Advanced Config and Deployment</name>
+    <description>Maven project to learn advanced configuration and deployment concepts.</description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.jupiter.version>5.10.0</junit.jupiter.version>
+        <build.profile>dev</build.profile> <!-- 기본 프로파일 설정 -->
+        <db.url>jdbc:h2:mem:testdb</db.url> <!-- 기본 DB URL -->
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!--
+            -----------------------------------------------------------------------------
+            학습 포인트 1: `resources` 블록 및 필터링 (Filtering)
+            - `resources` 블록에서 프로젝트 리소스 파일(예: `.properties`, `.xml`)을 설정합니다.
+            - `filtering`을 `true`로 설정하면 리소스 파일 내의 `${property_name}`과 같은
+              플레이스홀더가 `pom.xml`의 `properties` 값으로 치환됩니다.
+            - 환경별 설정을 관리하는 데 유용합니다.
+            -----------------------------------------------------------------------------
+        -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering> <!-- 리소스 필터링 활성화 -->
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <argLine>
+                        --enable-preview
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                    </argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.example.maven.App</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <!--
+                maven-deploy-plugin: `deploy` Phase에 바인딩되어 빌드된 아티팩트를 원격 저장소에 배포합니다.
+                (자세한 설정은 `distributionManagement` 섹션에)
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1.1</version>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!--
+        -----------------------------------------------------------------------------
+        학습 포인트 2: `profiles` 블록
+        - 환경별(개발, 테스트, 운영 등)로 다른 빌드 설정을 적용할 수 있게 합니다.
+        - `-P<profile_id>` 옵션으로 프로파일을 활성화합니다 (예: `mvn package -Pprod`).
+        -----------------------------------------------------------------------------
+    -->
+    <profiles>
+        <profile>
+            <id>dev</id> <!-- 개발 환경 프로파일 -->
+            <activation>
+                <activeByDefault>true</activeByDefault> <!-- 기본적으로 활성화 -->
+            </activation>
+            <properties>
+                <build.profile>dev</build.profile>
+                <db.url>jdbc:h2:mem:testdb</db.url>
+                <api.endpoint>http://localhost:8080/api</api.endpoint>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>run-dev</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <arguments>
+                                        <argument>-jar</argument>
+                                        <argument>${project.build.directory}/${project.build.finalName}.jar</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>prod</id> <!-- 운영 환경 프로파일 -->
+            <properties>
+                <build.profile>prod</build.profile>
+                <db.url>jdbc:postgresql://prod-db.example.com:5432/appdb</db.url>
+                <api.endpoint>https://api.example.com</api.endpoint>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*IT.java</exclude> <!-- 운영에서는 불필요한 테스트 제외 -->
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- 나쁜 예시: 프로파일을 사용하지 않고 환경별 설정을 수동으로 변경하거나,
+        - 여러 `pom.xml` 파일을 만들어서 환경별 빌드를 관리하는 것.
+        - `profiles`는 빌드 환경을 명확히 분리하고 관리하는 데 도움을 줍니다. -->
+    </profiles>
+
+    <!--
+        -----------------------------------------------------------------------------
+        학습 포인트 3: `distributionManagement` 블록
+        - 빌드된 아티팩트를 원격 저장소에 배포하는 방법을 정의합니다.
+        - `repository`: 릴리즈 버전 아티팩트 배포.
+        - `snapshotRepository`: 스냅샷 버전 아티팩트 배포.
+        - 이 정보는 `settings.xml`의 `<servers>` 섹션과 연결됩니다.
+        -----------------------------------------------------------------------------
+    -->
+    <distributionManagement>
+        <repository>
+            <id>central</id> <!-- settings.xml의 server ID와 일치 -->
+            <name>Maven Central Release Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id> <!-- settings.xml의 server ID와 일치 -->
+            <name>Maven Central Snapshot Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <!-- 나쁜 예시: `distributionManagement` 설정을 누락하여 `mvn deploy` 명령이 실패하거나,
+        - 배포 시마다 원격 저장소 정보를 명령줄에 수동으로 입력하는 것.
+        - 이는 CI/CD 파이프라인에서 자동 배포를 어렵게 합니다. -->
+    </distributionManagement>
+
+</project>

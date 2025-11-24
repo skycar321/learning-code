@@ -1,0 +1,159 @@
+# Docker Step 7: Dockerize 애플리케이션 (Node.js, Java, Python 예시)
+# 실제 애플리케이션을 Docker 이미지로 만들고 실행하는 실습
+
+# 나쁜 예시: 애플리케이션에 특화된 Dockerfile 없이 범용적인 이미지(예: `ubuntu:latest`)에 모든 것을 수동으로 설치하여 이미지 크기가 비대해지고 관리 어려움.
+# 좋은 예시: 각 언어/프레임워크에 최적화된 Dockerfile을 작성하고, 멀티스테이지 빌드, `.dockerignore` 파일 등을 활용하여 작고 효율적인 이미지 생성.
+
+# 학습 포인트: 실제 애플리케이션을 Dockerize하는 과정은 Docker의 이론적 지식을 실전에 적용하는 가장 중요한 단계입니다. 각 언어의 특성을 고려한 Dockerfile 작성법을 익힙니다.
+
+# --- 1. Node.js 애플리케이션 Dockerize ---
+# 예시: 간단한 ExpressJS 웹 서버
+
+# (app.js)
+/*
+const express = require('express');
+const app = express();
+const port = 3000;
+
+app.get('/', (req, res) => {
+  res.send('Hello from Dockerized Node.js App!');
+});
+
+app.listen(port, () => {
+  console.log(`Node.js app listening at http://localhost:${port}`);
+});
+*/
+
+# (package.json)
+/*
+{
+  "name": "docker-node-app",
+  "version": "1.0.0",
+  "description": "A simple Node.js app for Dockerization",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
+*/
+
+# (Dockerfile - Node.js)
+# 멀티스테이지 빌드를 사용하여 최종 이미지 크기를 최적화합니다.
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+# RUN npm run build # React, Vue 등 프론트엔드 빌드 시 필요
+
+FROM node:18-alpine
+WORKDIR /app
+COPY --from=builder /app ./
+EXPOSE 3000
+CMD ["npm", "start"]
+
+# (`.dockerignore`): `.git`, `node_modules`, `npm-debug.log` 등 불필요한 파일을 이미지에 포함시키지 않습니다.
+# `node_modules`
+# `npm-debug.log`
+# `.git`
+# `Dockerfile`
+# `.dockerignore`
+
+# 빌드 및 실행:
+# `docker build -t my-node-app .`
+# `docker run -d -p 3000:3000 my-node-app`
+
+
+# --- 2. Java (Spring Boot) 애플리케이션 Dockerize ---
+# 예시: 간단한 Spring Boot JAR 애플리케이션
+
+# (pom.xml에 spring-boot-maven-plugin 또는 gradle 플러그인 설정 필요)
+# `./mvnw package` 또는 `./gradlew bootJar` 명령어로 JAR 파일 생성
+
+# (Dockerfile - Java)
+# Spring Boot 애플리케이션을 Dockerize하는 일반적인 방법
+FROM openjdk:17-jdk-slim AS builder
+
+WORKDIR /app
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline -B
+
+COPY src ./src
+RUN ./mvnw package -Dmaven.test.skip=true
+
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# (`.dockerignore` - Java):
+# `target/`
+# `build/`
+# `.mvn/`
+# `mvnw`
+# `mvnw.cmd`
+# `.idea/`
+# `.gitignore`
+# `Dockerfile`
+# `.dockerignore`
+
+# 빌드 및 실행:
+# `docker build -t my-java-app .`
+# `docker run -d -p 8080:8080 my-java-app`
+
+
+# --- 3. Python (Flask) 애플리케이션 Dockerize ---
+# 예시: 간단한 Flask 웹 애플리케이션
+
+# (app.py)
+/*
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return 'Hello from Dockerized Flask App!'
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+*/
+
+# (requirements.txt)
+/*
+Flask==2.0.2
+*/
+
+# (Dockerfile - Python)
+FROM python:3.9-slim-buster AS builder
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+
+FROM python:3.9-slim-buster
+WORKDIR /app
+COPY --from=builder /app ./
+EXPOSE 5000
+CMD ["python", "app.py"]
+
+# (`.dockerignore` - Python):
+# `__pycache__/`
+# `.pytest_cache/`
+# `.venv/`
+# `venv/`
+# `.git`
+# `Dockerfile`
+# `.dockerignore`
+
+# 빌드 및 실행:
+# `docker build -t my-python-app .`
+# `docker run -d -p 5000:5000 my-python-app`
+
+# 다음 단계에서는 컨테이너 보안에 대한 모범 사례를 학습합니다.

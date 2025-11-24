@@ -1,0 +1,135 @@
+// gradle/Step2_BuildScriptsAndTasks/build.gradle
+// Gradle 빌드 스크립트 및 태스크 학습을 위한 build.gradle 파일 예시입니다.
+// 이 파일은 Gradle 빌드의 기본 작업 단위인 태스크(Task)의 생성 및 활용 방법,
+// 태스크 간의 의존성(Dependencies) 설정, 그리고 `doLast`, `doFirst` 클로저 사용법을 보여줍니다.
+//
+// 태스크는 Gradle 빌드 프로세스를 구성하는 핵심 요소입니다.
+// Gradle은 `java` 플러그인과 같은 플러그인을 통해 미리 정의된 다양한 태스크를 제공하며,
+// 개발자는 필요에 따라 사용자 정의 태스크를 생성하여 빌드 과정을 자동화할 수 있습니다.
+
+plugins {
+    id 'java' // Java 플러그인 적용
+}
+
+group 'com.example.gradle.tasks'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// -----------------------------------------------------------------------------
+// 학습 포인트 1: 사용자 정의 태스크 생성 (Creating Custom Tasks)
+// - `task <taskName> {}`: 기본적인 태스크 정의 방법.
+// - `Task` 타입으로 생성: 고급 기능 활용 가능.
+// -----------------------------------------------------------------------------
+
+// 1.1. 기본 방식의 사용자 정의 태스크 (doLast 클로저 사용)
+// 태스크 이름: `hello`
+task hello {
+    // `doLast` 클로저는 태스크의 마지막에 실행될 액션을 정의합니다.
+    // 태스크 액션은 빌드 스크립트가 실행될 때가 아니라, 태스크가 실제로 실행될 때 평가됩니다.
+    doLast {
+        println "Hello from Gradle Custom Task!"
+        // 나쁜 예시: `doLast` 없이 로직을 바로 태스크 블록 안에 넣는 것 (예: `task hello { println "..." }`)
+        // - 이 경우 빌드 스크립트가 파싱될 때마다 해당 로직이 실행되어 불필요한 출력이 발생하거나,
+        // - 의도하지 않은 부작용이 생길 수 있습니다. 항상 액션은 `doLast` 또는 `doFirst` 안에 정의해야 합니다.
+    }
+}
+
+// 1.2. `Task` 타입을 명시한 사용자 정의 태스크 (프로퍼티와 설명 추가)
+// 태스크 이름: `greet`
+tasks.register('greet', GreetingTask) {
+    message = '안녕, Gradle!' // 태스크의 프로퍼티 설정
+    description = '사용자 정의 인사말을 출력하는 태스크' // 태스크 설명
+    group = 'Custom Tasks' // 태스크 그룹 지정
+    // 나쁜 예시: 태스크에 대한 설명이나 그룹 지정을 생략하여 `gradle tasks --all` 실행 시
+    // - 태스크의 목적을 파악하기 어렵게 하는 것. 항상 명확한 설명과 그룹을 지정하는 것이 좋습니다.
+}
+
+// 사용자 정의 태스크 클래스 정의
+// `DefaultTask`를 상속받으면 Gradle 태스크의 기본 기능을 활용할 수 있습니다.
+class GreetingTask extends DefaultTask {
+    String message
+
+    @TaskAction // 태스크가 실행될 때 호출되는 메서드를 지정
+    void greetAction() {
+        println "GreetingTask: $message"
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 학습 포인트 2: 태스크 의존성 (Task Dependencies)
+// - `dependsOn`: 특정 태스크가 실행되기 전에 다른 태스크가 먼저 실행되도록 의존성을 설정합니다.
+// - 태스크 그래프: Gradle은 태스크 의존성을 바탕으로 실행 순서를 결정하는 태스크 그래프를 만듭니다.
+// -----------------------------------------------------------------------------
+
+// 태스크 이름: `prepareEnvironment`
+task prepareEnvironment {
+    doLast {
+        println "환경 준비 중..."
+    }
+}
+
+// 태스크 이름: `runApplication`
+task runApplication {
+    dependsOn hello, prepareEnvironment // `hello`와 `prepareEnvironment` 태스크가 먼저 실행된 후 이 태스크 실행
+    doLast {
+        println "애플리케이션 실행 중..."
+        // 나쁜 예시: 태스크 간의 논리적인 실행 순서가 필요한데 `dependsOn`을 누락하는 것.
+        // - 이 경우 태스크가 올바른 순서로 실행되지 않아 빌드 실패나 잘못된 결과로 이어질 수 있습니다.
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 학습 포인트 3: `doLast` 및 `doFirst` 클로저
+// - `doLast`: 태스크의 마지막에 실행될 액션. (가장 일반적인 사용법)
+// - `doFirst`: 태스크의 시작 부분에 실행될 액션.
+// - 여러 `doLast`/`doFirst`를 사용할 수 있으며, 선언된 순서대로 실행됩니다.
+// -----------------------------------------------------------------------------
+
+task dataProcessing {
+    doFirst { // 태스크 실행 전에 호출
+        println "데이터 전처리 시작..."
+    }
+    doLast { // 태스크 실행 후에 호출
+        println "데이터 후처리 완료."
+    }
+    doLast { // 두 번째 doLast 클로저
+        println "결과 보고서 생성."
+    }
+    // 나쁜 예시: 태스크의 핵심 로직과 부가적인 전/후처리 로직을 `doLast`/`doFirst` 없이
+    // - 하나의 클로저에 모두 넣어 코드를 복잡하게 만드는 것.
+    // - 또는 `doFirst`나 `doLast` 없이 태스크 블록 안에 직접 로직을 넣어
+    //   불필요한 실행을 유발하는 것.
+}
+
+// -----------------------------------------------------------------------------
+// 기타 유용한 태스크 관련 기능 (개념)
+// - 태스크 입력/출력 (Task Inputs/Outputs):
+//   - Gradle은 태스크의 입력(파일, 프로퍼티)과 출력(생성 파일)을 추적하여
+//   - 입력이 변경되지 않으면 태스크를 다시 실행하지 않고 이전에 생성된 출력을 재사용합니다 (증분 빌드).
+//   - `@Input`, `@OutputFile`, `@OutputDirectory` 등의 어노테이션 사용.
+// - 태스크 재사용 (Task Reuse):
+//   - `buildCache = true` 설정 시 빌드 캐시를 사용하여 다른 빌드에서 생성된 태스크 출력 재사용.
+// -----------------------------------------------------------------------------
+
+/*
+이 `build.gradle` 파일을 사용하려면 다음 구조로 프로젝트를 생성해야 합니다.
+(자세한 내용은 README.md 참조)
+*/

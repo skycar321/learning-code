@@ -1,0 +1,71 @@
+# ArgoCD 애플리케이션 배포 및 관리 예시
+# 이 파일은 ArgoCD 학습 계획의 3단계인 '애플리케이션 배포 및 관리'를 위한
+# ArgoCD Application 리소스의 예시입니다.
+# 간단한 웹 애플리케이션을 Git Repository에서 가져와 Kubernetes 클러스터에 배포하는
+# 방법을 보여줍니다.
+
+# -----------------------------------------------------------------------------
+# 1. ArgoCD Application 정의 (ArgoCD Application Definition)
+# -----------------------------------------------------------------------------
+# ArgoCD Application 리소스는 ArgoCD에게 특정 Git Repository의 매니페스트를
+# Kubernetes 클러스터의 특정 위치에 배포하고 관리하도록 지시합니다.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-webapp-application # ArgoCD UI/CLI에서 보여질 애플리케이션 이름
+  namespace: argocd          # ArgoCD가 설치된 네임스페이스
+  # Finalizer를 추가하여 애플리케이션이 삭제될 때 Kubernetes 리소스도 함께 삭제되도록 합니다.
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default           # 이 애플리케이션이 속할 ArgoCD 프로젝트 (기본값: default)
+
+  # -------------------------------------------------------------------------
+  # 2. Source 설정 (Source Configuration)
+  # -------------------------------------------------------------------------
+  # 애플리케이션의 Kubernetes 매니페스트가 저장된 Git Repository 정보를 정의합니다.
+  source:
+    repoURL: https://github.com/argoproj/argocd-example-apps.git # 예시 Git Repository URL
+    targetRevision: HEAD         # 사용할 Git 브랜치, 태그 또는 커밋 (여기서는 최신 HEAD)
+    path: guestbook              # Git Repository 내에서 매니페스트 파일이 있는 경로
+
+  # -------------------------------------------------------------------------
+  # 3. Destination 설정 (Destination Configuration)
+  # -------------------------------------------------------------------------
+  # 애플리케이션이 배포될 Kubernetes 클러스터와 네임스페이스를 정의합니다.
+  destination:
+    server: https://kubernetes.default.svc # 애플리케이션이 배포될 Kubernetes 클러스터의 API 서버 URL
+                                           # 보통 ArgoCD가 설치된 클러스터는 'kubernetes.default.svc'입니다.
+    namespace: guestbook                 # 애플리케이션이 배포될 대상 Kubernetes 네임스페이스
+
+  # -------------------------------------------------------------------------
+  # 4. 동기화 정책 (Sync Policy)
+  # -------------------------------------------------------------------------
+  # ArgoCD가 Git Repository의 상태와 클러스터의 실제 상태를 어떻게 동기화할지 정의합니다.
+  syncPolicy:
+    automated: # 자동 동기화 설정
+      prune: true        # Git에 없는 리소스를 클러스터에서 제거할지 여부 (true 권장)
+      selfHeal: true     # 클러스터의 상태가 Git과 다를 경우 자동으로 복구할지 여부 (true 권장)
+      allowEmpty: false  # Git Repository 경로가 비어있어도 동기화를 허용할지 여부
+    syncOptions:
+      - CreateNamespace=true # destination에 지정된 네임스페이스가 없으면 자동으로 생성
+      - Replace=false        # 리소스를 교체 모드로 동기화할지 여부 (기존 리소스가 있어도 덮어씀)
+      - ApplyOutOfSyncOnly=false # OutOfSync 상태인 리소스만 적용할지 여부
+      - ServerSideApply=false  # 서버 측 적용(Server-Side Apply)을 사용할지 여부 (Kubernetes 1.16+에서 유용)
+    retry: # 동기화 실패 시 재시도 정책
+      limit: 5             # 최대 재시도 횟수
+      backoff:
+        duration: 5s       # 재시도 간격 시작 시간
+        factor: 2          # 재시도 간격 증가 비율 (5s, 10s, 20s ...)
+        maxDuration: 3m    # 최대 재시도 간격
+
+# -----------------------------------------------------------------------------
+# 이 Application을 ArgoCD에 생성하는 방법 (How to create this Application in ArgoCD)
+# -----------------------------------------------------------------------------
+# 1. 위 YAML 내용을 파일로 저장합니다 (예: my-webapp-app.yaml).
+# 2. 다음 명령어로 ArgoCD에 Application을 생성합니다:
+#    kubectl apply -n argocd -f my-webapp-app.yaml
+# 3. ArgoCD UI 또는 CLI (argocd app list)를 통해 애플리케이션 상태를 확인합니다.
+#    argocd app get my-webapp-application
+# 4. 수동 동기화를 원한다면:
+#    argocd app sync my-webapp-application

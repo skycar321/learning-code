@@ -1,0 +1,58 @@
+# nginx/Step3_LoadBalancing/docker-compose.yaml
+# Nginx 학습 계획 - 3단계: 로드 밸런싱
+# 이 파일은 Docker Compose를 사용하여 Nginx 컨테이너와 두 개의 동일한 백엔드 웹 서버 인스턴스를
+# 컨테이너로 실행하는 예시입니다.
+#
+# Nginx가 이 백엔드 서버들로 요청을 로드 밸런싱하여 분산하는 것을 시연합니다.
+# 로드 밸런싱은 서비스의 가용성, 확장성, 성능을 향상시키는 데 필수적인 기술입니다.
+
+version: '3.8'
+
+services:
+  nginx: # Nginx 로드 밸런서
+    image: nginx:latest
+    container_name: my-nginx-loadbalancer
+    ports:
+      - "80:80" # 호스트의 80번 포트를 Nginx 컨테이너의 80번 포트에 매핑
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro # 호스트의 nginx.conf를 마운트
+    depends_on:
+      - backend-app1
+      - backend-app2
+    restart: always
+
+  backend-app1: # 첫 번째 백엔드 애플리케이션 인스턴스
+    image: node:14-alpine
+    container_name: backend-app-1
+    command: sh -c "echo 'Hello from Backend App 1!' > index.html && http-server -p 3000"
+    working_dir: /app
+    volumes:
+      - ./backend-app:/app:ro # 호스트의 backend-app 디렉토리를 컨테이너에 마운트
+    expose:
+      - "3000" # 컨테이너 내부 3000번 포트 노출
+    restart: always
+
+  backend-app2: # 두 번째 백엔드 애플리케이션 인스턴스
+    image: node:14-alpine
+    container_name: backend-app-2
+    command: sh -c "echo 'Hello from Backend App 2!' > index.html && http-server -p 3000"
+    working_dir: /app
+    volumes:
+      - ./backend-app:/app:ro # 호스트의 backend-app 디렉토리를 컨테이너에 마운트
+    expose:
+      - "3000" # 컨테이너 내부 3000번 포트 노출
+    restart: always
+
+/*
+이 코드를 실행하려면:
+
+1. Docker 및 Docker Compose 설치.
+2. `nginx/Step3_LoadBalancing` 디렉토리를 생성하고 이 파일을 `docker-compose.yaml`로 저장.
+3. `nginx/Step3_LoadBalancing` 디렉토리에 `nginx.conf` 파일을 생성.
+4. `nginx/Step3_LoadBalancing` 디렉토리에 `backend-app` 서브 디렉토리를 생성하고
+   `index.html` 파일을 생성. (아래 예시 참조)
+5. 터미널에서 `nginx/Step3_LoadBalancing` 디렉토리로 이동.
+6. `docker-compose up -d` 명령으로 컨테이너들을 백그라운드에서 실행.
+7. 웹 브라우저에서 `http://localhost`로 여러 번 접근하여 Nginx가 로드 밸런싱하는지 확인.
+8. `docker-compose down` 명령으로 컨테이너 중지 및 삭제.
+*/

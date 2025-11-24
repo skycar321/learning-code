@@ -1,0 +1,46 @@
+// nodejs/Step1_NodeJSBasics/package.json
+// Node.js 학습 계획 - 1단계: Node.js 기본 개념 및 시작
+// 이 파일은 Node.js 프로젝트의 메타데이터 및 의존성을 정의하는 `package.json` 파일입니다.
+// `package.json`은 Node.js 프로젝트의 핵심이며, 프로젝트의 이름, 버전, 스크립트,
+// 의존성(dependencies) 등을 관리하는 데 사용됩니다.
+
+{
+  "name": "step1-nodejs-basics",
+  "version": "1.0.0",
+  "description": "Node.js basics and getting started learning project.",
+  "main": "index.js", // 애플리케이션의 메인 엔트리 포인트 파일
+  "scripts": {
+    "start": "node index.js", // `npm start` 명령 실행 시 `node index.js` 실행
+    "dev": "node --watch index.js", // `npm run dev` 명령 실행 시 `node index.js`를 개발 모드(파일 변경 감지)로 실행
+    "test": "echo \"Error: no test specified\" && exit 1" // `npm test` 명령 실행 시
+    // 나쁜 예시: `start`, `dev`, `test`와 같은 표준 스크립트 이름을 사용하지 않고
+    // - `run-app`, `start-dev-server`와 같이 비표준적인 이름을 사용하는 것.
+    // - 개발자 간의 일관성을 해치고, 프로젝트를 파악하기 어렵게 만듭니다.
+  },
+  "keywords": [
+    "node.js",
+    "basics",
+    "learning"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    // 프로젝트 런타임에 필요한 의존성
+    // "express": "^4.18.2" // Express.js 예시
+  },
+  "devDependencies": {
+    // 개발 환경에서만 필요한 의존성
+    // "nodemon": "^3.0.1" // 파일 변경 시 서버 자동 재시작 (dev 스크립트와 유사 기능)
+  }
+}
+
+/*
+이 코드를 실행하려면:
+
+1. Node.js 및 npm 설치.
+2. `nodejs/Step1_NodeJSBasics` 디렉토리를 생성하고 이 파일을 `package.json`으로 저장.
+3. `nodejs/Step1_NodeJSBasics` 디렉토리에 `index.js` 파일을 생성.
+4. 터미널에서 `nodejs/Step1_NodeJSBasics` 디렉토리로 이동.
+5. `npm install` 명령을 실행하여 `package.json`에 정의된 의존성 설치 (현재는 없음).
+6. `npm start` 또는 `npm run dev` 명령으로 애플리케이션 실행.
+*/

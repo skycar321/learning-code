@@ -1,0 +1,42 @@
+// nodejs/Step3_WebServerAndRESTAPI/package.json
+// Node.js 학습 계획 - 3단계: 웹 서버 구축 및 REST API
+// 이 파일은 Express.js 기반 웹 서버 구축을 위한 `package.json` 파일입니다.
+// `express` 프레임워크와 `body-parser` 미들웨어 등 웹 개발에 필요한 의존성을 정의합니다.
+
+{
+  "name": "step3-webserver-restapi",
+  "version": "1.0.0",
+  "description": "Node.js web server and REST API learning project with Express.js.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "node.js",
+    "express",
+    "restapi",
+    "webserver"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",       // 웹 애플리케이션 프레임워크
+    "body-parser": "^1.20.2"    // 요청 본문(body) 파싱 미들웨어
+  },
+  "devDependencies": {}
+}
+
+/*
+이 코드를 실행하려면:
+
+1. Node.js 및 npm 설치.
+2. `nodejs/Step3_WebServerAndRESTAPI` 디렉토리를 생성하고 이 파일을 `package.json`으로 저장.
+3. `nodejs/Step3_WebServerAndRESTAPI` 디렉토리에 `server.js` 파일을 생성.
+4. `nodejs/Step3_WebServerAndRESTAPI/routes` 디렉토리를 생성하고 `user.js` 파일을 생성.
+5. `nodejs/Step3_WebServerAndRESTAPI/middleware` 디렉토리를 생성하고 `logger.js` 파일을 생성.
+6. 터미널에서 `nodejs/Step3_WebServerAndRESTAPI` 디렉토리로 이동.
+7. `npm install` 명령을 실행하여 의존성 설치.
+8. `npm start` 또는 `npm run dev` 명령으로 애플리케이션 실행.
+*/

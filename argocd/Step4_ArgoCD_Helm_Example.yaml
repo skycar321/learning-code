@@ -1,0 +1,66 @@
+# ArgoCD 고급 기능 - Helm 차트 배포 예시
+# 이 파일은 ArgoCD 학습 계획의 4단계인 'GitOps 워크플로우 및 고급 기능'을 위한
+# Helm 차트 배포 예시입니다.
+# ArgoCD를 사용하여 Git Repository에 있는 Helm 차트를 Kubernetes 클러스터에
+# 배포하는 방법을 보여줍니다.
+
+# -----------------------------------------------------------------------------
+# 1. ArgoCD Application 정의 (ArgoCD Application Definition for Helm)
+# -----------------------------------------------------------------------------
+# ArgoCD Application 리소스는 Helm 차트를 배포하기 위한 Source 필드에
+# chart 및 targetRevision 정보를 포함합니다.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-helm-app           # ArgoCD UI/CLI에서 보여질 애플리케이션 이름
+  namespace: argocd          # ArgoCD가 설치된 네임스페이스
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default           # 이 애플리케이션이 속할 ArgoCD 프로젝트
+
+  # -------------------------------------------------------------------------
+  # 2. Source 설정 (Source Configuration for Helm)
+  # -------------------------------------------------------------------------
+  # Git Repository에 Helm 차트가 있는 경우의 Source 설정입니다.
+  source:
+    repoURL: https://github.com/argoproj/argocd-example-apps.git # 예시 Git Repository URL (Helm 차트 포함)
+    targetRevision: HEAD         # 사용할 Git 브랜치, 태그 또는 커밋
+    path: helm-guestbook         # Git Repository 내에서 Helm 차트의 루트 디렉토리 경로
+    helm:                        # Helm 특화 설정
+      valueFiles:                # Helm values.yaml 파일을 오버라이드할 파일 목록
+        - values.yaml            # 예시: 'helm-guestbook' 차트 내의 values.yaml 사용
+      parameters:                # Helm value를 직접 설정
+        - name: replicaCount     # 파라미터 이름
+          value: "2"             # 파라미터 값 (문자열로 지정)
+        - name: image.tag
+          value: "latest"
+      # releaseName: my-guestbook-release # Helm 릴리스 이름 지정 (선택 사항)
+      # ignoreMissingValueFiles: true # 누락된 valueFiles를 무시할지 여부
+
+  # -------------------------------------------------------------------------
+  # 3. Destination 설정 (Destination Configuration)
+  # -------------------------------------------------------------------------
+  # 애플리케이션이 배포될 Kubernetes 클러스터와 네임스페이스를 정의합니다.
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: helm-guestbook-namespace # Helm 애플리케이션이 배포될 네임스페이스
+
+  # -------------------------------------------------------------------------
+  # 4. 동기화 정책 (Sync Policy)
+  # -------------------------------------------------------------------------
+  # 여기서는 Step3와 동일한 자동 동기화 정책을 사용합니다.
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+# -----------------------------------------------------------------------------
+# 이 Helm Application을 ArgoCD에 생성하는 방법 (How to create this Helm Application in ArgoCD)
+# -----------------------------------------------------------------------------
+# 1. 위 YAML 내용을 파일로 저장합니다 (예: my-helm-app.yaml).
+# 2. 다음 명령어로 ArgoCD에 Application을 생성합니다:
+#    kubectl apply -n argocd -f my-helm-app.yaml
+# 3. ArgoCD UI 또는 CLI를 통해 애플리케이션 상태를 확인합니다.

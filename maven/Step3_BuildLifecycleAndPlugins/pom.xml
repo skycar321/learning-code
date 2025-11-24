@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    maven/Step3_BuildLifecycleAndPlugins/pom.xml
+    Maven 빌드 라이프사이클 및 플러그인 학습을 위한 pom.xml 파일 예시입니다.
+    이 파일은 Maven의 빌드 라이프사이클, 단계(Phase), 목표(Goal)의 개념과
+    주요 빌드 플러그인(maven-compiler-plugin, maven-surefire-plugin, maven-jar-plugin)의
+    활용 방법을 보여줍니다.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example.maven</groupId>
+    <artifactId>step3-build-lifecycle-plugins</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Step3 Build Lifecycle and Plugins</name>
+    <description>Maven project to learn build lifecycle and plugin concepts.</description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.jupiter.version>5.10.0</junit.jupiter.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!--
+        -----------------------------------------------------------------------------
+        학습 포인트 1: 빌드 라이프사이클 (Build Lifecycle)
+        - Maven은 `clean`, `default`, `site` 3가지 표준 빌드 라이프사이클을 가집니다.
+        - 각 라이프사이클은 순서가 정해진 단계(Phase)들로 구성됩니다.
+        - `default` 라이프사이클의 주요 Phase: `validate`, `compile`, `test`, `package`, `install`, `deploy`.
+        -----------------------------------------------------------------------------
+        학습 포인트 2: 빌드 단계(Phases) 및 목표(Goals)
+        - Phase: 빌드의 특정 단계. Maven 명령어를 실행할 때 Phase를 지정합니다 (예: `mvn compile`).
+        - Goal: 플러그인이 제공하는 특정 작업. Phase에 Goal이 바인딩(binding)되어 실행됩니다.
+        - `mvn package` 명령을 실행하면 `package` Phase 이전의 모든 Phase(`validate`, `compile`, `test` 등)가 순서대로 실행됩니다.
+        -----------------------------------------------------------------------------
+    -->
+    <build>
+        <plugins>
+            <!--
+                maven-compiler-plugin: `compile` Phase에 바인딩되어 Java 소스 코드를 컴파일합니다.
+                <configuration>을 통해 컴파일러의 동작을 설정할 수 있습니다.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <compilerArgs>
+                        <arg>--enable-preview</arg> <!-- Java 17 preview 기능 활성화 예시 -->
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <!--
+                maven-surefire-plugin: `test` Phase에 바인딩되어 단위 테스트를 실행합니다.
+                <configuration>을 통해 테스트 실행 방법을 설정할 수 있습니다.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <!-- JUnit 5 (JUnit Platform) 사용을 위한 추가 설정 -->
+                    <argLine>
+                        --enable-preview
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                    </argLine>
+                    <excludes>
+                        <exclude>**/*IntegrationTest.java</exclude> <!-- 통합 테스트 제외 -->
+                    </excludes>
+                    <includes>
+                        <include>**/*Test.java</include> <!-- 단위 테스트 포함 -->
+                    </includes>
+                </configuration>
+            </plugin>
+
+            <!--
+                maven-failsafe-plugin: `integration-test` 및 `verify` Phase에 바인딩되어 통합 테스트를 실행합니다.
+                surefire 플러그인과 분리하여 단위 테스트와 통합 테스트를 별도로 관리할 수 있습니다.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/*IntegrationTest.java</include> <!-- 통합 테스트만 실행 -->
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+                maven-jar-plugin: `package` Phase에 바인딩되어 JAR 파일을 생성합니다.
+                실행 가능한 JAR 파일을 만들기 위해 Main 클래스를 설정합니다.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.example.maven.App</mainClass> <!-- 메인 클래스 지정 -->
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <!--
+                maven-install-plugin: `install` Phase에 바인딩되어 빌드된 아티팩트를 로컬 저장소에 설치합니다.
+                maven-deploy-plugin: `deploy` Phase에 바인딩되어 빌드된 아티팩트를 원격 저장소에 배포합니다.
+                (이 예시에서는 기본 설정만 사용하므로 별도로 플러그인 정의는 생략)
+            -->
+
+            <!--
+                나쁜 예시: 모든 Phase에 동일한 작업을 수행하도록 플러그인 설정을 복사-붙여넣기 하는 것.
+                - 플러그인은 특정 Phase에 기본적으로 바인딩되어 있으므로, 필요한 경우에만 명시적으로
+                - `<executions>` 블록을 사용하여 다른 Phase에 Goal을 바인딩해야 합니다.
+                - 불필요한 플러그인 설정은 `pom.xml`을 복잡하게 만들고 가독성을 떨어뜨립니다.
+            -->
+        </plugins>
+    </build>
+
+</project>

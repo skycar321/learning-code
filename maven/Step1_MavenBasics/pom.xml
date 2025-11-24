@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    maven/Step1_MavenBasics/pom.xml
+    Maven 기본 개념 및 시작 학습을 위한 pom.xml 파일 예시입니다.
+    이 파일은 간단한 Java 프로젝트의 Maven 빌드 설정의 기본 구조와 요소를 보여줍니다.
+
+    POM (Project Object Model)은 Maven이 프로젝트의 빌드, 의존성, 정보를 관리하는 데 사용하는 XML 파일입니다.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        -----------------------------------------------------------------------------
+        학습 포인트 1: 프로젝트의 기본 식별자
+        - `groupId`: 프로젝트를 생성한 조직의 고유 식별자 (일반적으로 도메인 역순).
+        - `artifactId`: 프로젝트의 고유 식별자.
+        - `version`: 프로젝트의 현재 버전.
+        - `packaging`: 프로젝트가 빌드될 때 생성되는 아티팩트의 타입 (jar, war, pom 등).
+        -----------------------------------------------------------------------------
+    -->
+    <groupId>com.example.maven</groupId>
+    <artifactId>step1-maven-basics</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging> <!-- 기본값은 jar. 웹 프로젝트는 war를 사용 -->
+
+    <!--
+        -----------------------------------------------------------------------------
+        학습 포인트 2: 프로젝트의 이름 및 설명
+        - `name`: 프로젝트의 읽기 쉬운 이름.
+        - `description`: 프로젝트에 대한 간단한 설명.
+        -----------------------------------------------------------------------------
+    -->
+    <name>Step1 Maven Basics</name>
+    <description>A basic Maven project to learn fundamental concepts.</description>
+
+    <!--
+        -----------------------------------------------------------------------------
+        학습 포인트 3: `properties` 블록
+        - 프로젝트에서 사용되는 속성(property)을 정의합니다.
+        - Java 버전, 인코딩, 플러그인 버전 등을 중앙에서 관리하는 데 유용합니다.
+        -----------------------------------------------------------------------------
+    -->
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source> <!-- 소스 코드의 Java 버전 -->
+        <maven.compiler.target>17</maven.compiler.target> <!-- 컴파일된 바이트코드의 Java 버전 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> <!-- 소스 코드 인코딩 -->
+        <junit.jupiter.version>5.10.0</junit.jupiter.version> <!-- JUnit 5 버전 -->
+        <!-- 나쁜 예시: Java 버전이나 인코딩 설정을 누락하여 빌드 환경마다 다른 결과가 나오게 하는 것.
+        - `properties` 블록을 사용하여 빌드 환경의 일관성을 유지하는 것이 좋습니다. -->
+    </properties>
+
+    <!--
+        -----------------------------------------------------------------------------
+        학습 포인트 4: `dependencies` 블록
+        - 프로젝트가 컴파일, 테스트, 런타임에 필요한 외부 라이브러리(의존성)를 선언합니다.
+        -----------------------------------------------------------------------------
+    -->
+    <dependencies>
+        <!-- JUnit 5 (jupiter-api)를 테스트 스코프 의존성으로 추가 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.jupiter.version}</version> <!-- properties 블록에서 정의한 버전 사용 -->
+            <scope>test</scope> <!-- 이 의존성은 테스트 컴파일 및 실행 시에만 필요 -->
+        </dependency>
+        <!-- JUnit 5 (jupiter-engine)를 테스트 런타임 의존성으로 추가 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope> <!-- 이 의존성은 테스트 런타임 시에만 필요 -->
+        </dependency>
+        <!-- 나쁜 예시: 필요한 의존성을 누락하거나, 불필요한 의존성을 추가하여 빌드 크기를 늘리는 것.
+        - 누락 시 컴파일 또는 런타임 에러, 불필요한 추가 시 배포 번들 크기 증가 및 잠재적 충돌 발생. -->
+    </dependencies>
+
+    <!--
+        -----------------------------------------------------------------------------
+        학습 포인트 5: `build` 블록
+        - 프로젝트의 빌드 관련 설정을 정의합니다.
+        - 주로 플러그인(Plugins) 및 플러그인 구성(Plugin Configurations)을 포함합니다.
+        -----------------------------------------------------------------------------
+    -->
+    <build>
+        <plugins>
+            <!-- Maven Compiler Plugin: Java 소스 코드를 컴파일합니다. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version> <!-- 플러그인 버전 고정 -->
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <!-- Maven Surefire Plugin: 단위 테스트를 실행합니다. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version> <!-- 플러그인 버전 고정 -->
+                <configuration>
+                    <!-- JUnit 5를 사용하기 위한 설정 -->
+                    <argLine>
+                        --enable-preview
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                    </argLine>
+                </configuration>
+            </plugin>
+            <!-- Maven Jar Plugin: 실행 가능한 JAR 파일을 생성합니다. (메인 클래스 지정) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.example.maven.App</mainClass> <!-- 메인 클래스 지정 -->
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <!-- 나쁜 예시: 플러그인 버전을 명시하지 않아 빌드 환경마다 다른 플러그인 버전이 사용되는 것.
+            - `pluginManagement`를 사용하거나 플러그인 버전을 `<plugins>` 블록에서 명시적으로 정의하여
+            - 빌드의 재현성을 보장하는 것이 좋습니다. -->
+        </plugins>
+    </build>
+
+    <!--
+        -----------------------------------------------------------------------------
+        Maven 프로젝트 구조 (Standard Directory Layout)
+        - Maven은 표준화된 디렉토리 구조를 따릅니다.
+        - `src/main/java`: 애플리케이션 소스 코드
+        - `src/main/resources`: 애플리케이션 리소스 (설정 파일 등)
+        - `src/test/java`: 테스트 소스 코드
+        - `src/test/resources`: 테스트 리소스
+        - `target`: 빌드 결과물 (컴파일된 클래스, JAR/WAR 파일 등)
+        -----------------------------------------------------------------------------
+        학습 시에는 이 구조를 따르는 것이 중요합니다.
+    -->
+
+</project>

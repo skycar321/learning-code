@@ -1,0 +1,19 @@
+<!-- webpack/Step3_UtilizingPlugins/src/index.html -->
+<!--
+  Webpack 학습 계획 - 3단계: 플러그인 (Plugins) 활용
+  이 파일은 Webpack의 `HtmlWebpackPlugin`에 의해 템플릿으로 사용되는 HTML 파일입니다.
+  `HtmlWebpackPlugin`과 `MiniCssExtractPlugin`을 통해 최종 번들된 JavaScript 및 CSS 파일이
+  자동으로 삽입될 것입니다.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+</head>
+<body>
+    <h1>Webpack Plugins Test Page</h1>
+    <div id="app"></div>
+</body>
+</html>

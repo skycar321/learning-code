@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    maven/Step5_CICDIntegrationAndTroubleshooting/pom.xml
+    Maven CI/CD 연동 및 문제 해결 학습을 위한 pom.xml 파일 예시입니다.
+    이 파일은 Maven Wrapper를 사용하여 CI/CD 환경에서 Maven 빌드의 일관성을 확보하고,
+    CI/CD 파이프라인과 Maven을 연동하는 개념을 보여줍니다.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example.maven</groupId>
+    <artifactId>step5-cicd-troubleshooting</artifactId>
+    <version>1.0.0-SNAPSHOT</version> <!-- SNAPSHOT 또는 RELEASE 버전 -->
+    <packaging>jar</packaging>
+
+    <name>Step5 CI/CD Integration and Troubleshooting</name>
+    <description>Maven project to learn CI/CD integration and troubleshooting concepts.</description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.jupiter.version>5.10.0</junit.jupiter.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <argLine>
+                        --enable-preview
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                    </argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.example.maven.App</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <!--
+                -----------------------------------------------------------------------------
+                학습 포인트 1: Maven Wrapper (Maven Wrapper)
+                - `maven-wrapper-plugin`을 사용하여 프로젝트에 Maven Wrapper를 추가합니다.
+                - Wrapper는 프로젝트별로 특정 Maven 버전을 강제하여, 모든 개발자와 CI/CD 환경에서
+                  동일한 Maven 버전을 사용하도록 보장합니다.
+                - `mvn wrapper:wrapper` 명령으로 `mvnw` (Windows: `mvnw.cmd`) 스크립트와
+                  `.mvn/wrapper` 디렉토리가 생성됩니다.
+                -----------------------------------------------------------------------------
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-wrapper-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <mavenVersion>3.9.5</mavenVersion> <!-- 사용할 Maven 버전 지정 -->
+                    <distributionUrl>https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper-distribution/3.2.0/maven-wrapper-distribution-3.2.0-bin.zip</distributionUrl>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-maven-wrapper</id>
+                        <phase>generate-resources</phase> <!-- 특정 빌드 페이즈에 바인딩 -->
+                        <goals>
+                            <goal>wrapper</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+                -----------------------------------------------------------------------------
+                학습 포인트 2: CI/CD 도구와 Maven 연동 (개념)
+                - Jenkins, GitLab CI, GitHub Actions 등 CI/CD 환경에서 Maven 빌드를 실행합니다.
+                - `mvnw clean install` (또는 `mvnw clean deploy`)와 같이 Wrapper 스크립트를 사용합니다.
+                - `settings.xml` (원격 저장소 인증)은 CI/CD 환경의 Secret 기능을 통해 안전하게 관리합니다.
+                -----------------------------------------------------------------------------
+            -->
+            <!--
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1.1</version>
+            </plugin>
+            -->
+        </plugins>
+    </build>
+
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <name>Maven Central Release Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Maven Central Snapshot Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+</project>

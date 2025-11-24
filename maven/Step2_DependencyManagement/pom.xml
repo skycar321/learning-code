@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    maven/Step2_DependencyManagement/pom.xml
+    Maven 의존성 관리 학습을 위한 pom.xml 파일 예시입니다.
+    이 파일은 Maven의 의존성 범위(scopes), 의존성 충돌 해결,
+    그리고 `dependencyManagement` 및 `pluginManagement`와 같은 고급 의존성 관리 기법을 보여줍니다.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example.maven</groupId>
+    <artifactId>step2-dependency-management</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Step2 Dependency Management</name>
+    <description>Maven project to learn dependency management concepts.</description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.jupiter.version>5.10.0</junit.jupiter.version>
+        <spring.boot.version>2.7.5</spring.boot.version> <!-- Spring Boot 버전 정의 -->
+        <log4j.version>2.17.2</log4j.version> <!-- Log4j 버전 정의 -->
+    </properties>
+
+    <!--
+        -----------------------------------------------------------------------------
+        학습 포인트 1: `dependencies` 블록 및 의존성 범위 (Scopes)
+        - `compile` (기본값): 컴파일, 테스트, 런타임에 모두 필요. (예: Spring Core, Guava)
+        - `test`: 테스트 코드 컴파일 및 실행에만 필요. (예: JUnit, Mockito)
+        - `provided`: 컴파일 시에만 필요하고 런타임에는 컨테이너(예: Tomcat)에 의해 제공됨. (예: Servlet API)
+        - `runtime`: 런타임에만 필요하고 컴파일 시에는 필요 없음. (예: JDBC 드라이버)
+        - `system`: 시스템 경로에 있는 JAR 파일을 직접 참조. (권장되지 않음)
+        - `import`: `dependencyManagement` 섹션에서 다른 POM의 `dependencyManagement`를 가져올 때 사용.
+        -----------------------------------------------------------------------------
+    -->
+    <dependencies>
+        <!-- compile scope (기본값): 컴파일, 테스트, 런타임에 모두 필요 -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>32.1.3-jre</version>
+            <!-- scope가 명시되지 않으면 compile이 기본값 -->
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+
+        <!-- test scope: 테스트 컴파일 및 런타임에만 필요 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>4.8.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- provided scope: 컴파일 시에만 필요하며, 런타임 시에는 WAS/컨테이너가 제공 -->
+        <!-- 예시: Servlet API (스프링 부트 프로젝트에서는 거의 사용 안 함) -->
+        <!-- <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency> -->
+
+        <!-- runtime scope: 런타임에만 필요하며, 컴파일 시에는 필요 없음 -->
+        <!-- 예시: Logback 구현체 (slf4j-api가 컴파일 시점에 필요하고, Logback은 런타임에 로깅을 수행) -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.11</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- 나쁜 예시: 모든 의존성에 `compile` 스코프를 사용하는 것.
+        - `test`나 `provided`, `runtime` 스코프로 충분한 의존성까지 배포 패키지에 포함되어
+        - 빌드 크기가 불필요하게 커지고 잠재적 충돌 가능성이 높아집니다.
+        - 스코프를 정확하게 지정하여 필요한 시점에 필요한 의존성만 사용해야 합니다. -->
+    </dependencies>
+
+    <!--
+        -----------------------------------------------------------------------------
+        학습 포인트 2: 의존성 충돌 해결 (Resolving Dependency Conflicts)
+        - Maven은 기본적으로 "가장 가까운(nearest)" 의존성을 선택합니다. (버전 관리)
+        - `dependency:tree` 명령으로 의존성 트리를 확인하여 충돌을 분석할 수 있습니다.
+        - `<exclusions>` 태그를 사용하여 특정 의존성 내의 전이적(transitive) 의존성을 제외할 수 있습니다.
+        -----------------------------------------------------------------------------
+    -->
+    <dependencies>
+        <!-- 이 프로젝트가 A, B 두 라이브러리를 의존한다고 가정 -->
+        <!-- A 라이브러리는 log4j 2.15를 의존 -->
+        <!-- B 라이브러리는 log4j 2.17.0을 의존 -->
+        <!-- 이 경우 Maven은 "가장 가까운" 규칙에 따라 A 또는 B의 log4j를 선택. -->
+        <!-- 만약 B가 더 가까우면 2.17.0이 선택될 수 있습니다. -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
+            <!-- Spring Boot Starter Web은 내부적으로 여러 의존성을 가집니다 (log4j, slf4j 등) -->
+            <exclusions>
+                <!-- 나쁜 예시: 어떤 의존성이 충돌을 일으키는지 명확히 알지 못하고
+                - 무작정 불필요한 의존성을 제외하여 런타임 에러를 유발하는 것.
+                - `mvn dependency:tree` 명령으로 의존성 트리를 분석하여
+                - 어떤 의존성을 제외해야 할지 정확히 파악해야 합니다. -->
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-to-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- 위 exclusions를 주석 처리하고 `mvn dependency:tree`를 실행하여
+        log4j 버전이 어떻게 결정되는지 확인해보세요. -->
+    </dependencies>
+
+    <!--
+        -----------------------------------------------------------------------------
+        학습 포인트 3: `dependencyManagement`
+        - 이 섹션은 실제로 의존성을 추가하지 않고, 하위 모듈 또는 현재 프로젝트에서
+        - 사용될 의존성의 '버전'을 중앙에서 관리하는 역할만 합니다.
+        - `<dependencies>` 블록에서 `groupId`와 `artifactId`만 명시하면
+        - 여기서 정의된 `version`과 `scope`를 상속받습니다.
+        -----------------------------------------------------------------------------
+    -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Boot BOM (Bill of Materials) 가져오기 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope> <!-- 다른 POM의 dependencyManagement를 가져올 때 사용 -->
+            </dependency>
+
+            <!-- 개별 의존성 버전 정의 (Spring Boot BOM에 없는 경우) -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <!-- 이제 `<dependencies>` 블록에서 spring-boot-starter-web을 추가할 때
+    버전 명시 없이도 `spring.boot.version`이 적용됩니다. -->
+
+
+    <!--
+        -----------------------------------------------------------------------------
+        학습 포인트 4: `pluginManagement`
+        - `dependencyManagement`와 유사하게, 플러그인의 '버전'을 중앙에서 관리합니다.
+        - `<build>` 블록의 `<plugins>`에서 `groupId`와 `artifactId`만 명시하면
+        - 여기서 정의된 `version`을 상속받습니다.
+        -----------------------------------------------------------------------------
+    -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.11.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.1.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.3.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <!-- 위 pluginManagement에 정의된 버전을 사용 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>
+                        --enable-preview
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                    </argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.example.maven.App</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

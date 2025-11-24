@@ -1,0 +1,64 @@
+// gradle/Step4_MultiProjectAndAdvanced/build.gradle (Root Project)
+// Gradle 멀티 프로젝트 빌드 학습을 위한 루트 build.gradle 파일 예시입니다.
+// 이 파일은 모든 서브 프로젝트에 공통적으로 적용될 설정들을 정의합니다.
+//
+// 멀티 프로젝트 빌드에서는 루트 프로젝트의 `build.gradle` 파일에서 공통 설정을 중앙 집중화하고,
+// 각 서브 프로젝트의 `build.gradle` 파일에서 해당 프로젝트만의 고유한 설정을 정의합니다.
+// 이렇게 하면 중복을 줄이고 일관된 빌드 환경을 유지할 수 있습니다.
+
+// -----------------------------------------------------------------------------
+// 학습 포인트 1: `allprojects` 및 `subprojects` 블록
+// - `allprojects`: 루트 프로젝트를 포함하여 빌드에 포함된 모든 프로젝트에 적용될 설정을 정의합니다.
+// - `subprojects`: 루트 프로젝트를 제외한 모든 서브 프로젝트에 적용될 설정을 정의합니다.
+// -----------------------------------------------------------------------------
+allprojects {
+    // 모든 프로젝트(루트 및 서브)에 공통적으로 적용될 설정
+
+    group 'com.example.multi-project' // 모든 프로젝트의 그룹 ID 설정
+    version '1.0-SNAPSHOT'          // 모든 프로젝트의 버전 설정
+
+    // 모든 프로젝트가 의존성을 찾을 저장소를 설정합니다.
+    repositories {
+        mavenCentral() // Maven Central Repository 사용
+        // 나쁜 예시: 각 서브 프로젝트의 `build.gradle` 파일마다 `mavenCentral()`을 중복해서 선언하는 것.
+        // - 불필요한 코드 중복과 설정 변경 시 여러 파일을 수정해야 하는 번거로움을 유발합니다.
+        // - 항상 공통 설정은 루트 `build.gradle`의 `allprojects` 블록에 두는 것이 좋습니다.
+    }
+}
+
+subprojects {
+    // 루트 프로젝트를 제외한 모든 서브 프로젝트에 공통적으로 적용될 설정
+
+    apply plugin: 'java' // 모든 서브 프로젝트에 Java 플러그인 적용 (Kotlin 등 다른 언어일 경우 다름)
+
+    // 모든 서브 프로젝트의 Java 컴파일러 버전을 설정합니다.
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17) // Java 17 사용
+        }
+    }
+
+    // 모든 서브 프로젝트에 공통적으로 사용될 의존성 (예: JUnit for testing)
+    dependencies {
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+    }
+
+    // 모든 서브 프로젝트의 test 태스크 설정
+    test {
+        useJUnitPlatform()
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 학습 포인트 2: 루트 프로젝트 고유 설정 (선택 사항)
+// - 루트 프로젝트 자체는 일반적으로 코드를 포함하지 않고 빌드를 조정하는 역할만 하지만,
+//   필요에 따라 자체적인 설정이나 태스크를 가질 수 있습니다.
+// - 이 예시에서는 루트 프로젝트에 특별한 고유 설정은 없습니다.
+// -----------------------------------------------------------------------------
+
+/*
+이 `build.gradle` 파일은 `settings.gradle` 및 `app`, `library` 서브 프로젝트의
+`build.gradle` 파일과 함께 사용됩니다.
+(자세한 내용은 README.md 참조)
+*/

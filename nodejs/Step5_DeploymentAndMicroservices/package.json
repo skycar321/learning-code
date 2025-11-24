@@ -1,0 +1,25 @@
+// nodejs/Step5_DeploymentAndMicroservices/package.json
+// Node.js 학습 계획 - 5단계: 배포 및 마이크로서비스
+// 이 파일은 Docker 컨테이너화를 위한 간단한 Node.js 애플리케이션의 `package.json` 파일입니다.
+// `express` 의존성을 포함하여 간단한 웹 서버를 실행합니다.
+
+{
+  "name": "step5-deployment-microservices",
+  "version": "1.0.0",
+  "description": "Node.js deployment and microservices learning project.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "node.js",
+    "docker",
+    "deployment",
+    "microservices"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2" // 간단한 웹 서버 구축용 Express.js
+  }
+}

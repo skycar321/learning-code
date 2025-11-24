@@ -1,0 +1,51 @@
+# nginx/Step4_SSLTLSAndSecurity/docker-compose.yaml
+# Nginx 학습 계획 - 4단계: SSL/TLS 설정 및 보안
+# 이 파일은 Docker Compose를 사용하여 Nginx 컨테이너와 간단한 백엔드 웹 서버를 실행하고,
+# Nginx에서 SSL/TLS를 설정하여 HTTPS를 적용하는 것을 시연합니다.
+#
+# 보안 웹 통신(HTTPS)은 현대 웹 애플리케이션의 필수 요소이며,
+# Nginx는 SSL/TLS 인증서를 효율적으로 관리하고 트래픽을 암호화할 수 있습니다.
+
+version: '3.8'
+
+services:
+  nginx: # Nginx 웹 서버 (HTTPS 적용)
+    image: nginx:latest
+    container_name: my-nginx-secure-webserver
+    ports:
+      - "80:80"   # HTTP (리다이렉션 용도)
+      - "443:443" # HTTPS
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro # 호스트의 nginx.conf를 마운트
+      - ./certs:/etc/nginx/certs:ro           # 호스트의 certs 디렉토리를 마운트 (인증서 파일)
+      - ./html:/usr/share/nginx/html:ro       # 정적 웹 콘텐츠 마운트
+    depends_on:
+      - backend-app
+    restart: always
+
+  backend-app: # 간단한 백엔드 애플리케이션 (HTTP로만 동작)
+    image: node:14-alpine
+    container_name: simple-backend-app
+    command: sh -c "echo 'Hello from Secure Backend!' > index.html && http-server -p 3000"
+    working_dir: /app
+    volumes:
+      - ./backend-app:/app:ro
+    expose:
+      - "3000" # 컨테이너 내부 3000번 포트 노출
+    restart: always
+
+/*
+이 코드를 실행하려면:
+
+1. Docker 및 Docker Compose 설치.
+2. `nginx/Step4_SSLTLSAndSecurity` 디렉토리를 생성하고 이 파일을 `docker-compose.yaml`로 저장.
+3. `nginx/Step4_SSLTLSAndSecurity` 디렉토리에 `nginx.conf` 파일을 생성.
+4. `nginx/Step4_SSLTLSAndSecurity` 디렉토리에 `html` 및 `certs` 서브 디렉토리를 생성.
+5. `nginx/Step4_SSLTLSAndSecurity/certs` 디렉토리에 자체 서명 SSL/TLS 인증서 파일을 생성해야 합니다.
+   이를 위한 `generate-certs.sh` 스크립트도 함께 제공됩니다.
+6. `nginx/Step4_SSLTLSAndSecurity/backend-app` 디렉토리와 `index.html` 파일을 생성. (아래 예시 참조)
+7. 터미널에서 `nginx/Step4_SSLTLSAndSecurity` 디렉토리로 이동.
+8. `docker-compose up -d` 명령으로 컨테이너들을 백그라운드에서 실행.
+9. 웹 브라우저에서 `https://localhost`로 접근하여 HTTPS가 적용되었는지 확인.
+10. `docker-compose down` 명령으로 컨테이너 중지 및 삭제.
+*/

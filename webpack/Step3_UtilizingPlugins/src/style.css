@@ -1,0 +1,31 @@
+/* webpack/Step3_UtilizingPlugins/src/style.css */
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fce4ec; /* Light Pink */
+  color: #333;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  flex-direction: column;
+  text-align: center;
+}
+
+h1 {
+  color: #ad1457; /* Dark Pink */
+}
+
+.plugin-text {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #880e4f; /* Even Darker Pink */
+}
+
+p {
+  font-size: 18px;
+  color: #4a148c; /* Purple */
+}

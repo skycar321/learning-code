@@ -1,0 +1,67 @@
+# kubernetes/Step5_AdvancedFeaturesAndOperations.helmchart/templates/deployment.yaml
+# Kubernetes 학습 계획 - 5단계: 고급 기능 및 운영 (Helm Chart 예시)
+# 이 파일은 Helm Chart의 `templates/deployment.yaml` 예시입니다.
+# `templates` 디렉토리 내의 파일들은 Helm이 Kubernetes manifests를 렌더링하는 데 사용하는
+# Go 템플릿 언어로 작성됩니다. `values.yaml`에 정의된 값들을 여기에서 참조하여 사용합니다.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "my-advanced-app-chart.fullname" . }} # Chart의 전체 이름 (헬퍼 함수 사용)
+  labels:
+    {{- include "my-advanced-app-chart.labels" . | nindent 4 }} # Chart의 공통 레이블 (헬퍼 함수 사용)
+spec:
+  {{- if not .Values.autoscaling.enabled }} # autoscaling이 비활성화된 경우에만 replicaCount 사용
+  replicas: {{ .Values.replicaCount }} # values.yaml의 replicaCount 값 사용
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "my-advanced-app-chart.selectorLabels" . | nindent 6 }} # Chart의 셀렉터 레이블 (헬퍼 함수 사용)
+  template:
+    metadata:
+      labels:
+        {{- include "my-advanced-app-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}" # values.yaml의 이미지 저장소와 Chart.yaml의 appVersion 사용
+          imagePullPolicy: {{ .Values.image.pullPolicy }} # values.yaml의 pullPolicy 사용
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }} # values.yaml의 서비스 포트 사용
+              protocol: TCP
+          livenessProbe: # 헬스 체크 설정 (values.yaml 참조)
+            {{- if .Values.livenessProbe.enabled }}
+            httpGet:
+              path: {{ .Values.livenessProbe.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            {{- end }}
+          readinessProbe: # 헬스 체크 설정 (values.yaml 참조)
+            {{- if .Values.readinessProbe.enabled }}
+            httpGet:
+              path: {{ .Values.readinessProbe.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            {{- end }}
+          resources: # 리소스 요청 및 제한 (values.yaml 참조)
+            {{- toYaml .Values.resources | nindent 12 }} # YAML 전체를 들여쓰기하여 삽입
+# 나쁜 예시: 템플릿 내에 하드코딩된 값을 사용하여 Chart의 유연성을 떨어뜨리는 것.
+# - values.yaml을 통해 외부에서 설정값을 주입받아야 재사용 가능한 Chart가 됩니다.
+# - Helm 템플릿 언어를 이해하지 못하고 복잡한 로직을 직접 구현하는 것.
+# - Go 템플릿 문법과 Kubernetes YAML 스펙을 정확히 이해하고 사용해야 합니다.
+---
+
+# -----------------------------------------------------------------------------
+# 헬퍼 파일 (개념)
+# - Helm Chart에서는 `_helpers.tpl` 파일에 재사용 가능한 템플릿(헬퍼 함수)을 정의합니다.
+# - 예를 들어, Chart의 전체 이름을 생성하는 `my-advanced-app-chart.fullname`이나
+#   공통 레이블을 생성하는 `my-advanced-app-chart.labels` 등이 있습니다.
+# - 이 예시에서는 헬퍼 함수의 정의를 생략하고, 사용법만 보여줍니다.
+# -----------------------------------------------------------------------------

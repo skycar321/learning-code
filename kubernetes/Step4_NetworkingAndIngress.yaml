@@ -1,0 +1,159 @@
+# kubernetes/Step4_NetworkingAndIngress.yaml
+# Kubernetes 학습 계획 - 4단계: 네트워킹 및 인그레스
+# 이 파일은 Kubernetes 클러스터 내에서 애플리케이션 간 통신 (Service Discovery) 및
+# 외부에서 클러스터 내부 서비스로 트래픽을 라우팅하는 Ingress 리소스의 정의를 포함하는 YAML 예시입니다.
+#
+# Kubernetes 환경에서 애플리케이션이 외부와 통신하고, 사용자 요청을 적절한 서비스로
+# 전달하는 것은 매우 중요한 네트워킹 개념입니다.
+
+# -----------------------------------------------------------------------------
+# 학습 포인트 1: Deployment (애플리케이션 배포)
+# - 웹 서버 역할을 할 간단한 `nginx` 애플리케이션을 배포합니다.
+# - Ingress가 이 `nginx` Service로 트래픽을 라우팅하게 됩니다.
+# -----------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-deployment
+  labels:
+    app: webapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: webapp-container
+        image: nginx:latest # 간단한 웹 서버 이미지
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "200m"
+          limits:
+            memory: "128Mi"
+            cpu: "300m"
+
+---
+
+# -----------------------------------------------------------------------------
+# 학습 포인트 2: Service (클러스터 내부 통신)
+# - `webapp-deployment`의 Pod들에 대한 안정적인 네트워크 엔드포인트를 제공합니다.
+# - `ClusterIP` 타입으로 클러스터 내부에서만 접근 가능합니다.
+# - Ingress는 이 Service로 트래픽을 전달합니다.
+# -----------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service # Service의 고유한 이름
+  labels:
+    app: webapp
+spec:
+  selector:
+    app: webapp # `app: webapp` 레이블을 가진 Pod로 트래픽을 전달
+  ports:
+  - protocol: TCP
+    port: 80         # Service가 노출할 포트
+    targetPort: 80   # Pod의 컨테이너가 노출하는 포트
+  type: ClusterIP    # 클러스터 내부에서만 접근 가능한 타입 (외부 노출 안됨)
+
+# 나쁜 예시: Service를 사용하지 않고 Ingress가 Pod의 IP에 직접 접근하게 하는 것.
+# - Pod의 IP는 동적으로 변경될 수 있으므로 Ingress의 라우팅이 불안정해집니다.
+# - Service는 Pod 집합에 대한 안정적인 가상 IP를 제공하므로 반드시 Service를 통해 Ingress를 구성해야 합니다.
+
+---
+
+# -----------------------------------------------------------------------------
+# 학습 포인트 3: Ingress (외부 트래픽 라우팅)
+# - 외부에서 클러스터 내부의 Service로 HTTP/HTTPS 트래픽을 라우팅하는 규칙을 정의합니다.
+# - Ingress Controller (예: Nginx Ingress Controller)가 클러스터에 배포되어 있어야 동작합니다.
+# - 호스트 기반 라우팅, 경로 기반 라우팅, TLS(HTTPS) 설정 등을 지원합니다.
+# -----------------------------------------------------------------------------
+apiVersion: networking.k8s.io/v1 # Kubernetes API 버전 (Ingress는 networking.k8s.io/v1 API 그룹에 속함)
+kind: Ingress                     # 리소스 타입: Ingress
+metadata:
+  name: webapp-ingress        # Ingress의 고유한 이름
+  annotations:                # Ingress Controller별 추가 설정 (예: Nginx Ingress Controller)
+    nginx.ingress.kubernetes.io/rewrite-target: / # 요청 경로를 Service로 전달할 때 경로 재작성
+    # 나쁜 예시: Ingress Controller를 설치하지 않고 Ingress 리소스만 배포하는 것.
+    # - Ingress 리소스는 Ingress Controller가 없으면 아무런 동작도 하지 않습니다.
+    # - Ingress Controller는 Ingress 규칙에 따라 트래픽을 라우팅하는 실제 컨트롤러입니다.
+spec:
+  ingressClassName: nginx # 사용할 Ingress Controller 지정 (필요에 따라)
+  rules:                  # 트래픽 라우팅 규칙 정의
+  - host: myapp.example.com # 특정 호스트 이름으로 들어오는 요청 처리
+    http:
+      paths:
+      - path: /           # 기본 경로 (루트 경로)
+        pathType: Prefix  # 경로 매칭 타입 (Prefix, Exact, ImplementationSpecific)
+        backend:          # 트래픽을 전달할 백엔드 서비스
+          service:
+            name: webapp-service # 위에 정의한 Service 이름
+            port:
+              number: 80 # Service가 노출하는 포트
+
+  # - host: api.example.com # API용 서브도메인
+  #   http:
+  #     paths:
+  #     - path: /
+  #       pathType: Prefix
+  #       backend:
+  #         service:
+  #           name: api-service # API Service로 트래픽 전달
+  #           port:
+  #             number: 8080
+
+  # TLS 설정 (HTTPS 적용 예시)
+  # tls:
+  # - hosts:
+  #   - myapp.example.com
+  #   secretName: myapp-tls-secret # TLS 인증서가 포함된 Secret 이름
+
+# 나쁜 예시: Ingress 규칙을 너무 광범위하게 정의하여 보안을 위협하는 것.
+# - 모든 경로를 `/*`로 열거나, 불필요하게 많은 호스트를 허용하는 것은 보안 취약점을 만들 수 있습니다.
+# - 항상 최소 권한 원칙(Principle of Least Privilege)에 따라 필요한 규칙만 정의해야 합니다.
+
+---
+
+# -----------------------------------------------------------------------------
+# 실습 가이드
+# -----------------------------------------------------------------------------
+# 이 YAML 파일을 로컬 Kubernetes 클러스터에 배포하고
+# 각 리소스의 상태를 확인해봅니다.
+
+# 1. Ingress Controller 설치
+#    Minikube를 사용하는 경우, Ingress Addon을 활성화할 수 있습니다.
+#    minikube addons enable ingress
+#    Kind 또는 다른 클러스터에서는 Nginx Ingress Controller를 수동으로 설치해야 합니다.
+#    (예시: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml)
+
+# 2. Deployment, Service, Ingress 리소스 배포
+#    kubectl apply -f kubernetes/Step4_NetworkingAndIngress.yaml
+#    (이 파일을 먼저 저장한 후 위 명령어를 실행하세요)
+
+# 3. 배포된 리소스 확인
+#    kubectl get pods -l app=webapp
+#    kubectl get services -l app=webapp
+#    kubectl get ingress webapp-ingress
+
+# 4. Ingress IP 주소 확인
+#    Ingress Controller가 LoadBalancer 타입으로 노출되는 경우 EXTERNAL-IP가 할당됩니다.
+#    minikube ip # Minikube의 경우 클러스터 IP를 사용
+#    kubectl get ingress
+#    (외부 IP 주소가 보이지 않는 경우, Minikube에서는 `minikube ip` 명령으로 클러스터 IP를 확인하고
+#     `hosts` 파일에 `클러스터IP myapp.example.com`을 추가하여 테스트할 수 있습니다.)
+
+# 5. 웹 브라우저 또는 `curl`을 사용하여 Ingress 호스트로 접근
+#    curl -H "Host: myapp.example.com" http://<Ingress_EXTERNAL_IP 또는 minikube_IP>
+#    (예: curl -H "Host: myapp.example.com" http://192.168.49.2)
+#    - Nginx의 기본 Welcome 페이지가 표시되면 성공입니다.
+
+# 6. 리소스 삭제
+#    kubectl delete -f kubernetes/Step4_NetworkingAndIngress.yaml
+#    minikube addons disable ingress # Minikube Ingress Addon 비활성화

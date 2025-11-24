@@ -1,0 +1,125 @@
+// Azure Log Analytics - Kusto Query Language (KQL) 예시
+// 이 파일은 Azure 모니터링 대시보드 학습 계획의 2단계인 'Log Analytics 및 KQL'을 위한
+// 개념적인 KQL 쿼리 예시들을 포함하고 있습니다.
+// Log Analytics Workspace에서 이 쿼리들을 실행하여 로그 데이터를 분석하고 시각화할 수 있습니다.
+
+// -----------------------------------------------------------------------------
+// 1. 기본 쿼리 (Basic Queries)
+// -----------------------------------------------------------------------------
+
+// 1.1. 특정 테이블의 최근 10개 레코드 조회
+// "AzureActivity"는 Azure 활동 로그를 저장하는 테이블입니다.
+AzureActivity
+| take 10
+// take 연산자는 쿼리 결과의 상위 N개 레코드를 반환합니다.
+
+// 1.2. 특정 시간 범위 내의 레코드 조회
+// "TimeGenerated"는 대부분의 로그 테이블에 있는 타임스탬프 컬럼입니다.
+AzureActivity
+| where TimeGenerated > ago(1h) // 지난 1시간 동안의 활동 로그
+| take 50
+
+// 1.3. 특정 조건에 맞는 레코드 조회
+// "OperationName" 컬럼이 특정 문자열을 포함하는 레코드 조회
+AzureActivity
+| where TimeGenerated > ago(1d)
+| where OperationName contains "Virtual Machine"
+| take 20
+
+// -----------------------------------------------------------------------------
+// 2. 데이터 필터링 및 정렬 (Filtering & Sorting Data)
+// -----------------------------------------------------------------------------
+
+// 2.1. 여러 조건으로 필터링
+// "ResourceGroup"이 특정 값이고 "Level"이 "Error"인 레코드 조회
+AzureActivity
+| where TimeGenerated > ago(7d)
+| where ResourceGroup == "my-resource-group" and Level == "Error"
+| sort by TimeGenerated desc // 최신 레코드가 위로 오도록 정렬
+| take 10
+
+// 2.2. 특정 컬럼만 선택
+// 필요한 컬럼만 선택하여 결과를 간소화
+AzureActivity
+| where TimeGenerated > ago(1d)
+| project TimeGenerated, OperationName, ResourceGroup, Caller, Status
+| take 10
+
+// 2.3. 컬럼 이름 변경 및 계산된 컬럼 추가
+// "TenantId"를 "SubscriptionTenantId"로 변경하고, 새로운 컬럼 추가
+AzureActivity
+| where TimeGenerated > ago(1d)
+| extend SubscriptionTenantId = TenantId // 기존 컬럼 복사 또는 새 컬럼 추가
+| project TimeGenerated, OperationName, ResourceGroup, SubscriptionTenantId
+| take 10
+
+// -----------------------------------------------------------------------------
+// 3. 데이터 집계 (Aggregating Data)
+// -----------------------------------------------------------------------------
+
+// 3.1. 시간별 특정 이벤트 카운트
+// 지난 24시간 동안 시간별로 "Microsoft.Compute/virtualMachines/write" 작업의 수를 계산
+AzureActivity
+| where TimeGenerated > ago(24h)
+| where OperationName == "Microsoft.Compute/virtualMachines/write"
+| summarize count() by bin(TimeGenerated, 1h) // 1시간 단위로 그룹화
+| render timechart // 결과를 시간 차트로 시각화 (Azure Portal에서 실행 시)
+
+// 3.2. 가장 많이 발생한 오류 유형 집계
+// 지난 1일 동안 발생한 오류 중 가장 많은 상위 5개 OperationName
+AzureActivity
+| where TimeGenerated > ago(1d)
+| where Level == "Error"
+| summarize ErrorCount = count() by OperationName
+| top 5 by ErrorCount // ErrorCount가 높은 순서대로 상위 5개
+| render piechart // 결과를 파이 차트로 시각화
+
+// 3.3. 리소스 그룹별 활동 요약
+AzureActivity
+| where TimeGenerated > ago(7d)
+| summarize Activities = count(), UniqueCallers = dcount(Caller) by ResourceGroup
+| sort by Activities desc
+
+// -----------------------------------------------------------------------------
+// 4. 조인 (Joins)
+// -----------------------------------------------------------------------------
+
+// 4.1. 두 테이블 조인 (예시: SecurityEvent와 Heartbeat)
+// 이 예시는 SecurityEvent와 Heartbeat 테이블이 Log Analytics에 데이터를 전송하는 시나리오입니다.
+// VMName을 기준으로 두 테이블을 조인하여 보안 이벤트와 해당 VM의 상태를 함께 분석합니다.
+// SecurityEvent
+// | where TimeGenerated > ago(1h)
+// | join kind=inner (
+//     Heartbeat
+//     | where TimeGenerated > ago(1h)
+//     | summarize LastHeartbeat = max(TimeGenerated) by Computer
+// ) on $left.Computer == $right.Computer
+// | project TimeGenerated, Computer, Activity, LastHeartbeat
+// | take 10
+
+// -----------------------------------------------------------------------------
+// 5. 파싱 (Parsing) - 동적 필드 추출
+// -----------------------------------------------------------------------------
+
+// 5.1. "Syslog" 테이블에서 메시지 필드를 파싱하여 특정 정보 추출
+// Syslog
+// | where SyslogMessage contains "failed password"
+// | parse SyslogMessage with * "for user " UserName " from " SourceIP address
+// | summarize LoginAttempts = count() by UserName, SourceIP
+// | sort by LoginAttempts desc
+
+// -----------------------------------------------------------------------------
+// 6. 워크북 (Workbooks) 활용 (개념)
+// -----------------------------------------------------------------------------
+// 워크북은 Azure Portal 내에서 KQL 쿼리의 결과를 시각화하고, 텍스트, 차트, 테이블 등을
+// 조합하여 대화형 보고서를 생성하는 도구입니다. 위의 KQL 쿼리들을 워크북에 추가하여
+// 동적인 대시보드 및 진단 도구로 활용할 수 있습니다.
+
+// -----------------------------------------------------------------------------
+// 학습 팁 (Learning Tips)
+// -----------------------------------------------------------------------------
+// - Azure Portal의 Log Analytics Workspace에서 '스키마(Schema)' 탭을 활용하여
+//   사용 가능한 테이블과 컬럼을 탐색하세요.
+// - '쿼리 탐색기(Query Explorer)'를 사용하여 미리 정의된 쿼리 예시를 확인하고 수정해보세요.
+// - KQL 문서는 매우 잘 되어 있으므로 적극적으로 참고하세요.
+// - 작은 쿼리부터 시작하여 점진적으로 복잡도를 높여가며 학습하는 것이 효과적입니다.

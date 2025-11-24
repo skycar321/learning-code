@@ -1,0 +1,49 @@
+/* webpack/Step5_PerformanceAndAdvanced/src/style.css */
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f3e5f5; /* Light Purple */
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  flex-direction: column;
+  text-align: center;
+}
+
+h1 {
+  color: #6a1b9a; /* Dark Purple */
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+.main-content {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+button {
+  margin-top: 20px;
+  padding: 12px 25px;
+  background-color: #ab47bc; /* Medium Purple */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #8e24aa; /* Darker Purple */
+}
+
+p {
+  font-size: 18px;
+  color: #4a148c; /* Even Darker Purple */
+}

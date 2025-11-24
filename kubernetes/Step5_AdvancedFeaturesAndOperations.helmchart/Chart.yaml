@@ -1,0 +1,61 @@
+# kubernetes/Step5_AdvancedFeaturesAndOperations.helmchart/Chart.yaml
+# Kubernetes 학습 계획 - 5단계: 고급 기능 및 운영 (Helm Chart 예시)
+# 이 파일은 Helm Chart의 `Chart.yaml` 예시입니다.
+# Helm Chart는 Kubernetes 애플리케이션을 패키징하고 배포하기 위한 표준 포맷입니다.
+# `Chart.yaml` 파일은 Chart의 메타데이터를 정의합니다.
+
+apiVersion: v2 # Chart API 버전 (현재 권장되는 버전은 v2)
+name: my-advanced-app-chart # Chart의 이름 (배포될 애플리케이션의 이름과 다를 수 있음)
+description: A Helm chart for my advanced Kubernetes application # Chart에 대한 설명
+
+# Chart의 버전. 업데이트 시 이 버전을 변경합니다.
+# SemVer 2.0 규칙을 따릅니다 (MAJOR.MINOR.PATCH).
+version: 0.1.0
+
+# Kubernetes 애플리케이션의 버전.
+# 이 Chart가 배포하는 애플리케이션의 실제 버전입니다.
+appVersion: "1.0.0"
+
+# Chart 타입 (application, library)
+# application은 배포 가능한 애플리케이션을 나타내고, library는 다른 차트가 사용할 수 있는 라이브러리 차트를 나타냅니다.
+type: application
+
+# 개발자 정보 (선택 사항)
+maintainers:
+  - name: Your Name
+    email: your.email@example.com
+
+# 라이선스 정보 (선택 사항)
+licenses:
+  - name: Apache-2.0
+
+# 키워드 (선택 사항)
+keywords:
+  - kubernetes
+  - helm
+  - microservice
+  - advanced
+
+# 소스 코드 저장소 URL (선택 사항)
+sources:
+  - https://github.com/your-org/your-repo
+
+# 의존성 Chart (Subcharts) (선택 사항)
+# 이 Chart가 다른 Chart에 의존하는 경우 여기에 명시합니다.
+# dependencies:
+#   - name: postgresql
+#     version: "12.x.x"
+#     repository: "https://charts.bitnami.com/bitnami"
+#     condition: postgresql.enabled # values.yaml의 `postgresql.enabled` 값이 true일 때만 설치
+#   - name: redis
+#     version: "17.x.x"
+#     repository: "https://charts.bitnami.com/bitnami"
+#     tags:
+#       - backend
+
+# 나쁜 예시: `Chart.yaml` 파일에 중요하지만 변경될 가능성이 없는 값을 `values.yaml`로 빼는 것.
+# - Chart의 고유한 메타데이터는 `Chart.yaml`에, 배포 시점에 변경될 수 있는 설정은 `values.yaml`에 두어야 합니다.
+
+# 좋은 예시: `Chart.yaml`에는 Chart 자체의 고유한 정보만 담고,
+# - `appVersion`을 통해 배포되는 애플리케이션의 버전을 명확히 명시하는 것.
+# - `version` 필드는 Helm Chart 자체의 버전으로 관리합니다.

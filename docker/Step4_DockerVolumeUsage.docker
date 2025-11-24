@@ -1,0 +1,63 @@
+# Docker Step 4: Docker Volume 활용
+# 컨테이너 데이터 영속성을 위한 Volume 개념 이해 및 사용법 학습
+
+# 나쁜 예시: 컨테이너 내부의 데이터를 호스트에 저장하지 않아 컨테이너 삭제 시 중요한 데이터 손실.
+# 좋은 예시: Volume을 사용하여 컨테이너의 데이터를 호스트 파일 시스템에 영속적으로 저장하고 관리.
+
+# 학습 포인트: 컨테이너는 일시적인(ephemeral) 존재입니다. 컨테이너가 삭제되면 내부의 데이터도 함께 사라집니다. 중요한 데이터를 보호하고 컨테이너 간에 공유하기 위해 Volume을 사용합니다.
+
+# --- 1. Docker Volume의 필요성 ---
+# 컨테이너의 주요 특징 중 하나는 `immutable` (불변성)입니다.
+# 컨테이너 내부에 데이터를 저장하면 컨테이너가 삭제될 때 데이터도 함께 사라집니다.
+# 또한, 여러 컨테이너가 동일한 데이터에 접근해야 할 필요도 있습니다.
+# Docker Volume은 이러한 문제를 해결하기 위한 메커니즘을 제공합니다.
+
+# --- 2. Volume의 종류 ---
+
+# 2-1. Bind Mounts (바인드 마운트)
+# - 호스트 파일 시스템의 특정 경로를 컨테이너 내부의 경로에 직접 마운트합니다.
+# - 호스트의 파일/디렉토리 구조를 컨테이너 내부에서 볼 수 있습니다.
+# - 주로 개발 환경에서 소스 코드를 컨테이너에 마운트하여 실시간으로 변경 사항을 반영할 때 사용됩니다.
+# - `docker run -v <호스트_경로>:<컨테이너_경로> <이미지>`
+
+# 예시: Nginx 컨테이너에 사용자 정의 웹 페이지 마운트
+# 먼저, 호스트에 웹 페이지 파일을 준비합니다.
+# `mkdir -p ~/nginx/html`
+# `echo "<h1>Hello from Docker Volume!</h1>" > ~/nginx/html/index.html`
+
+# `docker run -d -p 80:80 --name my-nginx-volume -v ~/nginx/html:/usr/share/nginx/html nginx:latest`
+#   - 호스트의 `~/nginx/html` 디렉토리를 컨테이너의 `/usr/share/nginx/html`에 마운트합니다.
+#   - 브라우저에서 `http://localhost`에 접속하여 변경된 페이지를 확인할 수 있습니다.
+#   - 호스트의 `~/nginx/html/index.html` 내용을 변경하면 컨테이너 내부에서도 즉시 반영됩니다.
+
+# 2-2. Docker Managed Volumes (관리형 볼륨)
+# - Docker가 호스트 파일 시스템의 특정 영역을 관리하며, 사용자는 해당 경로를 직접 알 필요가 없습니다.
+# - Docker가 생성하고 관리하는 데이터 볼륨으로, 컨테이너가 삭제되어도 데이터는 보존됩니다.
+# - 컨테이너 간에 데이터를 공유하거나 데이터베이스와 같은 영속적인 데이터를 저장할 때 적합합니다.
+# - `docker volume create <볼륨_이름>`
+# - `docker run -v <볼륨_이름>:<컨테이너_경로> <이미지>`
+
+# 예시: MySQL 데이터베이스를 위한 관리형 볼륨 사용
+# `docker volume create my-mysql-data`
+# `docker run -d --name my-mysql -e MYSQL_ROOT_PASSWORD=mysecretpassword -v my-mysql-data:/var/lib/mysql mysql:latest`
+#   - `my-mysql-data` 볼륨을 MySQL 컨테이너의 데이터 디렉토리인 `/var/lib/mysql`에 마운트합니다.
+#   - 컨테이너가 삭제되더라도 `my-mysql-data` 볼륨은 남아있어 데이터를 보존할 수 있습니다.
+#   - 나중에 새로운 MySQL 컨테이너를 생성할 때 이 볼륨을 다시 연결하면 이전 데이터를 사용할 수 있습니다.
+
+# --- 3. 익명 볼륨 (Anonymous Volumes) ---
+# - `docker run -v /<컨테이너_경로> <이미지>` 형태로 사용하며, 볼륨 이름을 지정하지 않습니다.
+# - Docker가 임의의 이름을 부여하여 생성합니다.
+# - 컨테이너가 삭제되면 일반적으로 이 볼륨도 함께 삭제되지만, Docker 버전에 따라 동작이 다를 수 있습니다.
+# - 명시적으로 관리하지 않으므로 사용을 지양하는 것이 좋습니다.
+
+# --- 4. Volume 관리 명령어 ---
+# `docker volume ls`: 모든 Docker Volume 목록을 확인합니다.
+# `docker volume inspect <볼륨_이름>`: 특정 Volume의 상세 정보를 확인합니다.
+# `docker volume rm <볼륨_이름>`: 특정 Volume을 삭제합니다.
+#   - `docker volume prune`: 사용되지 않는 모든 Volume을 삭제합니다. (주의해서 사용)
+
+# --- 정리 ---
+# - **Bind Mounts**: 호스트 경로를 컨테이너에 연결. 개발 및 호스트에 직접 데이터 접근 시 유용.
+# - **Docker Managed Volumes**: Docker가 관리하는 영속적인 저장 공간. 컨테이너 간 데이터 공유, DB 데이터 저장 시 유용.
+
+# 다음 단계에서는 컨테이너 간 통신을 위한 Docker Network에 대해 학습합니다.

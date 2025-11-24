@@ -1,0 +1,50 @@
+// webpack/Step4_DevProdConfig/package.json
+// Webpack 학습 계획 - 4단계: 개발 및 프로덕션 환경 설정
+// 이 파일은 개발 및 프로덕션 환경에 맞는 Webpack 설정을 분리하고,
+// `webpack-merge`를 사용하여 공통 설정을 재사용하는 방법을 보여주는 `package.json` 파일입니다.
+
+{
+  "name": "step4-dev-prod-config",
+  "version": "1.0.0",
+  "description": "Webpack project to learn development and production configuration.",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack serve --config webpack.dev.js --mode development --open", // 개발 서버 시작
+    "build": "webpack --config webpack.prod.js --mode production",             // 프로덕션 빌드
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webpack",
+    "configuration",
+    "development",
+    "production",
+    "webpack-merge"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1",
+    "html-webpack-plugin": "^5.5.3",
+    "mini-css-extract-plugin": "^2.7.6",
+    "css-loader": "^6.8.1",
+    "style-loader": "^3.3.3",
+    "clean-webpack-plugin": "^4.0.0",
+    "webpack-merge": "^5.9.0"                 // Webpack 설정 파일 병합
+  }
+}
+
+/*
+이 코드를 실행하려면:
+
+1. Node.js 및 npm 설치.
+2. `webpack/Step4_DevProdConfig` 디렉토리를 생성하고 이 파일을 `package.json`으로 저장.
+3. `webpack/Step4_DevProdConfig` 디렉토리에 `webpack.common.js`, `webpack.dev.js`, `webpack.prod.js` 파일 생성.
+4. `webpack/Step4_DevProdConfig` 디렉토리에 `src` 서브 디렉토리를 생성하고 `index.js`, `index.html`, `style.css` 파일 생성.
+5. 터미널에서 `webpack/Step4_DevProdConfig` 디렉토리로 이동.
+6. `npm install` 명령을 실행하여 `package.json`에 정의된 개발 의존성 설치.
+7. `npm start` 명령으로 개발 서버 시작.
+8. `npm run build` 명령으로 프로덕션 빌드.
+*/

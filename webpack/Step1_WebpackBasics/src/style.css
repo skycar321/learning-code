@@ -1,0 +1,9 @@
+/* webpack/Step1_WebpackBasics/src/style.css */
+body {
+  background-color: #e0f7fa; /* Light Cyan */
+}
+
+.hello {
+  color: #00796b; /* Teal Dark */
+  font-size: 24px;
+}

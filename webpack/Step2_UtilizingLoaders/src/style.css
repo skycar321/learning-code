@@ -1,0 +1,24 @@
+/* webpack/Step2_UtilizingLoaders/src/style.css */
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #e3f2fd; /* Light Blue */
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+h1 {
+  color: #1976d2; /* Darker Blue */
+}
+
+.hello-text {
+  color: #424242; /* Grey */
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}

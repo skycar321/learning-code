@@ -1,0 +1,100 @@
+# ArgoCD 고급 기능 - 알림 설정 예시
+# 이 파일은 ArgoCD 학습 계획의 5단계인 '모니터링 및 운영'을 위한
+# ArgoCD 알림 설정 예시입니다.
+# ArgoCD는 애플리케이션의 동기화 상태 변경, 배포 성공/실패 등 다양한 이벤트에 대해
+# Slack, Email, Teams 등으로 알림을 보낼 수 있습니다.
+
+# -----------------------------------------------------------------------------
+# 1. ArgoCD Notifications ConfigMap 설정 (Notifications ConfigMap Configuration)
+# -----------------------------------------------------------------------------
+# ArgoCD Notifications는 'argocd-notifications-cm' ConfigMap을 사용하여
+# 알림 서비스(Service) 및 템플릿(Template)을 정의합니다.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-notifications-cm
+  namespace: argocd
+data:
+  # -------------------------------------------------------------------------
+  # 1.1. Notification Services 정의 (Defining Notification Services)
+  # -------------------------------------------------------------------------
+  # 어떤 채널로 알림을 보낼지 정의합니다. 여기서는 Slack 예시를 보여줍니다.
+  # secrets에 저장된 token을 참조할 수 있습니다.
+  service.slack: |
+    token: $slack-token # 'argocd-notifications-secret'에 저장된 Slack 토큰을 참조합니다.
+
+  service.email: |
+    username: $email-username
+    password: $email-password
+    host: smtp.example.com
+    port: 587
+    from: argocd@example.com
+    # tlsInsecureSkipVerify: true # 개발/테스트 환경에서만 사용
+
+  # -------------------------------------------------------------------------
+  # 1.2. Notification Templates 정의 (Defining Notification Templates)
+  # -------------------------------------------------------------------------
+  # 특정 이벤트 발생 시 알림 메시지의 내용을 어떻게 구성할지 템플릿으로 정의합니다.
+  # 다양한 변수를 활용하여 동적인 메시지를 생성할 수 있습니다.
+  template.app-sync-succeeded: |
+    message: |
+      {{ .app.metadata.name }} 애플리케이션 동기화 성공!
+      클러스터: {{ .app.spec.destination.server }}
+      네임스페이스: {{ .app.spec.destination.namespace }}
+      자세한 내용은 여기: {{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}
+
+  template.app-sync-failed: |
+    message: |
+      🚨 {{ .app.metadata.name }} 애플리케이션 동기화 실패 🚨
+      클러스터: {{ .app.spec.destination.server }}
+      네임스페이스: {{ .app.spec.destination.namespace }}
+      오류: {{ .syncResult.message }}
+      자세한 내용은 여기: {{ .context.argocdUrl }}/applications/{{ .app.metadata.name }}
+
+---
+
+# -----------------------------------------------------------------------------
+# 2. ArgoCD Notifications Secret 설정 (Notifications Secret Configuration)
+# -----------------------------------------------------------------------------
+# 알림 서비스에서 사용하는 민감한 정보(토큰, 비밀번호 등)는 Secret에 저장합니다.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argocd-notifications-secret
+  namespace: argocd
+type: Opaque
+stringData:
+  slack-token: xoxb-YOUR_SLACK_BOT_TOKEN # 실제 Slack 봇 토큰으로 교체하세요.
+  email-username: your_email@example.com
+  email-password: your_email_password
+
+---
+
+# -----------------------------------------------------------------------------
+# 3. ArgoCD Application에 알림 구독 설정 (Subscribing Applications to Notifications)
+# -----------------------------------------------------------------------------
+# 각 Application에 어떤 이벤트에 대해 어떤 템플릿과 서비스로 알림을 받을지
+# annotation을 통해 설정합니다.
+
+# 기존 Application YAML 파일에 아래 annotation을 추가합니다.
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: my-webapp-application
+#   namespace: argocd
+#   annotations:
+#     # Slack 채널로 sync-succeeded, sync-failed 이벤트 알림을 보냅니다.
+#     notifications.argoproj.io/subscribe.sync-succeeded.slack: my-slack-channel
+#     notifications.argoproj.io/subscribe.sync-failed.slack: my-slack-channel
+#     # Email로 sync-failed 이벤트 알림을 보냅니다.
+#     notifications.argoproj.io/subscribe.sync-failed.email: your_email@example.com
+# spec:
+#   ... (기존 Application 설정)
+
+# -----------------------------------------------------------------------------
+# 적용 방법 (How to Apply)
+# -----------------------------------------------------------------------------
+# 1. 위 ConfigMap과 Secret YAML을 저장하고 kubectl apply -f 명령어로 클러스터에 적용합니다.
+# 2. ArgoCD Application에 필요한 annotation을 추가하고, 해당 Application을 업데이트합니다.
+# 3. ArgoCD Notifications Controller가 설치되어 실행 중인지 확인합니다.

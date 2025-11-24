@@ -1,0 +1,126 @@
+# kubernetes/Step5_AdvancedFeaturesAndOperations.helmchart/values.yaml
+# Kubernetes 학습 계획 - 5단계: 고급 기능 및 운영 (Helm Chart 예시)
+# 이 파일은 Helm Chart의 `values.yaml` 예시입니다.
+# `values.yaml` 파일은 Chart의 템플릿 파일(`templates/` 디렉토리 내)에서 사용될
+# 기본 설정 값들을 정의합니다.
+#
+# Chart를 배포할 때 `helm install -f my_values.yaml` 또는 `--set` 옵션을 사용하여
+# 이 값들을 재정의할 수 있습니다.
+
+# -----------------------------------------------------------------------------
+# 학습 포인트 1: `values.yaml`의 역할
+# - Chart 배포 시 템플릿에 주입될 기본 설정값들을 정의합니다.
+# - 환경별(개발, 스테이징, 운영)로 다른 `values.yaml` 파일을 사용하여 설정을 관리합니다.
+# -----------------------------------------------------------------------------
+
+# 애플리케이션의 복제본 수
+replicaCount: 2 # 기본적으로 2개의 Pod 복제본을 배포
+
+# 애플리케이션 이미지 설정
+image:
+  repository: nginx # 사용할 Docker 이미지 저장소
+  pullPolicy: IfNotPresent # 이미지 가져오기 정책 (Always, IfNotPresent, Never)
+  # tag: "1.14.2" # 이미지 태그 (Chart.yaml의 appVersion을 따르도록 주석 처리)
+  # 나쁜 예시: 이미지 태그를 `latest`로 사용하는 것.
+  # - `latest` 태그는 언제든지 변경될 수 있어 배포의 일관성과 재현성을 해칩니다.
+  # - 특정 버전 태그를 사용하는 것이 안정적인 배포에 좋습니다.
+
+# 서비스 설정
+service:
+  type: ClusterIP # 서비스 타입 (ClusterIP, NodePort, LoadBalancer)
+  port: 80 # 서비스가 노출할 포트
+
+# Ingress 설정 (선택 사항: Ingress Controller가 클러스터에 배포되어 있어야 함)
+ingress:
+  enabled: false # Ingress 활성화 여부
+  className: nginx # Ingress Controller 클래스명
+  annotations: {} # Ingress에 추가할 어노테이션
+  # kubernetes.io/ingress.class: nginx
+  # nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: chart.example.com # Ingress 호스트
+      paths:
+        - path: /
+          pathType: Prefix # 경로 매칭 타입 (Prefix, Exact, ImplementationSpecific)
+  tls: [] # TLS 인증서 설정
+  # - secretName: chart-example-tls
+  #   hosts:
+  #     - chart.example.com
+
+# 리소스 설정 (requests 및 limits)
+resources:
+  requests:
+    cpu: 100m # 100 milliCPU 요청
+    memory: 128Mi # 128 MiB 메모리 요청
+  limits:
+    cpu: 200m # 200 milliCPU 제한
+    memory: 256Mi # 256 MiB 메모리 제한
+  # 나쁜 예시: `resources.requests`와 `limits`를 설정하지 않는 것.
+  # - Pod의 리소스 사용량이 예측 불가능해지고, 노드 자원 부족 시 OOMKilled 될 수 있습니다.
+  # - `BestEffort` QoS 클래스로 분류되어 우선순위가 낮아집니다.
+
+# 헬스 체크 설정 (Liveness Probe 및 Readiness Probe)
+livenessProbe:
+  enabled: true
+  path: /
+  port: http # 컨테이너 포트
+  initialDelaySeconds: 5 # Pod 시작 후 프로브 시작까지 대기 시간
+  periodSeconds: 10 # 프로브 주기
+  timeoutSeconds: 3 # 프로브 타임아웃
+  failureThreshold: 3 # 연속 실패 횟수 (컨테이너 재시작)
+readinessProbe:
+  enabled: true
+  path: /
+  port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3 # 연속 실패 횟수 (서비스 엔드포인트에서 제거)
+  # 나쁜 예시: Health Check를 설정하지 않거나, 너무 긴 지연 시간 또는 낮은 실패 임계값을 설정하는 것.
+  # - Health Check가 없으면 비정상 컨테이너가 계속 트래픽을 받게 됩니다.
+  # - 너무 빡빡한 설정은 일시적인 문제에도 컨테이너가 자주 재시작되거나 트래픽에서 제거될 수 있습니다.
+
+# Horizontal Pod Autoscaler (HPA) 설정 (선택 사항)
+autoscaling:
+  enabled: false # HPA 활성화 여부
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80 # CPU 사용률 80% 초과 시 스케일 아웃
+
+# Node Selector (Pod를 특정 노드에 배치)
+nodeSelector: {}
+# app-tier: frontend # 예시: app-tier: frontend 레이블이 있는 노드에만 배치
+
+# Tolerations (노드의 Taint를 용인)
+tolerations: []
+# - key: "key1"
+#   operator: "Equal"
+#   value: "value1"
+#   effect: "NoSchedule"
+
+# Affinity (Pod의 스케줄링 선호도)
+affinity: {}
+# podAntiAffinity:
+#   preferredDuringSchedulingIgnoredDuringExecution:
+#     - weight: 100
+#       podAffinityTerm:
+#         labelSelector:
+#           matchExpressions:
+#             - key: app
+#               operator: In
+#               values:
+#                 - my-advanced-app-chart
+#         topologyKey: "kubernetes.io/hostname" # 동일 노드에 다른 Pod 스케줄링 방지
+
+# -----------------------------------------------------------------------------
+# 실습 가이드
+# -----------------------------------------------------------------------------
+# 이 `values.yaml` 파일은 Helm Chart를 배포할 때 사용됩니다.
+#
+# 1. `templates/` 디렉토리에 `deployment.yaml`과 `service.yaml` 파일을 생성합니다.
+# 2. `deployment.yaml`과 `service.yaml`에서 이 `values.yaml`의 값들을 참조합니다.
+#    (예: `{{ .Values.image.repository }}:{{ .Chart.AppVersion }}`)
+# 3. Helm CLI를 사용하여 차트를 배포합니다.
+#    helm install my-release . -f values.yaml
+#    또는 일부 값만 재정의:
+#    helm install my-release . --set replicaCount=1 --set ingress.enabled=true
