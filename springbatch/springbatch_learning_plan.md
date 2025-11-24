@@ -54,8 +54,16 @@ learning-code/springbatch/
 
 ---
 
-### **마무리하며 (From Your AI Senior Developer)**
+### **추가 학습 권장 사항**
 
-새로운 개발 기술을 익히는 여정은 쉽지 않습니다. 이 학습 계획을 통해 얻게 될 지식은 탄탄한 기초가 될 것이며, 앞으로 마주하게 될 많은 기술적 도전을 해결하는 데 큰 도움이 될 것입니다.
-
-항상 '왜 이런 질문을 할까?', '어떻게 하면 좋은 코드를 구성할 수 있을지' 고민하는 개발자가 되세요. 배운 내용을 실제 프로젝트나 개인 학습에 적용해보는 것이 가장 중요하며, 막히는 부분이 있다면 주저하지 말고 질문하고 함께 해결해나갑시다! 여러분의 성장을 응원합니다!
+| 주제 | 설명 | 난이도 |
+|:-----|:-----|:------:|
+| **Multi-threaded Step** | 단일 Step 내에서 멀티스레드 처리를 통한 성능 향상 기법 | 중급 |
+| **Remote Chunking** | 네트워크를 통해 처리를 분산하여 대규모 배치 작업 수행 | 고급 |
+| **Remote Partitioning** | 원격 서버에서 파티션을 처리하여 수평적 확장 구현 | 고급 |
+| **Spring Batch 5.x 마이그레이션** | Spring Boot 3.x와 호환되는 최신 Spring Batch 5.x 변경사항 적용 | 중급 |
+| **JobParameter 동적 바인딩** | Late Binding과 SpEL을 활용한 런타임 파라미터 처리 | 중급 |
+| **Retry/Skip 고급 전략** | 커스텀 RetryPolicy, SkipPolicy 구현 및 복잡한 에러 복구 시나리오 | 중급 |
+| **배치 스케줄링 통합** | Quartz, Spring Cloud Data Flow를 활용한 배치 작업 스케줄링 | 중급 |
+| **메시지 기반 배치 처리** | Kafka, RabbitMQ와 연동한 이벤트 기반 배치 아키텍처 | 고급 |
+| **배치 테스트 전략** | JobLauncherTestUtils를 활용한 통합 테스트 및 Step 단위 테스트 | 중급 |

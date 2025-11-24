@@ -1,7 +1,21 @@
 # 학습 프로젝트 진행 계획
 
 > 이 문서는 학습 프로젝트의 전체 진행 상황을 추적합니다.
-> 마지막 업데이트: 2025-01-24
+> 마지막 업데이트: 2025-11-24
+
+---
+
+## 학습 우선순위
+
+| 순위 | 기술 | 기본 학습 | 심화 학습 | 비고 |
+|:----:|:-----|:--------:|:--------:|:-----|
+| 1 | **Java** | 완료 (12/12) | 진행 중 | 가상 스레드, GraalVM 등 |
+| 2 | **PostgreSQL** | 완료 (10/10) | 진행 중 | pg_stat_statements, Window Functions 등 |
+| 3 | **Spring Boot** | 완료 (13/13) | 진행 중 | WebFlux, Spring Cloud 등 |
+| 4 | **Spring Batch** | 완료 (10/10) | 진행 중 | Multi-threaded Step, Remote Partitioning 등 |
+| 5 | **Vue 2** | 완료 (10/10) | 진행 중 | Vue 3 마이그레이션, Vuex 고급 패턴 등 |
+| 6 | **Vue 3** | 완료 (10/10) | 진행 중 | Composables, Nuxt 3, Suspense 등 |
+| 7 | **React** | 완료 (10/10) | 진행 중 | Next.js, Server Components 등 |
 
 ---
 
@@ -112,3 +126,9 @@
 | 2025-01-24 | 프론트엔드 프레임워크 비교 추가 (React vs Vue 2 vs Vue 3) |
 | 2025-01-24 | JavaScript vs TypeScript 비교 추가 |
 | 2025-01-24 | 전체 작업 완료 (비교 분석 파일 5개) |
+| 2025-11-24 | CLAUDE.md에 Claude Code Skills 참조 섹션 추가 |
+| 2025-11-24 | PostgreSQL 심화 학습 권장 사항 추가 (8개 주제) |
+| 2025-11-24 | Spring Batch 심화 학습 권장 사항 추가 (9개 주제) |
+| 2025-11-24 | Vue 2 심화 학습 권장 사항 추가 (8개 주제) |
+| 2025-11-24 | Vue 3 심화 학습 권장 사항 추가 (9개 주제) |
+| 2025-11-24 | 학습 우선순위 섹션 추가 |

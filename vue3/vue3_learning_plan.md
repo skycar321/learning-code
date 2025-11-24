@@ -54,8 +54,16 @@ learning-code/vue3/
 
 ---
 
-### **마무리하며 (From Your AI Senior Developer)**
+### **추가 학습 권장 사항**
 
-새로운 개발 기술을 익히는 여정은 쉽지 않습니다. 이 학습 계획을 통해 얻게 될 지식은 탄탄한 기초가 될 것이며, 앞으로 마주하게 될 많은 기술적 도전을 해결하는 데 큰 도움이 될 것입니다.
-
-항상 '왜 이런 질문을 할까?', '어떻게 하면 좋은 코드를 구성할 수 있을지' 고민하는 개발자가 되세요. 배운 내용을 실제 프로젝트나 개인 학습에 적용해보는 것이 가장 중요하며, 막히는 부분이 있다면 주저하지 말고 질문하고 함께 해결해나갑시다! 여러분의 성장을 응원합니다!
+| 주제 | 설명 | 난이도 |
+|:-----|:-----|:------:|
+| **Composables 패턴 심화** | 재사용 가능한 Composable 함수 설계 및 VueUse 라이브러리 활용 | 중급 |
+| **Suspense & Async Components** | 비동기 컴포넌트 로딩과 Suspense를 활용한 로딩 상태 관리 | 중급 |
+| **Vue 3 Reactivity 심화** | shallowRef, triggerRef, customRef 등 고급 반응성 API 활용 | 고급 |
+| **Server-Side Rendering (Nuxt 3)** | Nuxt 3를 활용한 최신 SSR/SSG 구현 및 하이브리드 렌더링 | 고급 |
+| **Vue 3 + Vite 최적화** | Vite 빌드 최적화, 청크 분리, 트리 쉐이킹 전략 | 중급 |
+| **Script Setup 고급 패턴** | defineExpose, defineOptions, 제네릭 컴포넌트 구현 | 중급 |
+| **E2E 테스트 (Cypress/Playwright)** | Vue 3 애플리케이션의 End-to-End 테스트 자동화 | 중급 |
+| **상태 관리 패턴 비교** | Pinia vs Vuex 5, 언제 어떤 것을 선택해야 하는지 실무 기준 | 중급 |
+| **Vue 3 PWA 구현** | Service Worker, Workbox를 활용한 Progressive Web App 구축 | 고급 |

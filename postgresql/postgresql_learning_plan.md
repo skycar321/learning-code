@@ -54,8 +54,15 @@ learning-code/postgresql/
 
 ---
 
-### **마무리하며 (From Your AI Senior Developer)**
+### **추가 학습 권장 사항**
 
-새로운 개발 기술을 익히는 여정은 쉽지 않습니다. 이 학습 계획을 통해 얻게 될 지식은 탄탄한 기초가 될 것이며, 앞으로 마주하게 될 많은 기술적 도전을 해결하는 데 큰 도움이 될 것입니다.
-
-항상 '왜 이런 질문을 할까?', '어떻게 하면 좋은 코드를 구성할 수 있을지' 고민하는 개발자가 되세요. 배운 내용을 실제 프로젝트나 개인 학습에 적용해보는 것이 가장 중요하며, 막히는 부분이 있다면 주저하지 말고 질문하고 함께 해결해나갑시다! 여러분의 성장을 응원합니다!
+| 주제 | 설명 | 난이도 |
+|:-----|:-----|:------:|
+| **pg_stat_statements 심화** | 실행된 모든 SQL 문의 통계를 추적하여 슬로우 쿼리 식별 및 최적화 우선순위 결정 | 중급 |
+| **Connection Pooling (PgBouncer)** | 대규모 트래픽 환경에서 데이터베이스 연결 관리 및 성능 최적화 | 중급 |
+| **논리적 복제 (Logical Replication)** | 테이블 단위 복제를 통한 무중단 마이그레이션 및 데이터 동기화 전략 | 고급 |
+| **PostgreSQL 확장 기능 (Extensions)** | pg_trgm(유사도 검색), PostGIS(공간 데이터), TimescaleDB(시계열) 등 확장 활용 | 고급 |
+| **Window Functions 심화** | PARTITION BY, ROW_NUMBER, LAG/LEAD 등 분석 함수를 활용한 복잡한 데이터 분석 | 중급 |
+| **CTE 및 Recursive Query** | WITH 절을 활용한 복잡한 쿼리 구조화 및 계층형 데이터 처리 | 중급 |
+| **JSON/JSONB 최적화** | JSONB 인덱싱 전략, GIN 인덱스 활용, JSON 쿼리 성능 최적화 | 중급 |
+| **데이터베이스 보안 강화** | Row Level Security(RLS), Column-level 암호화, 감사 로깅 구현 | 고급 |
