@@ -99,6 +99,7 @@
 | PostgreSQL | 10 Steps 구현됨 | 성능 최적화 중심 |
 | Kubernetes | 5 Steps 구현됨 | 학습 계획 수립 완료 |
 | ArgoCD | 5 Steps 구현됨 | GitOps 학습 |
+| AWS | 5 Steps 구현됨 | 학습 계획 수립 완료 |
 | Swagger | 디렉토리 구조 생성 | 학습 계획 수립 완료 |
 | Argos | 디렉토리 구조 생성 | 학습 계획 수립 완료 |
 | MCP Shrimp Task Manager | 디렉토리 구조 생성 | 학습 계획 수립 완료 |
