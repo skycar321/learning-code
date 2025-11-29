@@ -44,3 +44,9 @@ Thumbs.db
 *.swp
 *~
 .#*
+
+# Claude Code configuration (개인 개발 환경 설정)
+.claude/
+
+# MCP (Model Context Protocol) directories
+mcp_*/
