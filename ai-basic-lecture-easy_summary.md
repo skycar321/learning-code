@@ -17,14 +17,15 @@ LLM은 본질적으로 '확률적 텍스트 생성기'이며, 지식 기반 업�
 
 **[RAG 아키텍처 다이어그램]**
 ```mermaid
-graph LR
-    A[User Query] --> B{Hybrid Search};
-    B -->|Keyword| C[BM25 / Splade];
-    B -->|Semantic| D[Vector DB];
-    C & D --> E[Re-ranking (Cross-Encoder)];
-    E --> F[Top-K Context];
-    F --> G[LLM Generation];
-    G --> H[Final Answer];
+flowchart LR
+    A["User Query"] --> B{{"Hybrid Search"}}
+    B -->|Keyword| C["BM25 + Splade"]
+    B -->|Semantic| D["Vector DB"]
+    C --> E["Re-ranking (Cross-Encoder)"]
+    D --> E
+    E --> F["Top-K Context"]
+    F --> G["LLM Generation"]
+    G --> H["Final Answer"]
 ```
 
 *   **Vector DB & Embedding**: 텍스트를 고차원 벡터(Dense Vector)로 변환하여 의미 기반 검색 수행 (HNSW 인덱싱 등 활용).
