@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body class="bg-gray-100 h-screen flex overflow-hidden">
+
+    <!-- Sidebar -->
+    <div class="w-80 bg-white shadow-md flex-shrink-0 overflow-y-auto border-r border-gray-200">
+        <div class="p-4 border-b sticky top-0 bg-white z-10">
+            <a href="/" class="text-xl font-bold text-indigo-600 flex items-center gap-2">
+                <span>📚</span> Learning Code
+            </a>
+        </div>
+        <nav class="p-4 space-y-4">
+            {% for category in categories %}
+                <div class="space-y-1">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">{{ category.name }}</h3>
+                    <div class="space-y-1 pl-2 border-l border-gray-200">
+                        {% for subcategory in category.subcategories %}
+                            <details class="group open:bg-gray-50 rounded-md transition-colors duration-200">
+                                <summary class="flex items-center justify-between cursor-pointer p-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md select-none">
+                                    <span class="flex items-center gap-2">
+                                        📁 {{ subcategory.name }}
+                                    </span>
+                                    <span class="transform transition-transform group-open:rotate-90 text-gray-400 text-xs">▶</span>
+                                </summary>
+                                <ul class="pl-4 pr-2 py-1 space-y-0.5">
+                                    {% for file in subcategory.files %}
+                                        <li>
+                                            <a href="/view/{{ category.name }}/{{ subcategory.name }}/{{ file.name }}"
+                                               class="block px-2 py-1.5 text-xs text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors truncate"
+                                               title="{{ file.title }}">
+                                                📄 {{ file.title }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </details>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden relative">
+        <main class="flex-1 overflow-y-auto p-8 bg-gray-50 scroll-smooth">
+            <div class="max-w-4xl mx-auto">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>
