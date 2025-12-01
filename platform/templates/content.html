@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="prose prose-slate max-w-none bg-white p-10 rounded-xl shadow-sm border border-gray-200">
+    <div class="mb-6 border-b border-gray-100 pb-4">
+        <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+            <span>{{ current_category }}</span>
+            <span>/</span>
+            <span>{{ subcategory }}</span>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 m-0">{{ title }}</h1>
+    </div>
+    <div class="markdown-body">
+        {{ html_content|safe }}
+    </div>
+</div>
+
+<!-- Re-run highlight.js on content change if we were using HTMX -->
+<script>hljs.highlightAll();</script>
+{% endblock %}

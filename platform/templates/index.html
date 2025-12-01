@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center h-full text-center p-10">
+    <div class="bg-white p-12 rounded-2xl shadow-sm border border-gray-200 max-w-2xl">
+        <span class="text-6xl mb-6 block">👋</span>
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">Welcome to the Learning Platform</h1>
+        <p class="text-gray-600 text-lg mb-8">
+            Select a topic from the sidebar to start learning. <br>
+            Materials are organized by Categories, Technologies, and Steps.
+        </p>
+        <div class="inline-flex gap-4">
+            <a href="https://github.com/your-repo" class="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors">
+                View Source
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
