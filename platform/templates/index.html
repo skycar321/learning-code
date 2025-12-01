@@ -1,19 +1,40 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="flex flex-col items-center justify-center h-full text-center p-10">
-    <div class="bg-white p-12 rounded-2xl shadow-sm border border-gray-200 max-w-2xl">
-        <span class="text-6xl mb-6 block">👋</span>
-        <h1 class="text-3xl font-bold text-gray-900 mb-4">Welcome to the Learning Platform</h1>
-        <p class="text-gray-600 text-lg mb-8">
-            Select a topic from the sidebar to start learning. <br>
-            Materials are organized by Categories, Technologies, and Steps.
+<div class="min-h-screen flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in duration-500">
+    
+    <div class="max-w-2xl w-full bg-white p-12 rounded-2xl border border-slate-100 shadow-xl shadow-slate-200/50">
+        <!-- Illustration/Icon -->
+        <div class="w-20 h-20 bg-brand-50 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-inner ring-1 ring-brand-100">
+            <span class="text-4xl">⚡</span>
+        </div>
+        
+        <h1 class="text-4xl font-bold text-slate-900 mb-4 tracking-tight">
+            Ready to Learn?
+        </h1>
+        
+        <p class="text-lg text-slate-500 mb-10 leading-relaxed max-w-md mx-auto">
+            Select a topic from the sidebar to begin. <br>
+            Documentation is auto-generated from your codebase.
         </p>
-        <div class="inline-flex gap-4">
-            <a href="https://github.com/your-repo" class="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors">
-                View Source
-            </a>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-brand-200 hover:shadow-md transition-all group cursor-default">
+                <h3 class="font-semibold text-slate-900 mb-1 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    Structured
+                </h3>
+                <p class="text-sm text-slate-500">Organized by categories and topics for easy navigation.</p>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-brand-200 hover:shadow-md transition-all group cursor-default">
+                <h3 class="font-semibold text-slate-900 mb-1 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    Fast
+                </h3>
+                <p class="text-sm text-slate-500">Powered by Rust Axum for instant page loads.</p>
+            </div>
         </div>
     </div>
+    
 </div>
 {% endblock %}
