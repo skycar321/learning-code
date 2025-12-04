@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 @SpringBootApplication
-@Tag(name = "Swagger Example API", description = "간단한 Swagger/OpenAPI 통합 예제 API")
+@Tag(name = "Swagger Example API", description = "Simple Swagger/OpenAPI Integration Example")
 public class Step1_SwaggerIntegrationExample {
 
     public static void main(String[] args) {
@@ -27,14 +27,14 @@ public class Step1_SwaggerIntegrationExample {
     public static class ExampleController {
 
         @Operation(
-            summary = "환영 메시지 가져오기",
-            description = "이름을 기반으로 개인화된 환영 메시지를 반환합니다.",
-            parameters = @Parameter(name = "name", description = "환영할 사용자 이름", required = true, example = "World"),
+            summary = "Get Welcome Message",
+            description = "Returns a personalized welcome message based on the name.",
+            parameters = @Parameter(name = "name", description = "User name to welcome", required = true, example = "World"),
             responses = {
-                @ApiResponse(responseCode = "200", description = "성공적인 응답",
+                @ApiResponse(responseCode = "200", description = "Successful response",
                     content = @Content(mediaType = "text/plain",
                     schema = @Schema(type = "string", example = "Hello, World!"))),
-                @ApiResponse(responseCode = "400", description = "잘못된 요청: 이름이 제공되지 않음")
+                @ApiResponse(responseCode = "400", description = "Bad Request: Name not provided")
             }
         )
         @GetMapping("/hello")
@@ -43,34 +43,34 @@ public class Step1_SwaggerIntegrationExample {
         }
 
         @Operation(
-            summary = "새 항목 생성",
-            description = "새로운 항목을 생성하고 생성된 항목을 반환합니다.",
+            summary = "Create New Item",
+            description = "Creates a new item and returns the created item.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                description = "생성할 항목의 데이터",
+                description = "Data of the item to create",
                 required = true,
                 content = @Content(mediaType = "application/json",
                 schema = @Schema(implementation = Item.class))
             ),
             responses = {
-                @ApiResponse(responseCode = "201", description = "항목 생성 성공",
+                @ApiResponse(responseCode = "201", description = "Item created successfully",
                     content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = Item.class))),
-                @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터")
+                @ApiResponse(responseCode = "400", description = "Invalid input data")
             }
         )
         @PostMapping("/items")
         @ResponseStatus(HttpStatus.CREATED)
         public Item createItem(@RequestBody Item item) {
-            // 실제 구현에서는 항목을 저장하고 ID를 할당합니다.
-            item.setId(1L); // 예시 ID 할당
+            // In real implementation, save item and assign ID.
+            item.setId(1L); // Example ID assignment
             return item;
         }
 
         @Operation(
-            summary = "모든 항목 조회",
-            description = "시스템에 등록된 모든 항목 목록을 반환합니다.",
+            summary = "Get All Items",
+            description = "Returns a list of all items registered in the system.",
             responses = {
-                @ApiResponse(responseCode = "200", description = "항목 목록 조회 성공",
+                @ApiResponse(responseCode = "200", description = "Successfully retrieved item list",
                     content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = Item.class)))
             }
