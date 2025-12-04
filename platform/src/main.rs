@@ -36,6 +36,12 @@ struct Category {
     subcategories: Vec<SubCategory>,
 }
 
+#[derive(Clone, Debug)]
+struct FileLink {
+    title: String,
+    url: String,
+}
+
 // Templates
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -51,6 +57,8 @@ struct ContentTemplate {
     subcategory: String,
     title: String,
     html_content: String,
+    prev_file: Option<FileLink>,
+    next_file: Option<FileLink>,
 }
 
 #[tokio::main]
@@ -146,10 +154,57 @@ async fn content_handler(
             subcategory: "".to_string(),
             title: "Invalid Path".to_string(),
             html_content: "<h1>Invalid Path</h1>".to_string(),
+            prev_file: None,
+            next_file: None,
         });
     }
 
     let categories = build_navigation(&state.content_root);
+    
+    // Build flat list for navigation
+    let mut flat_files = Vec::new();
+    for cat in &categories {
+        for sub in &cat.subcategories {
+            for f in &sub.files {
+                flat_files.push((
+                    cat.name.clone(),
+                    sub.name.clone(),
+                    f.name.clone(),
+                    f.title.clone()
+                ));
+            }
+        }
+    }
+
+    // Find current index
+    let current_pos = flat_files.iter().position(|(c, s, f, _)| 
+        *c == category && *s == subcategory && *f == file
+    );
+
+    let (prev_file, next_file) = if let Some(idx) = current_pos {
+        let prev = if idx > 0 {
+            let (c, s, f, t) = &flat_files[idx - 1];
+            Some(FileLink {
+                title: t.clone(),
+                url: format!("/view/{}/{}/{}", c, s, f),
+            })
+        } else {
+            None
+        };
+
+        let next = if idx < flat_files.len() - 1 {
+            let (c, s, f, t) = &flat_files[idx + 1];
+            Some(FileLink {
+                title: t.clone(),
+                url: format!("/view/{}/{}/{}", c, s, f),
+            })
+        } else {
+            None
+        };
+        (prev, next)
+    } else {
+        (None, None)
+    };
     
     let file_path = state.content_root.join(&category).join(&subcategory).join(&file);
 
@@ -191,10 +246,14 @@ async fn content_handler(
         subcategory,
         title,
         html_content,
+        prev_file,
+        next_file,
     };
     HtmlTemplate(template)
 }
 
+
+// ... (existing code)
 
 // Template Boilerplate
 struct HtmlTemplate<T>(T);
@@ -212,5 +271,80 @@ where
             )
                 .into_response(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::{self, File};
+    use std::io::Write;
+    use tempfile::TempDir;
+
+    fn create_dummy_content(dir: &Path, path: &str) {
+        let full_path = dir.join(path);
+        if let Some(parent) = full_path.parent() {
+            fs::create_dir_all(parent).unwrap();
+        }
+        let mut file = File::create(full_path).unwrap();
+        writeln!(file, "# Dummy Content").unwrap();
+    }
+
+    #[test]
+    fn test_build_navigation() {
+        // Setup: Create a temp directory with a mock structure
+        // content/
+        //   DevOps/
+        //     Docker/
+        //       Step1.md
+        //       Step2.md
+        //   Languages/
+        //     Rust/
+        //       Step1_Intro.md
+        let temp_dir = TempDir::new().unwrap();
+        let root = temp_dir.path();
+
+        create_dummy_content(root, "DevOps/Docker/Step1.md");
+        create_dummy_content(root, "DevOps/Docker/Step2.md");
+        create_dummy_content(root, "Languages/Rust/Step1_Intro.md");
+
+        // Act
+        let categories = build_navigation(root);
+
+        // Assert
+        assert_eq!(categories.len(), 2);
+        
+        // Check DevOps
+        let devops = &categories[0];
+        assert_eq!(devops.name, "DevOps");
+        assert_eq!(devops.subcategories.len(), 1);
+        assert_eq!(devops.subcategories[0].name, "Docker");
+        assert_eq!(devops.subcategories[0].files.len(), 2);
+        assert_eq!(devops.subcategories[0].files[0].name, "Step1.md");
+        
+        // Check Languages
+        let languages = &categories[1];
+        assert_eq!(languages.name, "Languages");
+        assert_eq!(languages.subcategories[0].name, "Rust");
+        assert_eq!(languages.subcategories[0].files[0].title, "Step1 Intro"); // Check title formatting
+    }
+
+    #[test]
+    fn test_alphanumeric_sorting() {
+        let temp_dir = TempDir::new().unwrap();
+        let root = temp_dir.path();
+
+        create_dummy_content(root, "Cat/Sub/Step1.md");
+        create_dummy_content(root, "Cat/Sub/Step10.md");
+        create_dummy_content(root, "Cat/Sub/Step2.md");
+
+        let categories = build_navigation(root);
+        let files = &categories[0].subcategories[0].files;
+
+        // Expect: Step1, Step2, Step10 (Natural Sort)
+        // Note: Our implementation uses `alphanumeric_sort` crate
+        assert_eq!(files[0].name, "Step1.md");
+        assert_eq!(files[1].name, "Step2.md");
+        assert_eq!(files[2].name, "Step10.md");
     }
 }

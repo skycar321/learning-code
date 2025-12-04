@@ -14,6 +14,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
@@ -30,6 +31,26 @@
                         }
                     }
                 }
+            }
+        }
+    </script>
+
+    <!-- Theme Script -->
+    <script>
+        // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
             }
         }
     </script>
@@ -54,6 +75,9 @@
             background-color: #e2e8f0;
             border-radius: 20px;
         }
+        .dark .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #475569;
+        }
         
         /* Hide default details marker */
         details > summary {
@@ -64,23 +88,35 @@
         }
     </style>
 </head>
-<body class="h-full flex overflow-hidden text-slate-600 selection:bg-brand-100 selection:text-brand-700">
+<body class="h-full flex overflow-hidden text-slate-600 dark:text-slate-400 selection:bg-brand-100 selection:text-brand-700 dark:bg-slate-900">
 
     <!-- Sidebar -->
-    <div class="w-72 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-20">
+    <div class="w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-shrink-0 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-20">
         <!-- Header -->
-        <div class="p-5 border-b border-slate-100 bg-white/50 backdrop-blur-sm sticky top-0 z-10 space-y-4">
-            <a href="/" class="group flex items-center gap-3">
-                <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white shadow-brand-100 shadow-lg group-hover:scale-105 transition-transform">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                        <path d="M11.25 4.533A9.707 9.707 0 006 3.75a9.753 9.753 0 00-3.25.557.75.75 0 00-.25.966l2.605 4.514a.75.75 0 001.042.245 9.714 9.714 0 019.95 0 .75.75 0 001.042-.245l2.605-4.514a.75.75 0 00-.25-.966A9.753 9.753 0 0018 3.75c-1.798 0-3.465.28-5.002.783-.824-1.122-2.202-1.85-3.748-1.85zM6.75 20.25a.75.75 0 01.75-.75h9a.75.75 0 01.75.75v.75a.75.75 0 01-.75.75h-9a.75.75 0 01-.75-.75v-.75zM6.75 17.25a.75.75 0 01.75-.75h9a.75.75 0 01.75.75v.75a.75.75 0 01-.75.75h-9a.75.75 0 01-.75-.75v-.75zM6 13.5a.75.75 0 01.75-.75h10.5a.75.75 0 01.75.75v.75a.75.75 0 01-.75.75H6.75a.75.75 0 01-.75-.75v-.75z" />
+        <div class="p-5 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm sticky top-0 z-10 space-y-4">
+            <div class="flex items-center justify-between">
+                <a href="/" class="group flex items-center gap-3">
+                    <div class="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center text-white shadow-brand-100 shadow-lg group-hover:scale-105 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                            <path d="M11.25 4.533A9.707 9.707 0 006 3.75a9.753 9.753 0 00-3.25.557.75.75 0 00-.25.966l2.605 4.514a.75.75 0 001.042.245 9.714 9.714 0 019.95 0 .75.75 0 001.042-.245l2.605-4.514a.75.75 0 00-.25-.966A9.753 9.753 0 0018 3.75c-1.798 0-3.465.28-5.002.783-.824-1.122-2.202-1.85-3.748-1.85zM6.75 20.25a.75.75 0 01.75-.75h9a.75.75 0 01.75.75v.75a.75.75 0 01-.75.75h-9a.75.75 0 01-.75-.75v-.75zM6.75 17.25a.75.75 0 01.75-.75h9a.75.75 0 01.75.75v.75a.75.75 0 01-.75.75h-9a.75.75 0 01-.75-.75v-.75zM6 13.5a.75.75 0 01.75-.75h10.5a.75.75 0 01.75.75v.75a.75.75 0 01-.75.75H6.75a.75.75 0 01-.75-.75v-.75z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight">Learning Code</h1>
+                        <p class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Platform</p>
+                    </div>
+                </a>
+                
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" class="p-2 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 hidden dark:block">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                     </svg>
-                </div>
-                <div>
-                    <h1 class="text-sm font-bold text-slate-900 tracking-tight">Learning Code</h1>
-                    <p class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Platform</p>
-                </div>
-            </a>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 block dark:hidden">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                    </svg>
+                </button>
+            </div>
             
             <!-- Search Input -->
             <div class="relative">
@@ -89,8 +125,8 @@
                 </svg>
                 <input type="text" 
                        id="sidebar-search" 
-                       placeholder="Search topics..." 
-                       class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
+                       placeholder="Search topics... (Ctrl+K)" 
+                       class="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
             </div>
         </div>
 
@@ -102,7 +138,7 @@
                     <div class="space-y-1">
                         {% for subcategory in category.subcategories %}
                             <details class="group subcategory-details">
-                                <summary class="flex items-center gap-2 w-full px-2 py-2 text-sm font-medium text-slate-600 rounded-md cursor-pointer hover:bg-slate-50 hover:text-slate-900 transition-colors select-none">
+                                <summary class="flex items-center gap-2 w-full px-2 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 rounded-md cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition-colors select-none">
                                     <!-- Arrow Icon -->
                                     <svg class="w-3 h-3 text-slate-400 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
@@ -114,10 +150,10 @@
                                     <span class="truncate subcategory-name">{{ subcategory.name }}</span>
                                 </summary>
                                 
-                                <div class="mt-1 ml-[11px] pl-3 border-l border-slate-100 space-y-1">
+                                <div class="mt-1 ml-[11px] pl-3 border-l border-slate-100 dark:border-slate-800 space-y-1">
                                     {% for file in subcategory.files %}
                                         <a href="/view/{{ category.name }}/{{ subcategory.name }}/{{ file.name }}"
-                                           class="block px-3 py-1.5 text-[13px] font-medium text-slate-500 rounded-md hover:text-brand-600 hover:bg-brand-50 transition-all truncate border border-transparent hover:border-brand-100 file-link">
+                                           class="block px-3 py-1.5 text-[13px] font-medium text-slate-500 dark:text-slate-400 rounded-md hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-all truncate border border-transparent hover:border-brand-100 dark:hover:border-brand-900/50 file-link">
                                             {{ file.title }}
                                         </a>
                                     {% endfor %}
@@ -130,13 +166,13 @@
         </nav>
         
         <!-- Footer -->
-        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+        <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
             <div class="flex items-center gap-3 px-2">
-                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-500">
+                <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-500 dark:text-slate-400">
                     US
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-slate-700 truncate">User Session</p>
+                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">User Session</p>
                     <p class="text-xs text-slate-400 truncate">Connected</p>
                 </div>
             </div>
@@ -144,7 +180,7 @@
     </div>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto bg-white custom-scroll relative">
+    <main class="flex-1 overflow-y-auto bg-white dark:bg-slate-900 custom-scroll relative">
         <div class="max-w-5xl mx-auto w-full">
              {% block content %}{% endblock %}
         </div>
@@ -156,15 +192,25 @@
             const searchInput = document.getElementById('sidebar-search');
             const nav = document.getElementById('sidebar-nav');
             
+            // 0. Keyboard Shortcut
+            document.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            });
+
             // 1. Auto-expand active link based on URL
             const currentPath = window.location.pathname;
-            // Find the link matching current path (decoding URI components to handle spaces/special chars)
             const allLinks = nav.querySelectorAll('a.file-link');
             allLinks.forEach(link => {
                 if (decodeURIComponent(link.getAttribute('href')) === decodeURIComponent(currentPath)) {
                     link.classList.add('text-brand-600', 'bg-brand-50', 'border-brand-100');
                     link.classList.remove('text-slate-500', 'border-transparent');
-                    // Open parent details
+                    // Dark mode adjustments for active link
+                    link.classList.add('dark:text-brand-400', 'dark:bg-brand-900/20', 'dark:border-brand-900/50');
+                    link.classList.remove('dark:text-slate-400');
+                    
                     const parentDetails = link.closest('details');
                     if (parentDetails) {
                         parentDetails.open = true;
@@ -193,36 +239,28 @@
                         }
                     });
 
-                    // Check subcategory name itself
                     if (subName.includes(term)) {
                         hasMatch = true;
-                        // If subcategory matches, show all children? 
-                        // Or just show the folder? Let's show all children if folder matches for better UX
                         fileLinks.forEach(link => link.style.display = 'block');
                     }
 
-                    // Toggle Visibility and Expansion
                     if (term === '') {
-                        // Reset state
                         details.style.display = 'block';
                         fileLinks.forEach(link => link.style.display = 'block');
-                        // Close details unless it contains the active link
-                        const hasActiveLink = details.querySelector('.text-brand-600'); // Check for active class added above
+                        const hasActiveLink = details.querySelector('.text-brand-600');
                         details.open = !!hasActiveLink;
                     } else {
                         if (hasMatch) {
                             details.style.display = 'block';
-                            details.open = true; // Always expand on search match
+                            details.open = true;
                         } else {
                             details.style.display = 'none';
                         }
                     }
                 });
                 
-                // Optional: Hide empty top-level categories
                 document.querySelectorAll('.category-container').forEach(container => {
                     const visibleChildren = container.querySelectorAll('details[style="display: block;"]');
-                    // If we are searching and no children are visible, hide the category title
                     if (term !== '' && visibleChildren.length === 0) {
                         container.style.display = 'none';
                     } else {
