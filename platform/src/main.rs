@@ -222,7 +222,8 @@ async fn content_handler(
                     let parser = Parser::new_ext(&content, options);
                     let mut html_output = String::new();
                     html::push_html(&mut html_output, parser);
-                    (title, html_output)
+                    let clean_html = ammonia::clean(&html_output);
+                    (title, clean_html)
                 } else {
                     // Render code files wrapped in code block
                     let ext = file.rsplit_once('.').map(|(_, e)| e).unwrap_or("text");
