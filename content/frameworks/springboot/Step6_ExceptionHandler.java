@@ -1,281 +1,176 @@
-// Step6_ExceptionHandler.java
-// Spring Boot 애플리케이션의 전역 예외 처리 학습을 위한 코드 예시입니다.
-// 이 파일은 `@ControllerAdvice`와 `@ExceptionHandler` 어노테이션을 사용하여
-// REST API의 예외를 중앙 집중식으로 처리하는 방법을 보여줍니다.
-//
-// 예외 처리는 애플리케이션의 안정성과 사용자 경험에 매우 중요합니다.
-// Spring Boot는 이러한 예외 처리를 효과적으로 할 수 있는 다양한 방법을 제공합니다.
-
-package com.example.exceptionhandler;
+package com.example.springboot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
-// -----------------------------------------------------------------------------
-// 학습 포인트 1: Custom Exception 정의
-// - 애플리케이션 특유의 오류 상황을 명확히 표현하기 위해 사용자 정의 예외를 생성합니다.
-// - RuntimeException을 상속받아 Unchecked Exception으로 만듭니다.
-// -----------------------------------------------------------------------------
-class ProductNotFoundException extends RuntimeException {
-    public ProductNotFoundException(String message) {
-        super(message);
-    }
-}
-
-class InvalidInputException extends RuntimeException {
-    public InvalidInputException(String message) {
-        super(message);
-    }
-}
-
-// -----------------------------------------------------------------------------
-// 학습 포인트 2: `@ControllerAdvice` 및 `@ExceptionHandler`를 이용한 전역 예외 처리
-// - `@ControllerAdvice`: 모든 `@Controller`에 대한 예외를 전역적으로 처리하는 클래스임을 나타냅니다.
-//   - 특정 패키지, 특정 어노테이션이 붙은 컨트롤러 등 대상을 지정할 수도 있습니다.
-// - `@ExceptionHandler`: 특정 예외가 발생했을 때 해당 메서드가 예외를 처리하도록 지정합니다.
-//   - HTTP 응답 코드, 응답 본문 등을 커스터마이징할 수 있습니다.
-// -----------------------------------------------------------------------------
-@ControllerAdvice
-class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-
-    // 좋은 예시: ProductNotFoundException 발생 시 HTTP 404 (NOT_FOUND) 응답을 반환
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<Object> handleProductNotFoundException(ProductNotFoundException ex, WebRequest request) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", ex.getMessage());
-        body.put("status", HttpStatus.NOT_FOUND.value());
-        body.put("error", HttpStatus.NOT_FOUND.getReasonPhrase());
-        body.put("path", request.getDescription(false).replace("uri=", ""));
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
-    }
-
-    // 좋은 예시: InvalidInputException 발생 시 HTTP 400 (BAD_REQUEST) 응답을 반환
-    @ExceptionHandler(InvalidInputException.class)
-    public ResponseEntity<Object> handleInvalidInputException(InvalidInputException ex, WebRequest request) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", ex.getMessage());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", HttpStatus.BAD_REQUEST.getReasonPhrase());
-        body.put("path", request.getDescription(false).replace("uri=", ""));
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    // 나쁜 예시: 일반적인 Exception을 광범위하게 처리.
-    // - 어떤 예외인지 명확하지 않고, 모든 예외를 500으로 처리하면 클라이언트에게
-    //   정확한 정보를 전달하기 어렵고 디버깅도 어렵습니다.
-    // - 가능한 한 구체적인 예외를 `@ExceptionHandler`로 처리하는 것이 좋습니다.
-    // - 다만, 예상치 못한 모든 예외를 처리하기 위한 최종 방어선으로는 사용할 수 있습니다.
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleAllUncaughtException(Exception ex, WebRequest request) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("message", "내부 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-        body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        body.put("error", HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-        body.put("path", request.getDescription(false).replace("uri=", ""));
-        // 실제로는 로깅 시스템에 ex.getMessage()와 스택 트레이스를 기록해야 합니다.
-        System.err.println("예상치 못한 오류 발생: " + ex.getMessage());
-        ex.printStackTrace();
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    // -----------------------------------------------------------------------------
-    // 학습 포인트 3: Spring이 기본으로 제공하는 예외 처리 (ResponseEntityExceptionHandler 상속)
-    // - ResponseEntityExceptionHandler를 상속받으면 Spring MVC에서 발생하는
-    //   일부 일반적인 예외(예: MethodArgumentNotValidException, HttpRequestMethodNotSupportedException)를
-    //   커스터마이징하여 처리할 수 있습니다.
-    // - `@Override`하여 원하는 예외 처리 메서드를 재정의할 수 있습니다.
-    // -----------------------------------------------------------------------------
-
-    // 예시: @Valid 어노테이션으로 인한 유효성 검사 실패 시 처리
-    // @Override
-    // protected ResponseEntity<Object> handleMethodArgumentNotValid(
-    //         MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-    //     Map<String, String> errors = new HashMap<>();
-    //     ex.getBindingResult().getAllErrors().forEach((error) -> {
-    //         String fieldName = ((FieldError) error).getField();
-    //         String errorMessage = error.getDefaultMessage();
-    //         errors.put(fieldName, errorMessage);
-    //     });
-    //     Map<String, Object> body = new HashMap<>();
-    //     body.put("timestamp", LocalDateTime.now());
-    //     body.put("message", "유효성 검사 실패");
-    //     body.put("errors", errors);
-    //     body.put("status", status.value());
-    //     return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    // }
-}
-
-// -----------------------------------------------------------------------------
-// 예시 도메인: Product
-// -----------------------------------------------------------------------------
-class Product {
-    private Long id;
-    private String name;
-    private double price;
-
-    public Product(Long id, String name, double price) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-    }
-
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public double getPrice() { return price; }
-}
-
-// -----------------------------------------------------------------------------
-// 예시 서비스: ProductService
-// -----------------------------------------------------------------------------
-@Service
-class ProductService {
-    private final Map<Long, Product> products = new HashMap<>();
-
-    public ProductService() {
-        products.put(1L, new Product(1L, "Laptop", 1200.00));
-        products.put(2L, new Product(2L, "Mouse", 25.00));
-    }
-
-    public Product getProduct(Long id) {
-        return products.get(id);
-    }
-
-    public Product getProductOrThrow(Long id) {
-        return products.computeIfAbsent(id, key -> {
-            throw new ProductNotFoundException("ID가 " + id + "인 상품을 찾을 수 없습니다.");
-        });
-    }
-
-    public Product updateProductPrice(Long id, double newPrice) {
-        if (newPrice <= 0) {
-            throw new InvalidInputException("상품 가격은 0보다 커야 합니다.");
-        }
-        Product product = products.get(id);
-        if (product == null) {
-            throw new ProductNotFoundException("ID가 " + id + "인 상품을 찾을 수 없습니다.");
-        }
-        products.put(id, new Product(id, product.getName(), newPrice));
-        return products.get(id);
-    }
-
-    public void throwGenericException() {
-        throw new NullPointerException("의도적으로 NullPointerException을 발생시켰습니다.");
-    }
-
-    public void throwUncheckedException() {
-        throw new RuntimeException("의도적으로 RuntimeException을 발생시켰습니다.");
-    }
-}
-
-// -----------------------------------------------------------------------------
-// 예시 컨트롤러: ProductController
-// -----------------------------------------------------------------------------
-@RestController
-@RequestMapping("/products")
-class ProductController {
-
-    private final ProductService productService;
-
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable Long id) {
-        Product product = productService.getProductOrThrow(id);
-        return ResponseEntity.ok(product);
-    }
-
-    @PutMapping("/{id}/price")
-    public ResponseEntity<Product> updateProductPrice(@PathVariable Long id, @RequestParam double newPrice) {
-        Product updatedProduct = productService.updateProductPrice(id, newPrice);
-        return ResponseEntity.ok(updatedProduct);
-    }
-
-    // 나쁜 예시: 컨트롤러 메서드 내에서 직접 예외를 try-catch로 처리
-    // - 모든 컨트롤러 메서드마다 반복적인 예외 처리 코드가 들어가 코드가 지저분해집니다.
-    // - 전역 예외 처리기가 있으면 이렇게 개별적으로 처리할 필요가 없습니다.
-    @GetMapping("/legacy/{id}")
-    public ResponseEntity<Object> getProductLegacy(@PathVariable Long id) {
-        try {
-            Product product = productService.getProduct(id);
-            if (product == null) {
-                return new ResponseEntity<>("상품을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
-            }
-            return ResponseEntity.ok(product);
-        } catch (Exception e) {
-            return new ResponseEntity<>("오류 발생: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/error/productNotFound")
-    public ResponseEntity<String> throwProductNotFound() {
-        throw new ProductNotFoundException("이 상품은 이제 판매하지 않습니다.");
-    }
-
-    @GetMapping("/error/invalidInput")
-    public ResponseEntity<String> throwInvalidInput() {
-        throw new InvalidInputException("입력 값이 유효하지 않습니다.");
-    }
-
-    @GetMapping("/error/generic")
-    public ResponseEntity<String> throwGenericError() {
-        productService.throwGenericException();
-        return ResponseEntity.ok("Generic error occurred.");
-    }
-
-    @GetMapping("/error/runtime")
-    public ResponseEntity<String> throwRuntimeError() {
-        productService.throwUncheckedException();
-        return ResponseEntity.ok("Runtime error occurred.");
-    }
-}
+/**
+ * ========================================================================================
+ * Step 6: 예외 처리 (Exception Handling) A-Z 완전 정복
+ * ========================================================================================
+ *
+ * 이 파일은 Spring Boot에서 발생하는 예외를 "우아하게" 처리하는 방법을 다룹니다.
+ *
+ * [학습 목표]
+ * 1. `@RestControllerAdvice`를 사용해 예외를 중앙에서 관리하는 법을 배웁니다.
+ * 2. `try-catch` 지옥에서 벗어나 코드의 가독성을 높입니다.
+ * 3. 클라이언트에게 항상 일관된 JSON 에러 응답(DTO)을 내려주는 표준을 만듭니다.
+ * 4. 보안상 위험한 스택 트레이스(Stack Trace) 노출을 막는 법을 이해합니다.
+ */
 
 @SpringBootApplication
-public class ExceptionHandlerApplication {
+public class Step6_ExceptionHandler {
     public static void main(String[] args) {
-        SpringApplication.run(ExceptionHandlerApplication.class, args);
+        SpringApplication.run(Step6_ExceptionHandler.class, args);
     }
 }
 
-/*
-이 애플리케이션을 실행하고 다음 URL로 접근하여 테스트할 수 있습니다:
+// ========================================================================================
+// 0. 표준 에러 응답 DTO (Standard Error Response)
+// ========================================================================================
 
-1. 정상적인 상품 조회:
-   GET http://localhost:8080/products/1
+/**
+ * [DTO 패턴]
+ * 에러가 날 때마다 중구난방인 포맷(Map, String 등)으로 리턴하면 프론트엔드 개발자가 힘들어합니다.
+ * 항상 똑같은 구조(`errorCode`, `message`)로 내려주는 것이 API 설계의 핵심입니다.
+ */
+record ErrorResponse(
+    String errorCode,
+    String message,
+    LocalDateTime timestamp
+) {
+    public static ErrorResponse of(String errorCode, String message) {
+        return new ErrorResponse(errorCode, message, LocalDateTime.now());
+    }
+}
 
-2. 없는 상품 조회 (ProductNotFoundException 처리):
-   GET http://localhost:8080/products/3
+// ========================================================================================
+// 1. 커스텀 예외 (Custom Exceptions)
+// ========================================================================================
 
-3. 상품 가격 업데이트 (정상):
-   PUT http://localhost:8080/products/1/price?newPrice=1250.00
+// 비즈니스 로직 최상위 예외
+class BusinessException extends RuntimeException {
+    private final String errorCode;
 
-4. 유효하지 않은 가격으로 업데이트 (InvalidInputException 처리):
-   PUT http://localhost:8080/products/1/price?newPrice=0
+    public BusinessException(String errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
+    }
 
-5. ProductNotFoundException 강제 발생:
-   GET http://localhost:8080/products/error/productNotFound
+    public String getErrorCode() { return errorCode; }
+}
 
-6. InvalidInputException 강제 발생:
-   GET http://localhost:8080/products/error/invalidInput
+// 구체적인 예외 상황
+class UserNotFoundException extends BusinessException {
+    public UserNotFoundException(Long id) {
+        super("USER_NOT_FOUND", "사용자를 찾을 수 없습니다. ID: " + id);
+    }
+}
 
-7. 일반적인 RuntimeException 강제 발생 (GlobalExceptionHandler의 Exception.class 처리):
-   GET http://localhost:8080/products/error/runtime
+class InvalidInputException extends BusinessException {
+    public InvalidInputException(String message) {
+        super("INVALID_INPUT", message);
+    }
+}
 
-8. NullPointerException 강제 발생 (GlobalExceptionHandler의 Exception.class 처리):
-   GET http://localhost:8080/products/error/generic
+// ========================================================================================
+// 2. [BAD Example] 컨트롤러에서 직접 try-catch (나쁜 예)
+// ========================================================================================
 
-*/
+@RestController
+@RequestMapping("/api/bad")
+class BadController {
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<?> getUser(@PathVariable Long id) {
+        try {
+            if (id == 0) throw new IllegalArgumentException("ID는 0일 수 없음");
+            return ResponseEntity.ok("User Info");
+        } catch (IllegalArgumentException e) {
+            // BAD: 컨트롤러마다 예외처리 코드가 중복됨.
+            // BAD: 에러 메시지 포맷이 제각각임.
+            return ResponseEntity.status(400).body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            // BAD: 보안상 위험한 스택 트레이스를 노출할 수도 있음.
+            e.printStackTrace(); 
+            return ResponseEntity.status(500).body(e.toString());
+        }
+    }
+}
+
+// ========================================================================================
+// 3. [GOOD Example] 전역 예외 처리기 (Global Exception Handler)
+// ========================================================================================
+
+/**
+ * [@RestControllerAdvice]
+ * - 모든 컨트롤러에서 발생하는 예외를 여기서 가로채서 처리합니다. (AOP 방식)
+ * - `@ControllerAdvice` + `@ResponseBody`가 합쳐진 형태입니다.
+ */
+@RestControllerAdvice
+class GlobalExceptionHandler {
+
+    /**
+     * [시나리오 1] 비즈니스 로직 예외 처리
+     * 우리가 의도적으로 던진 `BusinessException`을 잡아서 처리합니다.
+     */
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e) {
+        // 로그 기록 (서버에만 남김)
+        System.err.println("[Business Error] " + e.getErrorCode() + ": " + e.getMessage());
+
+        // 클라이언트에는 깔끔한 DTO 리턴
+        ErrorResponse response = ErrorResponse.of(e.getErrorCode(), e.getMessage());
+        
+        // 예외 종류에 따라 HTTP 상태 코드 분기 가능
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        if (e instanceof UserNotFoundException) {
+            status = HttpStatus.NOT_FOUND;
+        }
+
+        return ResponseEntity.status(status).body(response);
+    }
+
+    /**
+     * [시나리오 2] 예상치 못한 시스템 예외 처리 (최후의 방어선)
+     * NullPointerException 등 우리가 미처 잡지 못한 에러를 처리합니다.
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception e) {
+        // 중요: 실제 에러 내용(스택 트레이스)은 서버 로그에만 남깁니다!
+        // 클라이언트에게 e.getMessage()를 그대로 보여주면 해커에게 힌트가 될 수 있습니다. (SQL 구조 등)
+        e.printStackTrace(); 
+
+        // 클라이언트에게는 "서버 에러"라는 뭉뚱그린 메시지만 전달
+        ErrorResponse response = ErrorResponse.of("INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다. 관리자에게 문의하세요.");
+        
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+}
+
+// ========================================================================================
+// 4. 테스트용 컨트롤러
+// ========================================================================================
+
+@RestController
+@RequestMapping("/api/good")
+class GoodController {
+
+    @GetMapping("/users/{id}")
+    public String getUser(@PathVariable Long id) {
+        if (id == 0) {
+            throw new InvalidInputException("ID는 1 이상이어야 합니다.");
+        }
+        if (id == 99) {
+            throw new UserNotFoundException(id);
+        }
+        if (id == -1) {
+            throw new RuntimeException("예상치 못한 버그 발생!");
+        }
+        return "User Found: " + id;
+    }
+}

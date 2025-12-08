@@ -1,12 +1,3 @@
-// Step7_AOP.java
-// Spring Boot AOP (Aspect-Oriented Programming) 학습을 위한 코드 예시입니다.
-// 이 파일은 Spring AOP의 핵심 개념(Aspect, Join Point, Pointcut, Advice)을 이해하고,
-// `@Aspect` 어노테이션을 활용하여 공통 관심사를 효과적으로 분리하는 방법을 보여줍니다.
-//
-// AOP는 로깅, 보안, 트랜잭션 관리 등 여러 모듈에서 반복적으로 사용되는
-// 공통 관심사(Cross-cutting Concerns)를 분리하여 코드의 응집도를 높이고
-// 중복을 제거하는 프로그래밍 패러다임입니다.
-
 package com.example.aop;
 
 import org.aspectj.lang.JoinPoint;
@@ -19,203 +10,217 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
 
-// -----------------------------------------------------------------------------
-// 학습 포인트 1: Aspect 정의 (@Aspect)
-// - `@Aspect` 어노테이션은 해당 클래스가 Aspect임을 나타냅니다.
-// - `@Component`와 함께 사용하여 Spring의 빈으로 등록되어야 AOP가 동작합니다.
-// -----------------------------------------------------------------------------
-@Aspect
-@Component
-class LoggingAspect {
+/**
+ * ========================================================================================
+ * Step 7: Spring AOP (Aspect Oriented Programming) A-Z 완전 정복
+ * ========================================================================================
+ *
+ * 이 파일은 Spring Boot에서 AOP를 사용하는 "좋은 예"와 "나쁜 예"를 비교하며,
+ * AOP의 핵심 개념부터 실무 활용 패턴까지 상세히 설명합니다.
+ *
+ * [학습 목표]
+ * 1. AOP(관점 지향 프로그래밍)가 무엇이며, 왜 필요한지 이해합니다. (횡단 관심사 분리)
+ * 2. AOP의 5가지 핵심 용어(Aspect, JoinPoint, Pointcut, Advice, Weaving)를 코드로 익힙니다.
+ * 3. 프록시(Proxy) 패턴이 Spring AOP에서 어떻게 동작하는지 이해합니다.
+ * 4. 커스텀 어노테이션을 만들어 AOP를 우아하게 적용하는 방법을 배웁니다.
+ *
+ * [핵심 용어 설명]
+ * - **횡단 관심사 (Cross-cutting Concerns)**: 로깅, 보안, 트랜잭션처럼 여러 핵심 로직에 공통적으로 들어가는 기능입니다.
+ * - **Aspect**: 횡단 관심사를 모듈화한 것입니다. (예: "로그 남기는 기능 묶음")
+ * - **Advice**: "언제" 공통 기능을 실행할지 정의합니다. (예: 메서드 시작 전? 끝난 후? 에러 났을 때?)
+ * - **Pointcut**: "어디에" 공통 기능을 적용할지 정의합니다. (예: "UserService의 모든 메서드에")
+ * - **JoinPoint**: Advice가 적용될 수 있는 지점입니다. (메서드 실행 시점 등)
+ */
 
+@SpringBootApplication
+public class Step7_AOP {
+    public static void main(String[] args) {
+        SpringApplication.run(Step7_AOP.class, args);
+    }
+}
+
+// ========================================================================================
+// 1. [BAD Example] AOP 없이 횡단 관심사를 구현한 경우 (나쁜 예)
+// ========================================================================================
+
+/**
+ * [문제점]
+ * 1. 코드 중복: 모든 메서드마다 실행 시간 측정 코드가 반복됩니다.
+ * 2. 유지보수 어려움: 측정 로직을 변경하려면 모든 메서드를 찾아가서 수정해야 합니다.
+ * 3. 가독성 저하: 핵심 비즈니스 로직(데이터 조회 등)이 부가적인 로직(시간 측정)에 파묻혀 잘 안 보입니다.
+ */
+@Service
+class BadService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // -----------------------------------------------------------------------------
-    // 학습 포인트 2: Pointcut 정의 (@Pointcut)
-    // - `execution()`: 가장 일반적인 Pointcut 지시자로, 메서드 실행 조인 포인트를 매치합니다.
-    //   - `* com.example.aop.service.*.*(..)`: `com.example.aop.service` 패키지 아래의 모든 클래스의
-    //     모든 메서드에 대해 매치합니다. (첫 번째 `*`는 리턴 타입, 두 번째 `*`는 메서드 이름, `(..)`는 모든 파라미터)
-    // - `@annotation()`: 특정 어노테이션이 붙은 메서드에 매치합니다.
-    // -----------------------------------------------------------------------------
-    @Pointcut("execution(* com.example.aop.service.*.*(..))")
-    private void serviceMethods() {}
+    public void doSomethingBad() {
+        long startTime = System.currentTimeMillis(); // 공통 관심사 (시작 시간 측정)
+        logger.info("메서드 시작");               // 공통 관심사 (로깅)
 
-    @Pointcut("@annotation(com.example.aop.LogExecutionTime)")
-    private void logExecutionTimeMethods() {}
+        try {
+            // 핵심 비즈니스 로직
+            Thread.sleep(100);
+            logger.info("비즈니스 로직 실행 중...");
 
-    // -----------------------------------------------------------------------------
-    // 학습 포인트 3: Advice 정의 (Before, AfterReturning, AfterThrowing, After, Around)
-    // - Advice는 Join Point에서 실행되는 실제 코드입니다.
-    // - `JoinPoint`: Advice가 실행되는 시점의 정보를 제공합니다 (메서드 이름, 파라미터 등).
-    // - `ProceedingJoinPoint`: `@Around` Advice에서 사용되며, 대상 메서드를 직접 실행할 수 있습니다.
-    // -----------------------------------------------------------------------------
-
-    // 3.1. `@Before`: 대상 메서드 실행 전에 Advice를 실행합니다.
-    @Before("serviceMethods()")
-    public void logBefore(JoinPoint joinPoint) {
-        logger.info("Before method execution: {}.{}() with args: {}",
-                joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName(),
-                joinPoint.getArgs());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            long endTime = System.currentTimeMillis(); // 공통 관심사 (종료 시간 측정)
+            logger.info("메서드 종료, 소요시간: {}ms", endTime - startTime); // 공통 관심사 (로깅)
+        }
     }
+}
 
-    // 3.2. `@AfterReturning`: 대상 메서드가 성공적으로 리턴된 후에 Advice를 실행합니다.
-    // - `returning` 속성을 사용하여 메서드 반환 값을 Advice 메서드 인자로 받을 수 있습니다.
-    @AfterReturning(pointcut = "serviceMethods()", returning = "result")
-    public void logAfterReturning(JoinPoint joinPoint, Object result) {
-        logger.info("After method execution (returning): {}.{}() returned: {}",
-                joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName(),
-                result);
+// ========================================================================================
+// 2. [GOOD Example] AOP를 사용하여 횡단 관심사를 분리한 경우 (좋은 예)
+// ========================================================================================
+
+/**
+ * [개선된 점]
+ * 1. 핵심 로직(`GoodService`)은 순수하게 비즈니스 로직만 남습니다.
+ * 2. 공통 로직(`LoggingAspect`, `PerformanceAspect`)은 별도의 클래스로 분리되어 관리됩니다.
+ * 3. 어노테이션(`@LogExecutionTime`) 하나만 붙이면 어디서든 기능을 재사용할 수 있습니다.
+ */
+
+// 2.1. 커스텀 어노테이션 정의
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@interface LogExecutionTime {
+    // 이 어노테이션이 붙은 메서드는 실행 시간을 측정하겠다는 표시입니다.
+}
+
+@Service
+class GoodService {
+    // 핵심 로직에만 집중! 지저분한 로깅 코드가 사라졌습니다.
+    @LogExecutionTime
+    public void doSomethingGood() throws InterruptedException {
+        Thread.sleep(100);
+        System.out.println("핵심 비즈니스 로직 실행 (GoodService)");
     }
+}
 
-    // 3.3. `@AfterThrowing`: 대상 메서드가 예외를 던진 후에 Advice를 실행합니다.
-    // - `throwing` 속성을 사용하여 발생한 예외를 Advice 메서드 인자로 받을 수 있습니다.
-    @AfterThrowing(pointcut = "serviceMethods()", throwing = "exception")
-    public void logAfterThrowing(JoinPoint joinPoint, Throwable exception) {
-        logger.error("After method execution (throwing): {}.{}() threw: {}",
-                joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName(),
-                exception.getMessage());
-    }
+// 2.2. Aspect 정의 (공통 기능 모듈화)
+@Aspect // 이 클래스가 Aspect(공통 관심사 모듈)임을 나타냅니다.
+@Component // Spring 빈으로 등록해야 AOP가 동작합니다.
+class PerformanceAspect {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // 3.4. `@After`: 대상 메서드 실행 후 (성공/실패와 관계없이) Advice를 실행합니다.
-    @After("serviceMethods()")
-    public void logAfter(JoinPoint joinPoint) {
-        logger.info("After method execution (finally): {}.{}() finished.",
-                joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName());
-    }
+    /**
+     * @Around Advice
+     * - 가장 강력한 Advice입니다.
+     * - 대상 메서드 실행 전(Before), 후(After), 예외 발생 시점 등을 모두 제어할 수 있습니다.
+     * - ProceedingJoinPoint를 통해 대상 메서드를 언제 실행할지(`proceed()`) 결정합니다.
+     */
+    @Around("@annotation(com.example.aop.LogExecutionTime)") // Pointcut: 이 어노테이션이 붙은 곳에 적용
+    public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
+        long startTime = System.currentTimeMillis();
+        
+        // Before 로직
+        String methodName = joinPoint.getSignature().getName();
+        logger.info("[AOP] {} 메서드 실행 시작", methodName);
 
-    // 3.5. `@Around`: 대상 메서드 실행 전, 후, 또는 예외 발생 시 모든 시점을 제어할 수 있습니다.
-    // - `ProceedingJoinPoint`를 통해 대상 메서드 실행(`pjp.proceed()`)을 직접 제어합니다.
-    // - 성능 측정, 캐싱 등에서 유용하게 사용됩니다.
-    @Around("logExecutionTimeMethods()")
-    public Object measureExecutionTime(ProceedingJoinPoint pjp) throws Throwable {
-        long startTime = System.nanoTime();
         Object result = null;
         try {
-            result = pjp.proceed(); // 대상 메서드 실행
+            // 핵심 비즈니스 로직 실행 (Delegate)
+            result = joinPoint.proceed(); 
+        } catch (Exception e) {
+            // 예외 처리 로직도 여기서 공통화 가능
+            logger.error("[AOP] 메서드 실행 중 예외 발생: {}", e.getMessage());
+            throw e;
         } finally {
-            long endTime = System.nanoTime();
-            long duration = TimeUnit.NANOSECONDS.toMillis(endTime - startTime);
-            logger.info("Method {}.{}() executed in {} ms",
-                    pjp.getSignature().getDeclaringTypeName(),
-                    pjp.getSignature().getName(),
-                    duration);
+            // After 로직
+            long endTime = System.currentTimeMillis();
+            logger.info("[AOP] {} 메서드 종료, 소요시간: {}ms", methodName, endTime - startTime);
         }
+
         return result;
     }
 }
 
-// -----------------------------------------------------------------------------
-// 학습 포인트 4: Custom Annotation을 이용한 AOP 적용
-// - 특정 기능을 수행하는 메서드에만 AOP를 적용하고 싶을 때 유용합니다.
-// -----------------------------------------------------------------------------
-@Retention(RetentionPolicy.RUNTIME) // 런타임 시에도 어노테이션 정보를 유지
-@Target(ElementType.METHOD) // 메서드에만 어노테이션 적용 가능
-@interface LogExecutionTime {
-}
+// ========================================================================================
+// 3. 다양한 Advice 활용 예시 (A-Z 가이드)
+// ========================================================================================
 
-// -----------------------------------------------------------------------------
-// 예시 서비스: SampleService
-// - AOP가 적용될 대상 클래스입니다.
-// -----------------------------------------------------------------------------
-@Service
-class SampleService {
-
+@Aspect
+@Component
+class GlobalLoggingAspect {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final Map<Long, String> dataStore = new HashMap<>();
 
-    public SampleService() {
-        dataStore.put(1L, "Item A");
-        dataStore.put(2L, "Item B");
+    // Pointcut 표현식 예시: com.example.aop 패키지 하위의 모든 Controller의 모든 메서드
+    @Pointcut("execution(* com.example.aop.*Controller.*(..))")
+    private void allControllerMethods() {}
+
+    /**
+     * @Before: 메서드 실행 '직전'에 실행됩니다.
+     * - 주로 권한 체크, 입력값 검증, 로그 남기기 등에 사용됩니다.
+     * - 메서드 실행을 막거나 리턴값을 변경할 수는 없습니다.
+     */
+    @Before("allControllerMethods()")
+    public void beforeAdvice(JoinPoint joinPoint) {
+        logger.info("[Before] 요청 들어옴: {}", joinPoint.getSignature().toShortString());
     }
 
-    public String getItem(Long id) {
-        logger.info("Fetching item with ID: {}", id);
-        if (!dataStore.containsKey(id)) {
-            throw new IllegalArgumentException("Item not found for ID: " + id);
-        }
-        return dataStore.get(id);
+    /**
+     * @AfterReturning: 메서드가 '성공적으로' 리턴된 직후에 실행됩니다.
+     * - 리턴값을 참조(`returning` 속성)하여 후처리 로직을 수행할 수 있습니다. (예: 응답 데이터 변환)
+     */
+    @AfterReturning(pointcut = "allControllerMethods()", returning = "result")
+    public void afterReturningAdvice(JoinPoint joinPoint, Object result) {
+        logger.info("[AfterReturning] 응답 데이터: {}", result);
     }
 
-    @LogExecutionTime // Custom Annotation 적용
-    public String processItem(Long id) throws InterruptedException {
-        logger.info("Processing item with ID: {}", id);
-        // 복잡한 비즈니스 로직 시뮬레이션
-        TimeUnit.MILLISECONDS.sleep(random.nextInt(200) + 50);
-        if (id == 99L) {
-            throw new IllegalStateException("Simulated processing error for ID: " + id);
-        }
-        return "Processed: " + dataStore.getOrDefault(id, "Unknown Item");
+    /**
+     * @AfterThrowing: 메서드 실행 중 '예외가 발생했을 때' 실행됩니다.
+     * - 예외 발생 시 공통적으로 알림을 보내거나 에러 로그를 남길 때 유용합니다.
+     */
+    @AfterThrowing(pointcut = "allControllerMethods()", throwing = "ex")
+    public void afterThrowingAdvice(JoinPoint joinPoint, Exception ex) {
+        logger.error("[AfterThrowing] 에러 발생! : {}", ex.getMessage());
     }
 
-    private static final java.util.Random random = new java.util.Random();
+    /**
+     * @After: 메서드 종료 후 (성공/실패 여부 상관없이, 자바의 finally 블록처럼) 무조건 실행됩니다.
+     * - 리소스 해제 등에 사용될 수 있습니다.
+     */
+    @After("allControllerMethods()")
+    public void afterAdvice(JoinPoint joinPoint) {
+        logger.info("[After] 메서드 실행 완료 (성공/실패 무관)");
+    }
 }
 
-// -----------------------------------------------------------------------------
-// 예시 컨트롤러: SampleController
-// - 웹 요청을 처리하고 SampleService를 호출합니다.
-// -----------------------------------------------------------------------------
+// 테스트용 컨트롤러
 @RestController
-@RequestMapping("/aop")
-class SampleController {
+class AopController {
+    private final GoodService goodService;
+    private final BadService badService;
 
-    private final SampleService sampleService;
-
-    public SampleController(SampleService sampleService) {
-        this.sampleService = sampleService;
+    public AopController(GoodService goodService, BadService badService) {
+        this.goodService = goodService;
+        this.badService = badService;
     }
 
-    @GetMapping("/item/{id}")
-    public String getItem(@PathVariable Long id) {
-        try {
-            return sampleService.getItem(id);
-        } catch (IllegalArgumentException e) {
-            return e.getMessage();
-        }
+    @GetMapping("/aop/good")
+    public String testGood() throws InterruptedException {
+        goodService.doSomethingGood();
+        return "Good Service executed";
     }
 
-    @GetMapping("/process/{id}")
-    public String processItem(@PathVariable Long id) throws InterruptedException {
-        try {
-            return sampleService.processItem(id);
-        } catch (IllegalStateException e) {
-            return e.getMessage();
-        }
+    @GetMapping("/aop/bad")
+    public String testBad() {
+        badService.doSomethingBad();
+        return "Bad Service executed";
     }
-}
-
-@SpringBootApplication
-public class AopApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(AopApplication.class, args);
+    
+    @GetMapping("/aop/error")
+    public String testError() {
+        throw new RuntimeException("의도적인 에러 발생!");
     }
 }
-
-/*
-이 애플리케이션을 실행하고 다음 URL로 접근하여 테스트할 수 있습니다:
-
-1. 정상적인 getItem 호출:
-   GET http://localhost:8080/aop/item/1
-
-2. 없는 아이템 조회 (예외 발생):
-   GET http://localhost:8080/aop/item/3
-
-3. 정상적인 processItem 호출 (실행 시간 로깅):
-   GET http://localhost:8080/aop/process/1
-
-4. processItem 예외 발생 (예외 로깅):
-   GET http://localhost:8080/aop/process/99
-
-콘솔 로그를 통해 Before, AfterReturning, AfterThrowing, After Advice 및
-@LogExecutionTime 어노테이션에 의해 측정된 실행 시간을 확인할 수 있습니다.
-*/

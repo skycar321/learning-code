@@ -1,294 +1,194 @@
-// Step10_DataEncryptionDecryption.java
-// Spring Boot 데이터 암복호화 학습을 위한 코드 예시입니다.
-// 이 파일은 AES-256 GCM과 같은 대칭키 암호화 알고리즘을 사용하여
-// 민감 데이터를 안전하게 암호화하고 복호화하는 방법을 보여줍니다.
-// 또한, Spring 환경에서 암복호화 유틸리티를 통합하는 개념을 다룹니다.
-//
-// 민감 데이터 보호는 현대 애플리케이션 보안에서 매우 중요한 요소입니다.
-// 데이터베이스에 저장되거나 네트워크를 통해 전송되는 개인 정보, 금융 정보 등을
-// 암호화하여 데이터 유출 시에도 정보가 보호되도록 해야 합니다.
-
-package com.example.encryptiondecryption;
+package com.example.springboot;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-// -----------------------------------------------------------------------------
-// 학습 포인트 1: AES-256 GCM 암호화 구현
-// - 대칭키 암호화: 암호화와 복호화에 동일한 키를 사용합니다.
-// - AES (Advanced Encryption Standard): 현재 가장 널리 사용되는 강력한 블록 암호 알고리즘.
-// - GCM (Galois/Counter Mode): 인증된 암호화(Authenticated Encryption) 모드로,
-//   데이터의 기밀성(Confidentiality)과 무결성(Integrity), 인증(Authenticity)을 동시에 제공합니다.
-// - IV (Initialization Vector): 암호화 시마다 달라지는 랜덤 값으로, 동일한 평문이더라도
-//   항상 다른 암호문이 생성되도록 하여 패턴 분석을 어렵게 합니다.
-// - Tag: GCM 모드에서 생성되는 인증 태그로, 데이터 변조 여부를 확인하는 데 사용됩니다.
-// -----------------------------------------------------------------------------
-@Service
-class AesGcmEncryptor {
-
-    private static final String ALGORITHM = "AES/GCM/NoPadding";
-    private static final int GCM_IV_LENGTH = 12; // GCM 권장 IV 길이 12바이트
-    private static final int GCM_TAG_LENGTH = 16; // GCM 권장 Tag 길이 16바이트 (128비트)
-
-    private SecretKey secretKey; // 암호화/복호화에 사용할 비밀 키
-
-    // 실제 환경에서는 키를 하드코딩하지 않고, 환경 변수, Azure Key Vault, AWS KMS 등에서 안전하게 로드해야 합니다.
-    // 여기서는 학습 목적으로 간단히 생성하거나 설정 파일에서 주입받습니다.
-    public AesGcmEncryptor(@Value("${app.encryption.key:}") String base64Key) throws NoSuchAlgorithmException {
-        if (base64Key.isEmpty()) {
-            this.secretKey = generateNewKey(); // 키가 없으면 새로 생성
-            System.out.println("새로운 암호화 키가 생성되었습니다 (학습 목적): " + Base64.getEncoder().encodeToString(secretKey.getEncoded()));
-        } else {
-            byte[] decodedKey = Base64.getDecoder().decode(base64Key);
-            this.secretKey = new SecretKeySpec(decodedKey, "AES");
-            System.out.println("설정 파일에서 암호화 키를 로드했습니다.");
-        }
-    }
-
-    // 새로운 AES 키 생성
-    private SecretKey generateNewKey() throws NoSuchAlgorithmException {
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        keyGen.init(256, SecureRandom.getInstanceStrong()); // AES-256 비트 키
-        return keyGen.generateKey();
-    }
-
-    // 평문 데이터를 암호화합니다.
-    // 결과는 "IV + 암호문 + Tag"를 합친 형태로 Base64 인코딩하여 반환합니다.
-    public String encrypt(String plainText) throws Exception {
-        byte[] iv = new byte[GCM_IV_LENGTH];
-        (new SecureRandom()).nextBytes(iv); // 암호화 시마다 새로운 IV 생성
-
-        Cipher cipher = Cipher.getInstance(ALGORITHM);
-        GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv); // Tag 길이는 비트 단위
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec);
-
-        byte[] cipherText = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
-
-        // IV와 암호문, Tag를 합쳐서 Base64 인코딩합니다.
-        // 복호화 시 IV를 분리하여 사용해야 합니다.
-        ByteBuffer byteBuffer = ByteBuffer.allocate(iv.length + cipherText.length);
-        byteBuffer.put(iv);
-        byteBuffer.put(cipherText);
-        return Base64.getEncoder().encodeToString(byteBuffer.array());
-    }
-
-    // 암호화된 데이터를 복호화합니다.
-    // "IV + 암호문 + Tag" 형태의 Base64 인코딩된 문자열을 받아 복호화합니다.
-    public String decrypt(String encryptedText) throws Exception {
-        byte[] decodedBytes = Base64.getDecoder().decode(encryptedText);
-
-        ByteBuffer byteBuffer = ByteBuffer.wrap(decodedBytes);
-        byte[] iv = new byte[GCM_IV_LENGTH];
-        byteBuffer.get(iv); // 앞에서 GCM_IV_LENGTH 만큼 IV를 추출
-
-        byte[] cipherText = new byte[byteBuffer.remaining()];
-        byteBuffer.get(cipherText); // 나머지 바이트는 암호문 (Tag 포함)
-
-        Cipher cipher = Cipher.getInstance(ALGORITHM);
-        GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv);
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, parameterSpec);
-
-        byte[] plainText = cipher.doFinal(cipherText);
-        return new String(plainText, StandardCharsets.UTF_8);
-    }
-
-    // 키를 외부로 노출하지 않기 위한 안전한 방법 (학습용)
-    public String getKeyInfo() {
-        return "Key Algorithm: " + secretKey.getAlgorithm() + ", Key Size: " + (secretKey.getEncoded().length * 8) + " bits";
-    }
-}
-
-
-// -----------------------------------------------------------------------------
-// 학습 포인트 2: Spring 환경에서 암복호화 유틸리티 통합
-// - `@Value`를 사용하여 `application.properties` 또는 `application.yml`에서
-//   암호화 키를 주입받아 사용할 수 있습니다.
-// - `@Configuration` 클래스에 `@Bean`으로 등록하여 필요한 곳에 주입받아 사용합니다.
-// -----------------------------------------------------------------------------
-@Configuration
-class EncryptionConfig {
-    // app.encryption.key는 application.properties에서 설정됩니다.
-    // 예: app.encryption.key=BASE64_ENCODED_AES_KEY
-    @Bean
-    public AesGcmEncryptor aesGcmEncryptor(@Value("${app.encryption.key:}") String base64Key) throws NoSuchAlgorithmException {
-        return new AesGcmEncryptor(base64Key);
-    }
-}
-
-
-// -----------------------------------------------------------------------------
-// 예시 서비스: UserService (민감 데이터 저장 및 조회)
-// -----------------------------------------------------------------------------
-@Service
-class UserService {
-    private final AesGcmEncryptor encryptor;
-    private final Map<Long, UserData> userDatabase = new ConcurrentHashMap<>();
-    private long nextId = 1;
-
-    public UserService(AesGcmEncryptor encryptor) {
-        this.encryptor = encryptor;
-    }
-
-    // 사용자 데이터를 암호화하여 저장
-    public UserData saveUser(String email, String phoneNumber, String password) throws Exception {
-        Long id = nextId++;
-        String encryptedEmail = encryptor.encrypt(email);
-        String encryptedPhoneNumber = encryptor.encrypt(phoneNumber);
-        // 비밀번호는 단방향 해싱 (예: BCrypt) 후 저장하는 것이 일반적이지만,
-        // 여기서는 양방향 암복호화 예시를 위해 암호화하여 저장. 실제로는 해싱 권장.
-        String encryptedPassword = encryptor.encrypt(password);
-
-        UserData userData = new UserData(id, encryptedEmail, encryptedPhoneNumber, encryptedPassword);
-        userDatabase.put(id, userData);
-        System.out.println("사용자 저장 (암호화된 데이터): " + userData);
-        return userData;
-    }
-
-    // 사용자 데이터를 복호화하여 조회
-    public UserData getDecryptedUser(Long id) throws Exception {
-        UserData encryptedUserData = userDatabase.get(id);
-        if (encryptedUserData == null) {
-            return null;
-        }
-
-        String decryptedEmail = encryptor.decrypt(encryptedUserData.getEncryptedEmail());
-        String decryptedPhoneNumber = encryptor.decrypt(encryptedUserData.getEncryptedPhoneNumber());
-        String decryptedPassword = encryptor.decrypt(encryptedUserData.getEncryptedPassword()); // 실제 사용 시 해싱된 비밀번호는 복호화 불필요
-
-        return new UserData(id, decryptedEmail, decryptedPhoneNumber, decryptedPassword);
-    }
-
-    // 나쁜 예시: 민감 데이터를 평문으로 저장하거나, 간단한 인코딩/디코딩만 사용하는 경우
-    // - 데이터 유출 시 심각한 보안 문제가 발생합니다.
-    // - Base64는 인코딩이지 암호화가 아님을 인지해야 합니다.
-    public void saveUserBadExample(String email, String phoneNumber) {
-        Long id = nextId++;
-        String base64EncodedEmail = Base64.getEncoder().encodeToString(email.getBytes(StandardCharsets.UTF_8));
-        String base64EncodedPhoneNumber = Base64.getEncoder().encodeToString(phoneNumber.getBytes(StandardCharsets.UTF_8));
-
-        System.out.println("나쁜 예시 - 사용자 저장 (Base64 인코딩):");
-        System.out.println("  ID: " + id + ", Email: " + base64EncodedEmail + ", Phone: " + base64EncodedPhoneNumber);
-    }
-}
-
-// 사용자 데이터 모델 (저장 시 암호화된 필드를 가집니다)
-class UserData {
-    private Long id;
-    private String encryptedEmail;
-    private String encryptedPhoneNumber;
-    private String encryptedPassword;
-
-    public UserData(Long id, String encryptedEmail, String encryptedPhoneNumber, String encryptedPassword) {
-        this.id = id;
-        this.encryptedEmail = encryptedEmail;
-        this.encryptedPhoneNumber = encryptedPhoneNumber;
-        this.encryptedPassword = encryptedPassword;
-    }
-
-    public Long getId() { return id; }
-    public String getEncryptedEmail() { return encryptedEmail; }
-    public String getEncryptedPhoneNumber() { return encryptedPhoneNumber; }
-    public String getEncryptedPassword() { return encryptedPassword; }
-
-    @Override
-    public String toString() {
-        return "UserData{"
-               + "id=" + id +
-               ", email='" + encryptedEmail + "'"
-               + ", phoneNumber='" + encryptedPhoneNumber + "'"
-               + ", password='" + encryptedPassword + "'"
-               + '}'
-    }
-}
-
+/**
+ * ========================================================================================
+ * Step 10: 데이터 암복호화 (Encryption) & 해싱 (Hashing) A-Z 완전 정복
+ * ========================================================================================
+ *
+ * 이 파일은 민감한 정보(개인정보, 비밀번호)를 안전하게 다루는 방법을 다룹니다.
+ * "암호화(Encryption)"와 "해싱(Hashing)"의 결정적인 차이를 이해하는 것이 핵심입니다.
+ *
+ * [학습 목표]
+ * 1. **암호화(양방향)**와 **해싱(단방향)**을 언제 써야 하는지 구분합니다.
+ * 2. **AES-256 GCM** 알고리즘을 사용하여 안전하게 데이터를 암복호화하는 유틸리티를 만듭니다.
+ * 3. **IV(Initialization Vector)**가 왜 필수적이며, 랜덤이어야 하는지 이해합니다.
+ * 4. 실무에서 절대 하지 말아야 할 "나쁜 암호화 습관"을 배웁니다.
+ */
 
 @SpringBootApplication
-public class DataEncryptionDecryptionApplication {
-
+public class Step10_DataEncryptionDecryption {
     public static void main(String[] args) {
-        // SpringApplication.run 전에 암호화 키 환경 변수를 설정할 수 있습니다.
-        // 또는 application.properties에 app.encryption.key=... 와 같이 설정할 수 있습니다.
-        // System.setProperty("app.encryption.key", "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789==");
-        SpringApplication.run(DataEncryptionDecryptionApplication.class, args);
+        SpringApplication.run(Step10_DataEncryptionDecryption.class, args);
     }
 
-    // CommandLineRunner를 사용하여 애플리케이션 시작 시 테스트 코드 실행
     @Bean
-    public org.springframework.boot.CommandLineRunner run(UserService userService) {
+    CommandLineRunner test(CryptoService cryptoService, PasswordService passwordService) {
         return args -> {
-            System.out.println("--- 데이터 암복호화 예제 실행 ---");
+            System.out.println("===== 1. 양방향 암호화 (AES-256) =====");
+            String phone = "010-1234-5678";
+            String encrypted = cryptoService.encrypt(phone);
+            String decrypted = cryptoService.decrypt(encrypted);
+            System.out.println("원본: " + phone);
+            System.out.println("암호화: " + encrypted);
+            System.out.println("복호화: " + decrypted);
 
-            // 나쁜 예시 테스트
-            System.out.println("\n[나쁜 예시: 평문 또는 Base64 인코딩 데이터 저장]");
-            userService.saveUserBadExample("bad_example@test.com", "010-1234-5678");
-
-            // 좋은 예시 테스트
-            System.out.println("\n[좋은 예시: AES-256 GCM 암호화 데이터 저장 및 복호화]");
-            try {
-                UserData savedUser = userService.saveUser("user@example.com", "010-1111-2222", "myStrongPassword123!");
-                System.out.println("저장된 사용자 ID: " + savedUser.getId());
-
-                UserData decryptedUser = userService.getDecryptedUser(savedUser.getId());
-                System.out.println("복호화된 사용자 이메일: " + decryptedUser.getEncryptedEmail());
-                System.out.println("복호화된 사용자 전화번호: " + decryptedUser.getEncryptedPhoneNumber());
-                System.out.println("복호화된 사용자 비밀번호: " + decryptedUser.getEncryptedPassword());
-
-                // 존재하지 않는 사용자 조회 시
-                UserData nonExistentUser = userService.getDecryptedUser(99L);
-                System.out.println("존재하지 않는 사용자 조회 결과: " + nonExistentUser);
-
-                // 동일한 평문을 여러 번 암호화해도 다른 암호문이 생성됨을 확인 (IV 덕분)
-                String plainEmail = "test@test.com";
-                String encryptedEmail1 = userService.encryptor.encrypt(plainEmail);
-                String encryptedEmail2 = userService.encryptor.encrypt(plainEmail);
-                System.out.println("\n동일 평문 암호화 (IV 효과):");
-                System.out.println("  평문: " + plainEmail);
-                System.out.println("  암호문1: " + encryptedEmail1);
-                System.out.println("  암호문2: " + encryptedEmail2);
-                System.out.println("  암호문1 == 암호문2 ? " + encryptedEmail1.equals(encryptedEmail2)); // false 예상
-
-            } catch (Exception e) {
-                System.err.println("암복호화 중 오류 발생: " + e.getMessage());
-                e.printStackTrace();
-            }
-
-            System.out.println("\n--- 데이터 암복호화 예제 완료 ---");
+            System.out.println("\n===== 2. 단방향 해싱 (BCrypt) =====");
+            String password = "mySecretPassword";
+            String hash = passwordService.hashPassword(password);
+            System.out.println("비밀번호: " + password);
+            System.out.println("해시값: " + hash);
+            System.out.println("검증 결과: " + passwordService.matches(password, hash));
         };
     }
 }
 
-/*
-이 애플리케이션을 실행하기 전에 `application.properties`에 암호화 키를 설정하거나,
-`main` 메서드 내의 `System.setProperty`를 통해 설정할 수 있습니다.
+// ========================================================================================
+// 1. [BAD Example] 잘못된 암호화 방식
+// ========================================================================================
 
-application.properties 예시:
-app.encryption.key=YOUR_BASE64_ENCODED_AES_256_KEY_HERE
-(키가 없으면 애플리케이션 시작 시 자동으로 생성되어 콘솔에 출력됩니다. 이를 복사하여 사용하세요.)
+class BadCryptoExample {
+    /**
+     * [실수 1: 비밀번호를 '암호화'해서 저장함]
+     * 비밀번호는 절대 복호화할 수 있으면 안 됩니다. (관리자도 몰라야 함)
+     * AES로 암호화하면 키가 유출됐을 때 모든 비밀번호가 털립니다.
+     * -> 해결: 해싱(Hashing)을 써야 합니다.
+     */
+    public String encryptPassword(String password) {
+        return "AES_ENCRYPTED_" + password; // 절대 금지!
+    }
 
-키 생성 예시 (Java):
-SecretKey secretKey = KeyGenerator.getInstance("AES").generateKey();
-String base64Key = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-System.out.println(base64Key); // 이 값을 application.properties에 붙여넣으세요.
+    /**
+     * [실수 2: ECB 모드 사용 & 고정 IV]
+     * ECB 모드는 같은 평문이 항상 같은 암호문으로 나옵니다. (패턴 분석 가능)
+     * -> 해결: CBC 또는 GCM 모드를 쓰고, 매번 랜덤 IV를 생성해야 합니다.
+     */
+    public void useWeakAlgorithm() {
+        // Cipher.getInstance("AES/ECB/PKCS5Padding"); // 사용 금지
+    }
+    
+    /**
+     * [실수 3: 키 하드코딩]
+     * 소스코드에 키를 적어두면 깃허브에 올리는 순간 전 세계에 공개됩니다.
+     * -> 해결: 환경 변수나 Key Vault 서비스 사용.
+     */
+    private String secretKey = "1234567812345678"; // 절대 금지!
+}
 
-테스트 결과:
-- "나쁜 예시"는 단순히 Base64 인코딩된 데이터를 출력.
-- "좋은 예시"는 암호화된 데이터를 저장하고, 조회 시 복호화하여 평문 데이터를 출력.
-- 동일한 평문을 두 번 암호화했을 때 다른 암호문이 생성되는 것을 확인하여 IV의 역할 이해.
-*/
+// ========================================================================================
+// 2. [GOOD Example] 안전한 데이터 암호화 (AES-256 GCM)
+// ========================================================================================
+
+@Component
+class CryptoService {
+    // 알고리즘: AES, 모드: GCM (데이터 무결성 보장), 패딩: NoPadding
+    private static final String ALGORITHM = "AES/GCM/NoPadding";
+    private static final int TAG_LENGTH_BIT = 128; // GCM 인증 태그 길이
+    private static final int IV_LENGTH_BYTE = 12;  // GCM 권장 IV 길이
+
+    private final SecretKey secretKey;
+
+    // 실제로는 @Value("${encryption.key}")로 주입받아야 함
+    public CryptoService() {
+        // 테스트용 임시 키 (32바이트 = 256비트)
+        byte[] keyBytes = "12345678901234561234567890123456".getBytes(StandardCharsets.UTF_8);
+        this.secretKey = new SecretKeySpec(keyBytes, "AES");
+    }
+
+    public String encrypt(String plainText) {
+        try {
+            // 1. 랜덤 IV 생성 (매번 달라야 함!)
+            byte[] iv = new byte[IV_LENGTH_BYTE];
+            new SecureRandom().nextBytes(iv);
+
+            // 2. 암호화 설정
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            GCMParameterSpec spec = new GCMParameterSpec(TAG_LENGTH_BIT, iv);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, spec);
+
+            // 3. 암호화 수행
+            byte[] cipherText = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+
+            // 4. 결과물에 IV를 붙여서 반환 (복호화할 때 필요함)
+            // 포맷: [IV (12byte)] + [Cipher Text]
+            byte[] combined = new byte[iv.length + cipherText.length];
+            System.arraycopy(iv, 0, combined, 0, iv.length);
+            System.arraycopy(cipherText, 0, combined, iv.length, cipherText.length);
+
+            return Base64.getEncoder().encodeToString(combined);
+
+        } catch (Exception e) {
+            throw new RuntimeException("암호화 실패", e);
+        }
+    }
+
+    public String decrypt(String encryptedText) {
+        try {
+            byte[] decoded = Base64.getDecoder().decode(encryptedText);
+
+            // 1. 앞부분에서 IV 추출
+            byte[] iv = new byte[IV_LENGTH_BYTE];
+            System.arraycopy(decoded, 0, iv, 0, IV_LENGTH_BYTE);
+
+            // 2. 뒷부분에서 암호문 추출
+            int cipherTextLength = decoded.length - IV_LENGTH_BYTE;
+            byte[] cipherText = new byte[cipherTextLength];
+            System.arraycopy(decoded, IV_LENGTH_BYTE, cipherText, 0, cipherTextLength);
+
+            // 3. 복호화 설정
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            GCMParameterSpec spec = new GCMParameterSpec(TAG_LENGTH_BIT, iv);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
+
+            // 4. 복호화 수행
+            byte[] plainText = cipher.doFinal(cipherText);
+            return new String(plainText, StandardCharsets.UTF_8);
+
+        } catch (Exception e) {
+            throw new RuntimeException("복호화 실패 (키가 틀리거나 데이터가 변조됨)", e);
+        }
+    }
+}
+
+// ========================================================================================
+// 3. [GOOD Example] 안전한 비밀번호 해싱 (BCrypt)
+// ========================================================================================
+
+@Service
+class PasswordService {
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    /**
+     * [해싱(Hashing)]
+     * - 단방향이므로 복호화가 불가능합니다.
+     * - 같은 비밀번호라도 매번 다른 결과(Salt)가 나옵니다. (Rainbow Table 공격 방지)
+     */
+    public String hashPassword(String rawPassword) {
+        return passwordEncoder.encode(rawPassword);
+    }
+
+    /**
+     * [검증]
+     * 사용자가 입력한 비밀번호를 해시해서 DB에 있는 해시값과 비교합니다.
+     */
+    public boolean matches(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+}
