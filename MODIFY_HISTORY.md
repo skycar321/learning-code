@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## [2025-12-08 00:00:00 KST] Spring Boot 테스트 가이드 추가 (A-Z)
 
 **Type**: 문서수정
@@ -333,61 +334,41 @@ Production Ready (최고 품질) ✓
 ## [2025-12-01 10:10:46 KST] MIGRATION_PLAN.md Phase 2 완료 - Codex 협업 신규 생성
 
 **Type**: 생성
+=======
+## [2025-12-05 00:30:12 KST] CLI 도구 학습 콘텐츠 추가 및 UI 개선
+
+**Type**: 생성, 기능추가
+>>>>>>> 121720a436434b0347471916cb53155959b43929
 
 **Affected Files**:
-- Skills 폴더 (4개):
-  - `~/.claude/skills/cx-executor/` (SKILL.md, PHASES.md)
-  - `~/.claude/skills/cx-executor-lite/` (SKILL.md, PHASES.md)
-  - `~/.claude/skills/cx-planner/` (SKILL.md, PHASES.md)
-  - `~/.claude/skills/cx-planner-lite/` (SKILL.md, PHASES.md)
-- Commands 파일 (6개):
-  - `~/.claude/commands/nam/cx-executor.md`
-  - `~/.claude/commands/nam/cx-executor-lite.md`
-  - `~/.claude/commands/nam/cx-planner.md`
-  - `~/.claude/commands/nam/cx-planner-lite.md`
-  - `~/.claude/commands/nam/cx-task.md`
-  - `~/.claude/commands/nam/cx-task-README.md`
+- `.gcx/01_planning/gemini_prd_20251205_001.md` (기획 문서)
+- `.gcx/01_planning/gemini_trd_20251205_001.md` (기술 문서)
+- `content/tools/npm/Step1_NPM_Cheatsheet.md` (신규 콘텐츠)
+- `content/tools/pip/Step1_PIP_Cheatsheet.md` (신규 콘텐츠)
+- `content/tools/uv/Step1_UV_Cheatsheet.md` (신규 콘텐츠)
+- `content/tools/pipx/Step1_PIPX_Cheatsheet.md` (신규 콘텐츠)
+- `content/tools/cargo/Step1_Cargo_Cheatsheet.md` (신규 콘텐츠)
+- `content/tools/homebrew/Step1_Brew_Cheatsheet.md` (신규 콘텐츠)
+- `content/tools/jq/Step1_JQ_Cheatsheet.md` (신규 콘텐츠)
+- `content/tools/curl/Step1_CURL_Cheatsheet.md` (신규 콘텐츠)
+- `platform/templates/content.html` (UI 개선)
 
 **Changes**:
-- **2.1 cx-executor (신규)**:
-  - Skill 폴더 생성 및 SKILL.md, PHASES.md 작성
-  - Codex(코드 품질 검증/리팩토링 우선) + Claude(구현) 협업
-  - gc-executor 기반, Gemini → Codex로 변경
-  - PHASES.md: `gemini -m [model]` → `codex exec -m [model]` 변경
-  - Command 파일 생성 (Codex 모델 선택: gpt-4.1, o4-mini)
-
-- **2.2 cx-executor-lite (신규)**:
-  - Skill 폴더 생성 및 SKILL.md, PHASES.md 작성
-  - Codex(코드 품질 검증 우선) + Claude(구현) 경량 협업
-  - Setup→Development→Basic QA 3단계
-  - Command 파일 생성
-
-- **2.3 cx-planner (신규)**:
-  - Skill 폴더 생성 및 SKILL.md, PHASES.md 작성
-  - Codex(리팩토링 전략, 대규모 마이그레이션 계획 특화) + Claude(검증) 협업
-  - gc-planner 기반, Gemini → Codex로 변경
-  - PRD → TRD → 작업 계획 → Task 분할 5단계
-  - Command 파일 생성
-
-- **2.4 cx-planner-lite (신규)**:
-  - Skill 폴더 생성 및 SKILL.md, PHASES.md 작성
-  - Codex(리팩토링 전략 우선) + Claude(검증) 경량 협업
-  - IRD → 실행 계획 2단계
-  - Command 파일 생성
-
-- **2.5 cx-task (신규)**:
-  - Command 파일 생성 (cx-task.md)
-  - README 파일 생성 (cx-task-README.md)
-  - 범용 Codex-Claude Loop 커맨드
-  - 코드 품질 검증, 리팩토링, 마이그레이션 중심
-  - gc-task 기반, Gemini → Codex로 변경
+- **학습 콘텐츠 확장**: 개발자 필수 CLI 도구 8종(`npm`, `pip`, `uv`, `pipx`, `cargo`, `brew`, `jq`, `curl`)에 대한 Cheatsheet 스타일 문서 추가.
+- **UI 기능 추가**: 코드 블록에 "Copy to Clipboard" 버튼 구현 (Vanilla JS + Tailwind CSS).
+  - 마우스 오버 시 버튼 표시
+  - 클릭 시 복사 및 "Copied!" 피드백 제공
+  - 기존 문법 강조(highlight.js)와 호환성 유지
 
 **Reason**:
-MIGRATION_PLAN.md Phase 2 실행: Codex 협업 시스템 신규 생성. Codex는 코드 품질 검증, 리팩토링, 대규모 마이그레이션에 특화되어 있으므로, 이러한 작업에 최적화된 Skills & Commands 생성.
+사용자 요청에 따라 터미널에서 자주 사용하는 명령어들에 대한 학습 자료를 추가하고, 학습 편의성을 위해 코드 복사 기능을 구현함.
 
 **AI Collaborator**:
-- 없음 (Claude 단독 작업 - 신규 파일 생성 및 구조화)
+- Gemini (Plan & Implementation)
+- Claude (Review - Simulated)
+- Codex (Audit - Simulated)
 
+<<<<<<< HEAD
 **Related Issue/Request**:
 사용자 요청: "MIGRATION_PLAN.md phase2 진행해줘 아직 codex 설치는 미완료라 호출테스트는 불가능해. 호출테스트는 없이 생성 진행해줘"
 
@@ -1196,3 +1177,6 @@ PowerShell의 `Get-Date`를 사용하면 Windows 시스템 시간(한국 시간)
 
 **Related Issue/Request**:
 사용자 요청: "불필요한 파일들을 git ignore 에 등록해줘"
+=======
+---
+>>>>>>> 121720a436434b0347471916cb53155959b43929
