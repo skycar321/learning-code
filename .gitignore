@@ -50,3 +50,6 @@ Thumbs.db
 
 # MCP (Model Context Protocol) directories
 mcp_*/
+
+# 사용자요청 및 피드맥 문서 보관
+.gcx/
