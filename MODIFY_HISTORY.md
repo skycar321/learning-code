@@ -1,3 +1,31 @@
+## [2025-12-08 21:03:53 KST] Gemini nanobanana MCP 서버 설정 추가
+
+**Type**: 설정변경
+
+**Affected Files**:
+- `C:\Users\Nam\.gemini\settings.json`
+
+**Changes**:
+- nanobanana MCP 서버를 mcpServers에 추가
+- GEMINI_API_KEY 환경 변수 설정 구성
+- node 명령으로 dist/index.js 실행하도록 설정
+
+**Reason**:
+사용자가 Gemini CLI에서 nanobanana MCP 서버 사용 시 "No valid API key found" 에러 발생. MCP 서버는 별도 프로세스로 실행되어 환경 변수가 필요하므로 settings.json에 환경 변수 설정을 추가.
+
+**AI Collaborator**:
+- 없음 (Claude 단독 작업)
+
+**Related Issue/Request**:
+Gemini에서 /nanobanana 명령 실행 시 API key 에러 해결
+
+**Next Steps**:
+1. settings.json 48번 라인의 "YOUR_API_KEY_HERE"를 실제 Gemini API 키로 교체
+2. Gemini CLI 재시작
+3. /nanobanana 명령 테스트
+
+---
+
 <<<<<<< HEAD
 ## [2025-12-08 00:00:00 KST] Spring Boot 테스트 가이드 추가 (A-Z)
 
