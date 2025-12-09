@@ -1,0 +1,112 @@
+
+@Getter
+@RequiredArgsConstructor
+public enum ChkScopeType {
+
+    MONTHLY("02", "table_MM", "2", "yyyymm", false),
+    THREE_MONTH("03", "table_3M", "3", "yyyymm", false),
+    SIX_MONTH("04", "table_6M", "6", "yyyymm", false),
+    DAILY("08", "table_TXN", "2", "yyyymmdd", true);
+
+    private final String code;           // chkScopeVal 값
+    private final String tableName;      // 소스 테이블명
+    private final String intervalMonth;  // 인터벌 개월 수
+    private final String dateFormat;     // 날짜 포맷
+    private final boolean isDaily;       // 일배치 여부 (특수 조건 적용)
+
+    public static ChkScopeType fromCode(String code) {
+        for (ChkScopeType type : values()) {
+            if (type.code.equals(code)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Unknown chkScopeVal: " + code);
+    }
+
+    /**
+     * 시작일 조건절 생성
+     */
+    public String getStartDateCondition(String paramName) {
+        if (isDaily) {
+            return String.format(
+                "date_trunc('month', to_date(#{%s}, '%s')) - interval '%s month'",
+                paramName, dateFormat, intervalMonth
+            );
+        }
+        return String.format(
+            "to_date(#{%s}, '%s') - interval '%s month'",
+            paramName, dateFormat, intervalMonth
+        );
+    }
+
+    /**
+     * 종료일 조건절 생성
+     */
+    public String getEndDateCondition(String paramName) {
+        if (isDaily) {
+            return String.format(
+                "to_date(#{%s}, '%s') + interval '1 day'",
+                paramName, dateFormat
+            );
+        }
+        return String.format(
+            "to_date(#{%s}, '%s')",
+            paramName, dateFormat
+        );
+    }
+}
+```
+
+#### Step 2: Job Configuration에서 파라미터 세팅
+```java
+// PreStep 내부
+ChkScopeType scopeType = ChkScopeType.fromCode(jobMap.get("chkScopeVal"));
+
+Map<String, Object> queryParams = new HashMap<>();
+queryParams.put("param1", jobMap.get("param1"));
+queryParams.put("chkScopeVal", jobMap.get("chkScopeVal"));
+queryParams.put("sourceTable", scopeType.getTableName());
+queryParams.put("intervalMonth", scopeType.getIntervalMonth());
+queryParams.put("dateFormat", scopeType.getDateFormat());
+queryParams.put("isDaily", scopeType.isDaily());
+
+wlessMapper.createTmpTableC(queryParams);
+```
+
+#### Step 3: MyBatis XML (단순화)
+```xml
+<update id="createTmpTableC" parameterType="Map">
+    CREATE TABLE SQMBAT.TMP_TABLE_C AS
+    SELECT ${aColumn}, ${bColumn}
+    FROM a_table a
+    INNER JOIN b_table b ON a.id = b.id
+    WHERE 1=1
+    <choose>
+        <when test="isDaily == true">
+            AND a.opn_dt >= date_trunc('month', to_date(#{param1}, ${dateFormat})) - interval '${intervalMonth} month'
+            AND a.opn_dt &lt; to_date(#{param1}, ${dateFormat}) + interval '1 day'
+        </when>
+        <otherwise>
+            AND a.opn_dt >= to_date(#{param1}, ${dateFormat}) - interval '${intervalMonth} month'
+            AND a.opn_dt &lt; to_date(#{param1}, ${dateFormat})
+        </otherwise>
+    </choose>
+</update>
+```
+
+### 장점 ✅
+- 비즈니스 로직이 Java Enum에 집중되어 관리 용이
+- IDE 자동완성, 컴파일 타임 체크 가능
+- 새로운 chkScopeVal 추가 시 Enum만 수정
+- 테스트 코드 작성 용이
+- 타입 안전성 확보
+
+### 단점 ❌
+- 초기 구현 비용 발생
+- Enum과 XML 양쪽 관리 필요
+- `${}` 사용 시 SQL Injection 주의 필요 (테이블명 등은 Enum에서만 오므로 안전)
+
+### 적합한 상황
+- 조건이 5개 이상으로 복잡한 경우
+- 향후 확장 가능성이 높은 경우
+- 타입 안전성과 유지보수성이 중요한 경우
