@@ -58,7 +58,7 @@ public class Step6_ObjectCreation {
 
         @Override
         public String toString() {
-            return "User{" + "name='" + name + '\'', email='" + email + '\'', age=" + age + ", address='" + address + '\'' + '}' ;
+            return "User{" + "name='" + name + "'\'', email='" + email + "'\'', age=" + age + ", address='" + address + '\'' + '}' ;
         }
 
         /**
