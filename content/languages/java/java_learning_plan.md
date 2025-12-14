@@ -28,7 +28,18 @@
 ﻿
 ﻿---
 ﻿
-﻿### **각 단계별 상세 내용 (예시)**
+﻿### 빠른 실행 안내 (Step 1~3)
+```bash
+# JDK 17+ 권장, 파일마다 컴파일 후 실행
+javac Step1_VariablesAndConstants.java && java Step1_VariablesAndConstants
+javac Step2_NullHandling.java && java Step2_NullHandling
+javac Step3_StringManipulation.java && java Step3_StringManipulation
+```
+> bad 예시는 주석을 풀어 실행하며 경고/예외를 직접 경험해보세요.
+
+---
+
+### **각 단계별 상세 내용 (예시)**
 ﻿
 ﻿#### **Step 1: 변수와 상수**
 ﻿- **나쁜 예시**: 코드에 `86400`과 같은 의미를 알 수 없는 숫자를 직접 사용합니다. (매직 넘버)
@@ -75,3 +86,5 @@
 ﻿| **GraalVM & Native Image** | GraalVM을 사용한 네이티브 이미지 컴파일로 빠른 시작 시간과 낮은 메모리 사용량을 달성합니다. | 고급 |
 ﻿| **Reactive Streams (Project Reactor)** | Non-blocking, 비동기 데이터 스트림 처리를 위한 리액티브 프로그래밍 라이브러리를 학습합니다. | 고급 |
 ﻿
+
+

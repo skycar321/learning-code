@@ -8,6 +8,34 @@
 
 ---
 
+```mermaid
+flowchart LR
+  A[Step1 기본개념] --> B[Step2 Hooks]
+  B --> C[Step3 라이프사이클(useEffect)]
+  C --> D[Step4 이벤트]
+  D --> E[Step5 조건/리스트]
+  E --> F[Step6 폼]
+  F --> G[Step7 전역상태]
+  G --> H[Step8 라우터]
+  H --> I[Step9 데이터패칭]
+  I --> J[Step10 성능/테스트]
+```
+
+```mermaid
+sequenceDiagram
+  participant User
+  participant UI as React UI
+  participant State as State/Store
+  participant API as API Server
+  User->>UI: 입력/클릭
+  UI->>State: setState / dispatch
+  State-->>UI: 새로운 state 렌더
+  UI->>API: fetch/axios (필요 시)
+  API-->>UI: JSON 응답
+  UI->>State: 응답을 상태로 반영
+  State-->>UI: UI 재렌더
+```
+
 ### **학습 로드맵**
 
 | 단계 | 주제 | 학습 목표 | 상태 |
@@ -30,6 +58,120 @@
 #### **Step 1: React 기본 개념**
 - **나쁜 예시**: JSX 안에 직접 DOM 조작 코드를 작성하거나, 컴포넌트 간에 props 없이 전역 변수를 공유합니다.
 - **좋은 예시**: JSX 문법을 사용하여 선언적으로 UI를 구성하고, props를 통해 데이터를 단방향으로 전달하여 컴포넌트의 재사용성을 높입니다.
+
+---
+
+### 성능 체크리스트 & 실행 예시
+- 렌더 최소화: `React.memo`로 값/props 변동이 없을 때 재렌더 방지.
+- 핸들러 메모이제이션: 리스트 아이템에 넘기는 콜백은 `useCallback`으로 감싸기.
+- 값 계산 메모이제이션: 무거운 계산은 `useMemo`로 캐싱.
+- 리스트 key: 데이터의 고유 id 사용, 인덱스 사용은 지양.
+- 네트워크: SWR/React Query로 캐싱·중복요청 방지.
+
+```jsx
+// useCallback + useMemo 예시
+import { useCallback, useMemo, useState } from "react";
+
+function PriceList({ items }) {
+  const [keyword, setKeyword] = useState("");
+  const filtered = useMemo(
+    () => items.filter((it) => it.name.includes(keyword)),
+    [items, keyword]
+  );
+  const handleChange = useCallback((e) => setKeyword(e.target.value), []);
+
+  return (
+    <>
+      <input value={keyword} onChange={handleChange} />
+      <ul>
+        {filtered.map((it) => (
+          <li key={it.id}>{it.name}: {it.price}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
+```
+
+### 코드 스플리팅/지연 로딩 예시
+```jsx
+import { Suspense, lazy } from "react";
+const Chart = lazy(() => import("./Chart")); // 번들 분리
+
+export default function Dashboard() {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <Suspense fallback={<p>Loading chart...</p>}>
+        <Chart />
+      </Suspense>
+    </div>
+  );
+}
+```
+
+### 데이터 패칭 + 캐싱(SWR) 예시
+```jsx
+import useSWR from "swr";
+const fetcher = (url) => fetch(url).then((r) => r.json());
+
+function UserList() {
+  const { data, error, isLoading } = useSWR("/api/users", fetcher, { refreshInterval: 30000 });
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>에러 발생</p>;
+  return (
+    <ul>
+      {data.map((u) => (
+        <li key={u.id}>{u.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+```mermaid
+flowchart LR
+  subgraph Perf
+  A[입력 변경] --> B[useCallback 핸들러 동일]
+  B --> C[useMemo 필터 결과 재사용]
+  C --> D[React.memo 자식은 props 불변시 스킵]
+  end
+```
+
+### Lighthouse/Profiler 활용 가이드 (요약)
+1) **React Profiler**: DevTools → Profiler 탭 → “Record” 후 상호작용 → 재렌더 시간 긴 컴포넌트 확인.  
+2) **Lighthouse**: Chrome DevTools → Lighthouse → Performance/Best Practices 체크 → “Generate Report”.  
+3) **즉시 개선 포인트**:  
+   - CLS: 이미지에 width/height 지정, 레이아웃 시프트 최소화.  
+   - TTI: 불필요한 스크립트 지연 로딩, 코드 스플리팅 확대.  
+   - TBT: 무거운 동기 연산을 Web Worker로 이동.
+
+### 코드 스플리팅 실전 시나리오 (페이지 단위)
+```jsx
+import dynamic from "next/dynamic";
+const AdminPanel = dynamic(() => import("./AdminPanel"), { suspense: true });
+
+export default function Page() {
+  return (
+    <Suspense fallback={<p>Loading admin...</p>}>
+      <AdminPanel />
+    </Suspense>
+  );
+}
+```
+
+### Web Vitals 로그 예시
+```js
+export function reportWebVitals(metric) {
+  // metric: { id, name, startTime, value, label }
+  fetch("/vitals", {
+    method: "POST",
+    body: JSON.stringify(metric),
+    keepalive: true,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+```
 - **학습 포인트**: React는 선언적 UI와 컴포넌트 기반 아키텍처를 통해 효율적인 웹 애플리케이션 개발을 지원합니다. JSX, Props, State의 개념을 명확히 이해하고 올바르게 사용하는 것이 중요합니다.
 
 ---

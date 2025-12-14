@@ -12,6 +12,41 @@ NestJS는 Node.js 기반의 서버 사이드 애플리케이션 개발을 위한
 
 ## 학습 내용 (Learning Content)
 
+```mermaid
+flowchart LR
+  A[Step1 기본/아키텍처] --> B[Step2 DB/ORM]
+  B --> C[Step3 인증/인가]
+  C --> D[Step4 고급 기능]
+  D --> E[Step5 마이크로서비스/GraphQL]
+```
+
+```mermaid
+flowchart LR
+  Client --> Controller --> Service --> Repository --> DB[(Database)]
+  Controller --> Guard[Auth Guard]
+  Controller --> Pipe[Validation Pipe]
+  Service --> Provider[Dependency Injection]
+```
+
+---
+
+### 성능/안정성 체크리스트
+- Validation Pipe 전역 적용: DTO + `class-validator`로 요청 입력 검증.
+- 캐싱: `CacheModule` + `@UseInterceptors(CacheInterceptor)`로 읽기 트래픽 감소.
+- DB 커넥션 풀: ORM 커넥션 수, 타임아웃 적절히 설정.
+- 로깅/트레이싱: `Logger`, `nestjs-pino`, OpenTelemetry 연동.
+- 헬스체크: `@nestjs/terminus`로 `/healthz` 엔드포인트 제공.
+
+```ts
+// main.ts - 전역 파이프/캐시 예시
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalInterceptors(new CacheInterceptor(app.get(CacheManager)));
+  await app.listen(3000);
+}
+```
+
 ### 1단계: NestJS 기본 개념 및 시작 (NestJS Basics & Getting Started)
 *   NestJS 소개 (Introduction to NestJS) - 철학, 장점
 *   Node.js 프레임워크 생태계에서의 위치 (Position in Node.js Ecosystem)
@@ -27,6 +62,31 @@ NestJS는 Node.js 기반의 서버 사이드 애플리케이션 개발을 위한
 *   스키마 정의 및 모델링 (Schema Definition & Modeling)
 *   CRUD 작업 구현 (Implementing CRUD Operations)
 *   트랜잭션 관리 (Transaction Management)
+
+### E2E 테스트 스니펫
+```ts
+// test/app.e2e-spec.ts
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { AppModule } from '../src/app.module';
+
+describe('App (e2e)', () => {
+  let app: INestApplication;
+
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+    app = moduleFixture.createNestApplication();
+    await app.init();
+  });
+
+  it('/health (GET)', () => {
+    return request(app.getHttpServer()).get('/health').expect(200);
+  });
+});
+```
 
 ### 3단계: 인증 및 인가 (Authentication & Authorization)
 *   인증(Authentication) 전략 (Authentication Strategies) - Local, JWT, OAuth

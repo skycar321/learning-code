@@ -33,6 +33,15 @@
 
 요구사항이 정리되었다면, 다음 단계로 개발을 진행합니다. 각 단계별 산출물과 주의사항입니다.
 
+```mermaid
+flowchart LR
+  A[기획/설계] --> B[개발]
+  B --> C[검증/QA]
+  C --> D[배포/운영]
+  D --> E[모니터링/유지보수]
+  E -->|피드백| A
+```
+
 ### Phase 1: 기획 및 설계 (Planning & Design)
 
 1.  **PRD (Product Requirement Document, 제품 요구사항 정의서)**

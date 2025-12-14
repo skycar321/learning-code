@@ -12,6 +12,128 @@ Kubernetes는 컨테이너화된 워크로드를 자동으로 배포, 스케일�
 
 ## 학습 내용 (Learning Content)
 
+```mermaid
+flowchart TD
+  subgraph Workload
+    D[Deployment] --> RS[ReplicaSet] --> P[Pod]
+    P --> C[Container]
+  end
+  P --> Svc[Service]
+  Svc --> Ingress[Ingress]
+  P --> PVC[PVC] --> PV[PV]
+  ConfigMap --> P
+  Secret --> P
+```
+
+```mermaid
+flowchart LR
+  Dev[Git Repo] --> CI[CI 빌드/테스트]
+  CI --> Img[이미지 레지스트리]
+  Dev --> Charts[Helm Chart Repo]
+  Img --> Argo[ArgoCD]
+  Charts --> Argo
+  Argo --> K8s[쿠버네티스 클러스터]
+  Argo --> Sync[자동 동기화/롤백]
+```
+
+### Helm values 예시 (간단)
+```yaml
+image:
+  repository: myapp
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+ingress:
+  enabled: true
+  hosts:
+    - host: myapp.example.com
+      paths: [/]
+```
+
+### ArgoCD Application 예시
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: myapp
+  namespace: argocd
+spec:
+  destination:
+    namespace: default
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: https://github.com/org/myapp-helm.git
+    path: charts/myapp
+    targetRevision: main
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+```
+
+| 명령/파일 | 기대 효과 | 흔한 실수 |
+| --- | --- | --- |
+| `kubectl apply -f deployment.yaml` | 선언적 배포/업데이트 | `kubectl run`으로 임시 리소스 남김 |
+| `kubectl rollout status deploy/myapp` | 배포 완료 여부 확인 | 상태 확인 없이 바로 트래픽 전환 |
+| `helm upgrade --install myapp ./chart -f values.yaml` | 차트 배포 | values 오타로 이미지/리소스 잘못 배포 |
+| ArgoCD Application | Git 기반 선언적 배포/자동 동기화 | 소스 경로(path)·revision 오타, 자동 삭제(prune) 미설정 |
+
+### 오토스케일/HPA 예시
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: myapp-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: myapp
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+```
+
+### PDB/Anti-Affinity 짧은 샘플
+```yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: myapp-pdb
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: myapp
+---
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  template:
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values: [myapp]
+            topologyKey: "kubernetes.io/hostname"
+```
+
 ### 1단계: 컨테이너 및 Kubernetes 기본 (Containers & Kubernetes Basics)
 *   컨테이너 개념 및 Docker (Container Concepts & Docker) - 가상화와의 비교
 *   Kubernetes 소개 (Introduction to Kubernetes) - 탄생 배경, 목적, 특징

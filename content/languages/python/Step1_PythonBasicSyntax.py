@@ -1,16 +1,21 @@
 # Python 기본 문법
 # 변수, 자료형, 연산자, 조건문, 반복문 등 기본 문법 이해
 
-# 나쁜 예시: 한 줄에 여러 문장을 세미콜론으로 구분하여 작성하거나, 불필요한 괄호를 사용하여 가독성을 떨어뜨립니다.
-# 좋은 예시: PEP 8 코딩 스타일 가이드를 준수하여 들여쓰기, 공백 등을 적절히 사용하여 가독성 높은 코드를 작성합니다.
+# 나쁜 예시 (bad): 한 줄에 여러 문장을 세미콜론으로 이어 쓰고, 변수명을 모호하게 사용해 읽기 어렵습니다.
+#   bad = 1; bad2=2;result=bad+bad2;print(result)
+# 좋은 예시 (good): 한 줄에 한 문장, 의미 있는 변수명, PEP8 공백 규칙을 지켜 읽기 쉽게 작성합니다.
+#   first = 1
+#   second = 2
+#   total = first + second
+#   print(total)
 
-# 변수와 자료형
-name = "Alice"  # 문자열 (string)
-age = 30        # 정수 (int)
-height = 1.75   # 실수 (float)
-is_student = True # 불리언 (bool)
-fruits = ["apple", "banana", "cherry"] # 리스트 (list)
-person = {"name": "Bob", "age": 25} # 딕셔너리 (dictionary)
+# 변수와 자료형 (초보자가 바로 따라할 수 있게 간단한 예제)
+name = "Alice"                  # 문자열 (string)
+age = 30                        # 정수 (int)
+height = 1.75                   # 실수 (float)
+is_student = True               # 불리언 (bool)
+fruits = ["apple", "banana"]    # 리스트 (list)
+person = {"name": "Bob", "age": 25}  # 딕셔너리 (dictionary)
 
 print(f"이름: {name}, 나이: {age}, 키: {height}, 학생 여부: {is_student}")
 
@@ -60,8 +65,7 @@ def calculate_area(width, height):
 area = calculate_area(5, 4)
 print(f"계산된 넓이: {area}")
 
-# 주석 예시 (한글)
-# 이 부분은 사용자 입력 처리 로직입니다.
-# 다음 줄은 데이터베이스에서 정보를 가져오는 함수를 호출합니다.
-
-# TODO: 추후에 데이터 검증 로직 추가 필요
+# 주석 예시 (비전공자도 이해할 수 있게 배경 설명)
+# - 아래 로직은 "사용자 입력을 받아 검증 → DB 조회" 흐름을 흉내낸 것이라고 가정합니다.
+# - 실제 DB는 사용하지 않지만, 어떤 단계가 추가되어야 하는지 TODO로 남겨 둡니다.
+# TODO: 추후에 데이터 검증 로직 추가 필요 (예: 길이, 금지어 필터 등)
