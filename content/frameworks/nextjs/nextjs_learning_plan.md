@@ -12,6 +12,118 @@ Next.js는 React 기반의 프레임워크로, 서버 사이드 렌더링(SSR), 
 
 ## 학습 내용 (Learning Content)
 
+```mermaid
+flowchart LR
+  A[Step1 기본/라우팅] --> B[Step2 렌더링 전략]
+  B --> C[Step3 데이터 패칭]
+  C --> D[Step4 스타일/최적화]
+  D --> E[Step5 배포/고급]
+```
+
+```mermaid
+flowchart TB
+  subgraph CSR
+    c1[사용자] --> c2[브라우저]
+    c2 --> c3[fetch 클라이언트]
+    c3 --> c4[렌더링]
+  end
+  subgraph SSR
+    s1[사용자 요청] --> s2[getServerSideProps]
+    s2 --> s3[HTML+JSON 응답]
+    s3 --> s4[브라우저 렌더]
+  end
+  subgraph SSG/ISR
+    g1[빌드 시 getStaticProps] --> g2[정적 HTML+JSON]
+    g2 --> g3[CDN 배포]
+    g3 --> g4[사용자 즉시 응답]
+  end
+```
+
+---
+
+### 데이터 패칭 코드 스니펫 (SSR vs SSG/ISR)
+```tsx
+// pages/products/[id].tsx - SSR
+export async function getServerSideProps({ params }) {
+  const res = await fetch(`https://api.example.com/products/${params.id}`);
+  const product = await res.json();
+  return { props: { product } };
+}
+export default function Product({ product }) { /* ... */ }
+```
+
+```tsx
+// pages/blog/[slug].tsx - SSG + ISR
+export async function getStaticPaths() {
+  const slugs = await fetch("https://api.example.com/blog/slugs").then(r=>r.json());
+  return { paths: slugs.map((s)=>({ params:{ slug:s }})), fallback: 'blocking' };
+}
+export async function getStaticProps({ params }) {
+  const post = await fetch(`https://api.example.com/blog/${params.slug}`).then(r=>r.json());
+  return { props: { post }, revalidate: 60 }; // ISR: 60초마다 재생성
+}
+```
+
+### 성능 체크리스트
+- 렌더링 전략: 데이터 변동 빈도에 따라 CSR/SSR/SSG/ISR 선택.
+- 캐싱: `Cache-Control`, ISR `revalidate`, Edge CDN 적극 활용.
+- 이미지 최적화: `next/image` + 자동 크기조절/포맷 전환.
+- 번들 최적화: `next/dynamic`로 코드 스플리팅, 불필요한 polyfill 제거.
+- 측정: `next build`의 분석 리포트, Lighthouse/Next Analytics 확인.
+
+### 코드 스플리팅/지연 로딩 예시
+```tsx
+import dynamic from "next/dynamic";
+const Chart = dynamic(() => import("../components/Chart"), { ssr: false, loading: () => <p>Loading...</p> });
+
+export default function Dashboard({ data }) {
+  return (
+    <main>
+      <h1>Dashboard</h1>
+      <Chart data={data} /> {/* 차트는 클라이언트 전용, 초기 번들 분리 */}
+    </main>
+  );
+}
+```
+
+### Edge/서버 캐싱 힌트 (App Router 예시)
+```tsx
+export const revalidate = 120;          // ISR 주기
+export const dynamic = "force-static";  // 강제 정적
+export const fetchCache = "force-cache";
+
+export default async function Page() {
+  const data = await fetch("https://api.example.com/data", { next: { revalidate: 120 }}).then(r=>r.json());
+  return <pre>{JSON.stringify(data,null,2)}</pre>;
+}
+```
+
+### 측정 & 분석 퀵 가이드
+- `next build` → 번들 분석: `ANALYZE=true next build` 환경변수 사용.
+- Lighthouse: Performance/SEO/Best Practices 점수 체크, LCP/CLS 개선 목표 설정.
+- Web Vitals 로깅: `_app.tsx`에서 `reportWebVitals` 구현 후 APM/Log 전송.
+
+### Web Vitals 로깅 코드 (pages/_app.tsx)
+```tsx
+export function reportWebVitals(metric) {
+  const body = JSON.stringify(metric);
+  navigator.sendBeacon?.('/vitals', body) ||
+    fetch('/vitals', { method: 'POST', body, keepalive: true, headers: { 'Content-Type': 'application/json' } });
+}
+```
+
+### Edge 캐싱 힌트 (Middleware 예시)
+```ts
+// middleware.ts
+import { NextResponse } from 'next/server';
+export function middleware(req) {
+  const res = NextResponse.next();
+  res.headers.set('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+  return res;
+}
+export const config = { matcher: ['/products/:path*'] };
+```
+
 ### 1단계: Next.js 기본 개념 및 시작 (Next.js Basics & Getting Started)
 *   Next.js 소개 (Introduction to Next.js) - React와의 차이점
 *   Next.js 프로젝트 생성 (Creating Next.js Project) - `create-next-app`

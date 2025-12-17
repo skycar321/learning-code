@@ -1,65 +1,47 @@
 # 실무 JavaScript 코드 학습 계획
 
-안녕하세요! 미래의 멋진 JavaScript 개발자 여러분!
-
-이 학습 계획은 여러분이 단순한 문법 지식을 넘어, 실제 프로젝트에서 마주하게 될 상황에 대비하여 견고하고 유지보수하기 쉬운 JavaScript 코드를 구성하는 데 필요한 핵심 역량을 길러주기 위해 기획되었습니다. 각 단계에서 제시하는 '나쁜 예시'를 통해 흔히 저지르는 실수를 파악하고, '좋은 예시'를 통해 모범 사례와 그 배경에 있는 원칙을 깊이 있게 이해하는 것이 중요합니다.
-
-각 학습 주제는 상세한 설명과 코드 예시를 포함하며, '왜', '어떤 상황에서', '이 해당 패턴을 사용해야 하는지'를 깊이 있게 이해하는 학습이 되도록 합니다. 주도적인 학습을 위해 직접 예시 코드를 실행해보고, 나쁜 코드를 좋은 코드로 리팩토링하는 연습을 해볼 것을 강력히 추천합니다! 모든 학습 과정을 성공적으로 마치고 나면, 여러분은 자신감 넘치는 개발자로 성장해 있을 것입니다. 자, 그럼 시작해볼까요!
+순수 JS로 기초를 다지고 브라우저/Node 환경 모두에서 안전하게 사용할 수 있는 패턴을 익히는 로드맵입니다. 각 단계는 간단한 bad/good 대비와 실행 방법을 제공합니다.
 
 ---
 
-### **학습 로드맵**
+### 학습 로드맵
 
 | 단계 | 주제 | 학습 목표 | 상태 |
 | :-- | :--- | :--- | :--- |
-| **Step 1** | **변수와 스코프** | `var`의 문제점을 이해하고 `let`, `const`를 사용한 블록 스코프 관리 | 완료 |
-| **Step 2** | **자료구조와 원시타입** | JavaScript의 7가지 원시 타입과 객체 타입의 차이, 참조에 의한 전달 이해 | 완료 |
-| **Step 3** | **함수와 실행 컨텍스트** | 함수 선언, 표현식, 화살표 함수의 차이와 this, 실행 컨텍스트 학습 | 완료 |
-| **Step 4** | **프로토타입과 클래스** | 프로토타입 체인을 이해하고 ES6 클래스를 사용한 객체 지향 프로그래밍 학습 | 완료 |
-| **Step 5** | **배열 고차 함수** | `map`, `filter`, `reduce` 등 선언적이고 함수형인 배열 처리 방법 학습 | 완료 |
-| **Step 6** | **비동기 처리: Promise와 Async/Await** | 콜백 지옥을 피하고 Promise와 Async/Await를 사용한 비동기 로직 제어 | 완료 |
-| **Step 7** | **DOM 조작과 이벤트** | 효율적인 DOM 요소 선택 및 조작, 이벤트 버블링과 캡처링, 위임 이해 | 완료 |
-| **Step 8** | **모듈 시스템** | CommonJS와 ES Modules(ESM)의 차이를 이해하고 모듈 기반 개발 학습 | 완료 |
-| **Step 9** | **에러 핸들링** | `try...catch`와 `throw`를 사용한 예측 가능한 에러 처리 전략 수립 | 완료 |
-| **Step 10** | **성능 최적화와 번들링** | 이벤트 루프, 렌더링 최적화, Webpack/Vite를 사용한 번들링 기초 | 완료 |
+| **Step 1** | **기본 문법** | 변수 선언(`let/const`), 스코프, 기본 연산 이해 | 완료 |
+| **Step 2** | **함수와 스코프** | 함수 선언/표현식, 클로저, this 바인딩 | 완료 |
+| **Step 3** | **비동기 처리** | 콜백, Promise, async/await 흐름 이해 | 완료 |
+| **Step 4** | **객체·프로토타입** | 프로토타입 체인, 객체 생성 패턴 | 완료 |
+| **Step 5** | **배열·고차함수** | `map/filter/reduce` 활용 | 완료 |
+| **Step 6** | **DOM & 이벤트** | DOM 선택/조작, 이벤트 버블링 | 완료 |
+| **Step 7** | **모듈 시스템** | ES Modules vs CommonJS | 완료 |
+| **Step 8** | **에러 처리/디버깅** | `try/catch`, 콘솔·브레이크포인트 활용 | 완료 |
+| **Step 9** | **Fetch/API 통신** | fetch, AJAX, CORS 기본 | 완료 |
+| **Step 10** | **성능 & 번들링 개념** | 이벤트 루프, Webpack/Vite 개요 | 완료 |
 
 ---
 
-### **각 단계별 상세 내용 (예시)**
-
-#### **Step 6: 비동기 처리: Promise와 Async/Await**
-- **나쁜 예시**: 콜백 함수를 중첩하여 사용하여 "콜백 지옥(Callback Hell)"을 만들고, 코드의 가독성과 유지보수성을 크게 떨어뜨립니다.
-- **좋은 예시**: `Promise`를 반환하는 함수를 만들고, `async/await` 구문을 사용하여 동기 코드처럼 보이는 비동기 코드를 작성하여 가독성을 높입니다.
-- **학습 포인트**: JavaScript는 싱글 스레드 기반 언어이므로 비동기 처리가 필수적입니다. `Promise`는 비동기 작업의 상태(대기, 성공, 실패)를 관리하는 객체이며, `async/await`는 이를 더 쉽게 다룰 수 있게 해주는 문법적 설탕(Syntactic Sugar)입니다. 이를 통해 복잡한 비동기 로직을 명확하고 순차적으로 표현할 수 있습니다.
-
----
-
-### **생성될 JavaScript 파일 목록**
-
-`c:/Users/Nam/Documents/Cursor/Workspace/origin/learning-code/javascript` 경로에 다음 파일들이 생성될 예정입니다. 이 파일들은 나쁜 예시와 좋은 예시 코드를 포함하며, 상세한 주석을 통해 각 패턴을 심층적으로 학습할 수 있도록 구성될 것입니다.
-
+### 빠른 실행 안내 (Step 1~3)
+```bash
+node Step1_JavaScriptBasicSyntax.js
+node Step2_FunctionsAndScope.js
+node Step3_AsynchronousProcessing.js
 ```
-learning-code/javascript/
-├── Step1_VariablesAndScope.js
-├── Step2_DataTypes.js
-├── Step3_FunctionsAndContext.js
-├── Step4_PrototypesAndClasses.js
-├── Step5_ArrayHigherOrderFunctions.js
-├── Step6_AsyncPromiseAwait.js
-├── Step7_DOMAndEvents.js
-├── Step8_ModuleSystems.js
-├── Step9_ErrorHandling.js
-├── Step10_PerformanceAndBundling.js
-```
+> Node 18+ 권장. bad 예시는 주석으로 남겨두었으니 풀어 보며 차이를 확인하세요.
 
 ---
 
-### **추가 학습 권장 사항**
+### 각 단계별 간단 노트
+- **Step1 기본 문법**: `var` 대신 `let/const`, 템플릿 리터럴 사용.  
+- **Step2 함수/스코프**: 화살표 함수의 `this`는 상위 스코프를 캡처한다는 점 주의.  
+- **Step3 비동기**: 콜백 중첩(bad) ↔ `async/await`와 `Promise.all`(good).
+- **Step4~6 최신 문법**: 옵셔널 체이닝 `obj?.a?.b`, Null 병합 `value ?? default`로 안전한 접근.  
+- **Step7 모듈**: ES Modules를 기본으로 사용, CJS와 혼용 시 확장자/`type: module` 설정 주의.
 
-| 주제 | 설명 | 난이도 |
-|:-----|:-----|:------:|
-| **TypeScript** | JavaScript에 정적 타입을 추가하여 대규모 애플리케이션의 안정성과 유지보수성을 향상시킵니다. | 중급 |
-| **Node.js** | 서버 사이드 JavaScript 런타임으로, Express/Fastify 프레임워크와 함께 백엔드 개발을 학습합니다. | 중급 |
-| **React/Vue/Svelte** | 현대적인 프론트엔드 프레임워크를 사용하여 컴포넌트 기반의 인터랙티브 UI를 개발하는 방법을 학습합니다. | 중급 |
-| **테스팅 (Jest, Vitest)** | 단위 테스트, 통합 테스트, E2E 테스트를 통한 안정적인 코드 작성 방법을 익힙니다. | 중급 |
-| **함수형 프로그래밍** | 순수 함수, 불변성, 커링 등 JavaScript로 함수형 프로그래밍 패러다임을 깊이 있게 학습합니다. | 고급 |
+### 추가 심화
+- ES202x 최신 문법(Optional Chaining, Nullish Coalescing)
+- 브라우저/Node 공통 모듈 작성 패턴 (ESM 기본, CJS 래퍼)
+- 테스트 입문: `vitest` 또는 `jest`로 단위 테스트 추가
+
+### 파일 위치
+`content/languages/javascript/Step1_JavaScriptBasicSyntax.js` 등 각 Step 파일에 예제와 주석이 있습니다.

@@ -30,6 +30,12 @@ flowchart LR
   F --> G[완료]
 ```
 
+| 명령 | 기대 출력/효과 | 흔한 실수 |
+| --- | --- | --- |
+| `git fetch origin` | 원격 최신 참조를 로컬로 가져옴 | 생략 후 바로 rebase/push 시 충돌·거절 |
+| `git rebase origin/<branch>` | 내 커밋을 최신 기반 위로 재배치 | 충돌 해결 후 `git add` 없이 `--continue` 실행 |
+| `git push origin <branch>` | 원격 업데이트 | 뒤쳐진 상태에서 `--force`로 덮어쓰기 |
+
 ---
 
 ## 시나리오 2) 소스 파일 머지 충돌 해결 (기능 브랜치 ↔ main)
@@ -54,6 +60,14 @@ flowchart TD
   G --> H
 ```
 
+| 명령 | 기대 출력/효과 | 흔한 실수 |
+| --- | --- | --- |
+| `git status` | 충돌 파일(UU) 목록 안내 | status를 안 보고 파일 누락 |
+| `git checkout --theirs <파일>` | 상대/원격 변경으로 덮어쓰기 | 필요한 내 변경까지 덮어씀 |
+| `git checkout --ours <파일>` | 내 변경 유지 | 최신 원격 수정 사라짐 |
+| `git add <파일>` | 충돌 해결 완료 표시 | add 없이 `--continue` 시도 |
+| `git rebase --continue` | 다음 커밋 처리 | 메시지 수정 시점 혼동 |
+
 ---
 
 ## 시나리오 3) 대규모 리팩터링/파일 이동 후 리뷰 쉽게 만들기
@@ -71,6 +85,11 @@ flowchart LR
   C --> D[push & PR]
   D --> E[리뷰 부담 감소]
 ```
+
+| 명령 | 기대 출력/효과 | 흔한 실수 |
+| --- | --- | --- |
+| `git mv ...` | 이동만 포함된 커밋 | 이동+수정 한 번에 해서 diff 폭증 |
+| 이동/수정 커밋 분리 | 리뷰·blame 명확 | 포매터로 전체 파일 변경 → 이동 커밋 오염 |
 
 ---
 
@@ -198,6 +217,14 @@ flowchart LR
 ```
 
 ---
+
+
+| 명령 | 기대 출력/효과 | 흔한 실수 |
+| --- | --- | --- |
+| git reflog | HEAD 이동 기록 확인 | reflog 보존기간(기본 90일) 경과해 복구 불가 |
+| git checkout -b rescue <hash> | 안전 복구용 브랜치 확보 | hash 오타로 엉뚱한 커밋 복구 |
+| git cherry-pick <hash> | 특정 커밋만 선택 적용 | 충돌 처리 후 --continue 잊음 |
+| git merge | 브랜치 통합 | --no-ff 여부, 대상 브랜치 착각 |
 
 ## 마무리 체크리스트
 - 충돌 해결 후 `git status` 가 깨끗한지 확인.

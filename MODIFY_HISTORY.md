@@ -1,1182 +1,670 @@
-<<<<<<< HEAD
-## [2025-12-08 00:00:00 KST] Spring Boot 테스트 가이드 추가 (A-Z)
+## [2025-12-18 00:17:53 KST] 최상위 디렉토리 파일 정리 및 WSL2 디렉토리 생성
 
-**Type**: 문서수정
+**Type**: 정리 및 생성
 
 **Affected Files**:
-- `content/frameworks/springboot/Step11_TestCodeWriting.java`
-- `.gcx/00_requirements/user_request_20251208_junit_guide.md`
-- `.gcx/02_implementation/codex_audit_20251208.md`
+- 최상위 디렉토리 정리 (*.md, *.sh, *.json)
+- `wsl2-setup/` (신규 디렉토리) - WSL2 관련 파일 통합
+- `wsl2-setup/README.md` (신규) - WSL2 설정 가이드 모음
+- `wsl2-setup/guides/` - 가이드 6개
+- `wsl2-setup/reports/` - 보고서 2개
+- MSYS2 관련 중복 파일 삭제 (11개)
 
 **Changes**:
-- `Step11_TestCodeWriting.java` 파일 내용을 대폭 확장하여 Spring Boot 테스트 가이드(A-Z) 작성.
-- 단위 테스트(Unit Test), 슬라이스 테스트(Slice Test), 리포지토리 테스트(Repository Test) 예제 추가.
-- "Good vs Bad" 패턴 명시적 비교 (잘못된 테스트 방식과 올바른 방식).
-- JUnit 5 고급 기능(`@ParameterizedTest`, `@Nested`) 활용 예제 포함.
-- AssertJ 사용을 표준으로 채택.
+- **최상위 디렉토리 정리**
+  - MSYS2 관련 파일 → `msys2-setup/`으로 이미 이동됨, 중복 삭제
+  - WSL2 관련 파일 → `wsl2-setup/` 신규 생성 후 이동
+  - 프로젝트 관리 파일만 유지 (CLAUDE.md, GEMINI.md, MODIFY_HISTORY.md)
+
+- **MSYS2 중복 파일 삭제 (11개)**
+  - `cygwin_setup_guide.md` (msys2-setup/guides/에 있음)
+  - `fix_zsh_setup.sh` (msys2-setup/scripts/에 있음)
+  - `fix_zshrc_error.sh` (msys2-setup/scripts/에 있음)
+  - `install_ohmyzsh_msys2.sh` (msys2-setup/scripts/에 있음)
+  - `msys2_auto_install.sh` (msys2-setup/scripts/에 있음)
+  - `msys2_setup_guide.md` (msys2-setup/guides/에 있음)
+  - `msys2_setup_guide_v1_old.md` (구버전, 불필요)
+  - `msys2_zshrc_template.sh` (msys2-setup/configs/에 있음)
+  - `powershell_ohmyposh_guide.md` (msys2-setup/guides/에 있음)
+  - `vscode_msys2_guide.md` (msys2-setup/guides/에 있음)
+  - `vscode_msys2_settings.json` (중간 버전, 불필요)
+  - `vscode_settings_merged.json` (중간 버전, 불필요)
+  - `windows_terminal_msys2.json` (msys2-setup/configs/에 있음)
+
+- **wsl2-setup 디렉토리 생성**
+  - 3개 하위 디렉토리: guides, reports, README.md
+  - 총 9개 파일 (README 포함)
+
+- **wsl2-setup/README.md 작성**
+  - WSL2 설정 가이드 모음 소개
+  - 빠른 시작 3가지 옵션
+  - 각 가이드 상세 설명 (5개)
+  - 보고서 설명 (2개)
+  - WSL2 vs MSYS2 비교표
+  - 자주 사용하는 WSL 명령어
+  - Windows와 WSL2 파일 공유 방법
+  - 트러블슈팅 및 추가 리소스
+
+- **wsl2-setup/guides/ 디렉토리 (6개 파일)**
+  - `WSL2_Complete_Setup_Guide.md` - 메인 완전 가이드 (A-Z)
+  - `wsl2.md` - WSL2 기본 개념
+  - `wsl2 copy.md` - WSL2 복사본 (백업)
+  - `wsl2_setup_commands.md` - 설치 명령어 모음
+  - `wsl2_setup_commands_gitbash.md` - Git Bash용 명령어
+  - `wsl2_tools_guide.md` - Modern CLI 도구 가이드
+
+- **wsl2-setup/reports/ 디렉토리 (2개 파일)**
+  - `WSL2_Setup_Final_Report.md` - 최종 설치 보고서
+  - `WSL2_Setup_Report.md` - 설치 과정 기록
 
 **Reason**:
-사용자가 Spring Boot JUnit 테스트에 대한 자세한 가이드와 좋은 예/나쁜 예시를 요청함. GCX 프로토콜에 따라 Codex 피드백을 반영하여 작성.
+사용자 요청: "현재 경로 최상위에 있는 *.md, *.sh 중에 불필요한내용은 삭제하고 필요한내용들은 취합해서 디렉토리에 보관해줘"
 
-**AI Collaborator**:
-- **Step 1 - Gemini**: 가이드 초안 및 코드 작성.
-- **Step 3 - Codex**: 기술 감수 및 아키텍처 검증 (PASS).
+최상위 디렉토리가 너무 많은 파일로 복잡해져서:
+1. MSYS2 관련 파일 중복 제거 (msys2-setup에 이미 있음)
+2. WSL2 관련 파일 통합 관리 (wsl2-setup 신규 생성)
+3. 프로젝트 관리 파일만 최상위에 유지
+4. 카테고리별 디렉토리 구조화 (msys2-setup, wsl2-setup)
+5. 각 디렉토리에 README.md 제공하여 독립적 사용 가능
 
----
-
-## [2025-12-01 15:29:52 KST] Codex Reasoning Level 선택 기능 추가
-
-**Type**: 기능추가
-
-**Affected Files**: [총 12개 파일]
-- Commands: `~/.claude/commands/nam/cx-executor.md`
-- Commands: `~/.claude/commands/nam/cx-task.md`
-- Commands: `~/.claude/commands/nam/gcx-executor.md`
-- Commands: `~/.claude/commands/nam/gcx-task.md`
-- Skills: `~/.claude/skills/cx-executor/PHASES.md`
-- Skills: `~/.claude/skills/cx-executor-lite/PHASES.md`
-- Skills: `~/.claude/skills/cx-planner/PHASES.md`
-- Skills: `~/.claude/skills/cx-planner-lite/PHASES.md`
-- Skills: `~/.claude/skills/gcx-executor/PHASES.md`
-- Skills: `~/.claude/skills/gcx-executor-lite/PHASES.md`
-- Skills: `~/.claude/skills/gcx-planner/PHASES.md`
-- Skills: `~/.claude/skills/gcx-planner-lite/PHASES.md`
-
-**Changes**:
-
-### 1. 커맨드 파일 업데이트 (4개)
-- **Step 0.2: Reasoning Level 선택 섹션 추가**
-- gpt-5.1-codex-max 모델 선택 시 추가 AskUserQuestion 실행
-- 4가지 Reasoning Level 옵션 제공:
-  1. **Low (빠른 응답)** → `low`
-  2. **Medium (기본값, 권장)** → `medium`
-  3. **High (최대 추론)** → `high`
-  4. **Extra high (초고도 추론)** → `extra_high`
-
-### 2. PHASES.md 파일 업데이트 (8개)
-- **Step 0 섹션 추가**: Codex 모델 및 Reasoning Level 설정 가이드
-- **Codex 호출 패턴 업데이트**:
-  - gpt-5.1-codex-max 사용 시: `codex exec -c model_reasoning_effort=[레벨] -m gpt-5.1-codex-max`
-  - 다른 모델 사용 시: `codex exec -m [모델]`
-- 모든 codex 호출 명령어에 reasoning level 옵션 추가
-
-### 3. Config 기반 구현
-- Codex config.toml의 `model_reasoning_effort` 설정 활용
-- 기본값: `medium`
-- gpt-5.1-codex-max 전용 기능
-
-**Reason**:
-사용자가 Codex CLI에서 모델 선택 시 Reasoning Level 선택 메뉴를 확인하고, 커맨드/스킬에서도 이 옵션을 선택할 수 있도록 요청함. gpt-5.1-codex-max 모델의 추론 깊이를 제어하여 속도와 품질의 트레이드오프를 조절할 수 있도록 기능 추가.
-
-**AI Collaborator**:
-- 없음 (Claude 단독 작업)
-
-**Related Issue/Request**:
-사용자 요청: "codex에서 모델선택해보면 Reasoning Level 선택이 또 나오는데 이것도 호출할때 선택할수있도록 구현해줘"
-
-**Validation**:
-- ✅ cx-executor.md, cx-task.md에 Reasoning Level 섹션 추가 확인
-- ✅ gcx-executor.md, gcx-task.md에 Reasoning Level 섹션 추가 확인
-- ✅ 8개 PHASES.md 파일에 Step 0 및 codex 호출 패턴 업데이트 확인
-- ✅ Codex config 파일에서 `model_reasoning_effort=medium` 설정 확인
-- ✅ 모든 변경사항이 gpt-5.1-codex-max 전용으로 조건부 적용됨
-
-**Usage Example**:
-```bash
-# 사용자가 /nam:cx-executor 실행 시:
-# 1. Codex 모델 선택: gpt-5.1-codex-max
-# 2. Reasoning Level 선택: Medium (기본값, 권장)
-# → Claude가 Codex 호출: codex exec -c model_reasoning_effort=medium -m gpt-5.1-codex-max "..."
+**최종 디렉토리 구조:**
+```
+learning-code/
+├── CLAUDE.md                  (프로젝트 설정)
+├── GEMINI.md                  (프로젝트 설정)
+├── MODIFY_HISTORY.md          (변경 이력)
+├── msys2-setup/               (12개 파일)
+│   ├── README.md
+│   ├── scripts/               (4개)
+│   ├── configs/               (3개)
+│   └── guides/                (4개)
+└── wsl2-setup/                (9개 파일)
+    ├── README.md
+    ├── guides/                (6개)
+    └── reports/               (2개)
 ```
 
+**AI Collaborator**:
+- 없음 (Claude 단독 작업)
+
+**Related Issue/Request**:
+"현재 경로 최상위에 있는 *.md, *.sh 중에 불필요한내용은 삭제하고 필요한내용들은 취합해서 디렉토리에 보관해줘"
+
 ---
 
-## [2025-12-01 15:13:22 KST] Codex 모델 최신 버전 업데이트 (gpt-5.1-codex 시리즈)
+## [2025-12-18 00:05:10 KST] MSYS2 설치 파일 통합 디렉토리 생성
 
-**Type**: 설정변경
+**Type**: 생성 및 정리
 
-**Affected Files**: [총 40+ 파일]
-- Skills: `~/.claude/skills/cx-*/` (SKILL.md, PHASES.md)
-- Skills: `~/.claude/skills/gcx-*/` (SKILL.md, PHASES.md)
-- Commands: `~/.claude/commands/nam/cx-*.md`
-- Commands: `~/.claude/commands/nam/gcx-*.md`
-- Documentation: `MIGRATION_PLAN.md`
+**Affected Files**:
+- `msys2-setup/` (신규 디렉토리) - 모든 MSYS2 관련 파일 통합
+- `msys2-setup/README.md` (신규) - 빠른 시작 가이드 (한글)
+- `msys2-setup/scripts/` - 설치 스크립트 4개
+- `msys2-setup/configs/` - 설정 파일 3개
+- `msys2-setup/guides/` - 상세 가이드 4개
 
 **Changes**:
+- **msys2-setup 통합 디렉토리 생성**
+  - 3개 하위 디렉토리: scripts, configs, guides
+  - 총 12개 파일 (README 포함)
+  - 디렉토리만 보면 전체 설치 가능한 구조
 
-### Codex 모델 버전 업데이트
-**구버전** → **신버전**:
-- `gpt-4.1` → `gpt-5.1-codex-max` (최고 품질, 기본 권장)
-- `o4-mini` → `gpt-5.1-codex-mini` (빠른 처리)
+- **README.md 작성 (핵심 파일)**
+  - 빠른 시작 (Quick Start) 3단계 가이드
+  - 자동/수동 설치 방법 모두 포함
+  - 디렉토리 구조 상세 설명
+  - 문제 해결 8가지 케이스
+  - Powerlevel10k 설정 가이드 (추천 답변 포함)
+  - 유용한 명령어 및 함수 목록 (20+ Git aliases, 15+ functions)
+  - 설정 파일 적용 방법 (Windows Terminal, VS Code)
+  - 참고 자료 및 공식 문서 링크
+  - 팁, 업데이트 방법 등
 
-### 4가지 모델 옵션 추가
-1. **gpt-5.1-codex-max** (최고 품질, 권장)
-   - Latest Codex-optimized flagship for deep and fast reasoning
-   - 깊은 추론과 빠른 속도, 코드 품질 검증 최적화
+- **scripts/ 디렉토리 (4개 파일)**
+  - `1_msys2_auto_install.sh` - 메인 자동 설치 스크립트
+  - `2_install_ohmyzsh.sh` - oh-my-zsh 단독 설치
+  - `fix_zshrc_error.sh` - .zshrc 오류 수정
+  - `fix_zsh_setup.sh` - zsh 설정 전체 재설정
 
-2. **gpt-5.1-codex** (균형)
-   - Optimized for codex
-   - 대부분의 프로젝트에 적합
+- **configs/ 디렉토리 (3개 파일)**
+  - `windows_terminal_msys2.json` - Windows Terminal 설정
+  - `vscode_settings_final.json` - VS Code 완전한 설정
+  - `zshrc_template.sh` - .zshrc 템플릿
 
-3. **gpt-5.1-codex-mini** (빠른 처리)
-   - Optimized for codex. Cheaper, faster, but less capable
-   - 단순한 코드 검증, 빠른 피드백, 저렴한 비용
-
-4. **gpt-5.1** (범용)
-   - Broad world knowledge with strong general reasoning
-   - 일반적인 추론, 코드 외 작업 포함 시
+- **guides/ 디렉토리 (4개 파일)**
+  - `msys2_setup_guide.md` - 메인 상세 가이드
+  - `vscode_msys2_guide.md` - VS Code 통합 가이드
+  - `powershell_ohmyposh_guide.md` - PowerShell 대안
+  - `cygwin_setup_guide.md` - Cygwin 대안
 
 **Reason**:
-Codex CLI v0.63.0에서 최신 모델 목록이 업데이트됨에 따라, 모든 cx-* 및 gcx-* 명령어와 skill 파일들의 모델 선택 옵션을 최신 4가지 모델로 업그레이드
+사용자 요청: "msys2_setup_guide 파일 취합및 쉘파일 가이드에 추가해주고 관련파일 디렉토리하나 생성해서 거기에 몰아놔줘 그 디렉토리에 파일만 보면 전체 설치 가능하도록"
+
+흩어진 MSYS2 관련 파일들을 하나의 디렉토리로 통합하여:
+1. 파일 관리 용이성 향상
+2. 신규 사용자가 쉽게 찾을 수 있음
+3. README.md 하나만 보면 전체 설치 가능
+4. 배포 및 공유 편리함
+5. 체계적인 디렉토리 구조 (scripts, configs, guides)
 
 **AI Collaborator**:
 - 없음 (Claude 단독 작업)
 
 **Related Issue/Request**:
-사용자 요청: "codex 연결해서 모델 선택 메뉴가 구버전인 것 같은데 skill 아니 command 쪽 확인해서 변경해줘"
-
-**Validation**:
-- ✅ Codex 통신 테스트 성공 (gpt-5.1-codex-mini 사용)
-- ✅ 모든 구버전 모델 이름 (gpt-4.1, o4-mini) 제거 확인
-- ✅ 4가지 신규 모델 옵션 적용 확인
-- ✅ MIGRATION_PLAN.md 문서 업데이트 완료
+"msys2_setup_guide 파일 취합및 쉘파일 가이드에 추가해주고 관련파일 디렉토리하나 생성해서 거기에 몰아놔줘 그 디렉토리에 파일만 보면 전체 설치 가능하도록"
 
 ---
 
-## [2025-12-01 10:30:22 KST] MIGRATION_PLAN.md Phase 3 완료 - 3-AI 협업 시스템 (gcx-) 생성
+## [2025-12-17 22:31:25 KST] VS Code 터미널 탭 이름 표시 수정
 
-**Type**: 신규 생성
+**Type**: 수정
 
-**Affected Files**: [총 14개 파일]
-
-### Phase 3.1: gcx-executor (3개 파일)
-- `C:/Users/Nam/.claude/skills/gcx-executor/SKILL.md`
-- `C:/Users/Nam/.claude/skills/gcx-executor/PHASES.md`
-- `C:/Users/Nam/.claude/commands/nam/gcx-executor.md`
-
-### Phase 3.2: gcx-executor-lite (3개 파일)
-- `C:/Users/Nam/.claude/skills/gcx-executor-lite/SKILL.md`
-- `C:/Users/Nam/.claude/skills/gcx-executor-lite/PHASES.md`
-- `C:/Users/Nam/.claude/commands/nam/gcx-executor-lite.md`
-
-### Phase 3.3: gcx-planner (3개 파일)
-- `C:/Users/Nam/.claude/skills/gcx-planner/SKILL.md`
-- `C:/Users/Nam/.claude/skills/gcx-planner/PHASES.md`
-- `C:/Users/Nam/.claude/commands/nam/gcx-planner.md`
-
-### Phase 3.4: gcx-planner-lite (3개 파일)
-- `C:/Users/Nam/.claude/skills/gcx-planner-lite/SKILL.md`
-- `C:/Users/Nam/.claude/skills/gcx-planner-lite/PHASES.md`
-- `C:/Users/Nam/.claude/commands/nam/gcx-planner-lite.md`
-
-### Phase 3.5: gcx-task (2개 파일)
-- `C:/Users/Nam/.claude/commands/nam/gcx-task.md`
-- `C:/Users/Nam/.claude/commands/nam/gcx-task-README.md`
+**Affected Files**:
+- `vscode_settings_final.json` (신규) - 터미널 탭 이름 표시 수정된 완전한 설정
+- `vscode_settings_merged.json` (신규) - Git Bash 병합된 설정
 
 **Changes**:
+- **VS Code 터미널 탭 이름 표시 문제 해결**
+  - 핵심 설정 추가:
+    - `overrideName: true` - 각 프로필에 추가 (bash 대신 프로필 이름 표시)
+    - `terminal.integrated.tabs.title: "${process}"` - 프로필 이름을 탭 제목으로
+    - `terminal.integrated.tabs.description: "${cwdFolder}"` - 폴더 이름을 설명으로
+  - 3가지 탭 제목 옵션 제공:
+    1. 깔끔한 스타일: 프로필 이름 + 폴더명
+    2. 상세 정보: 프로필 + 셸 + 폴더명
+    3. 아이콘 추가: 이모지 + 프로필 + 정보
+  - 터미널 탭 변수 목록 문서화 (${process}, ${cwdFolder} 등)
+  - 탭 동작 최적화 (항상 표시, 액션 버튼 등)
 
-### 3-AI 협업 시스템 생성 (Gemini + Claude + Codex)
-
-#### Phase 3.1: gcx-executor
-- **설명**: Gemini(화면설계 우선) + Claude(구현) + Codex(코드품질 우선) 3-AI 협업 프로덕션 레디 구현
-- **워크플로우**: 4단계
-  - Phase 1: Gemini 화면 설계 및 요구사항 분석 → Claude 검증
-  - Phase 2: Claude 구현 (Infrastructure → BE → FE → Integration)
-  - Phase 3: Codex 코드 품질 검증 및 리팩토링 → Claude 수정
-  - Phase 4: Claude 최종 수정 및 프로덕션 레디 검증
-- **AI 역할 분담**:
-  - Gemini: 최고 수준의 UI/UX 설계
-  - Claude: 체계적이고 안정적인 구현
-  - Codex: 엄격한 코드 품질 검증 (DRY, 복잡도, 보안, 성능)
-
-#### Phase 3.2: gcx-executor-lite
-- **설명**: 3-AI 경량 협업으로 MVP 빠른 구현
-- **워크플로우**: 3단계 (Setup → Development → Basic QA)
-- **특징**: CRITICAL/HIGH 이슈만 검증, MVP Ready 목표
-
-#### Phase 3.3: gcx-planner
-- **설명**: 3-AI 협업 프로젝트 계획 수립 (PRD → TRD → 작업 계획 → Task 분할)
-- **워크플로우**: 5단계
-  - Gemini: PRD 초안 작성
-  - Claude: PRD 검증 및 보완
-  - Codex: 기술적 타당성 검증
-  - Claude: TRD, Work Plan, Task Breakdown 작성
-  - Codex: 최종 기술 검증
-- **목적**: 각 AI의 전문성을 활용하여 최고 품질의 계획 달성
-
-#### Phase 3.4: gcx-planner-lite
-- **설명**: 3-AI 경량 협업 계획 수립 (IRD + Work Plan)
-- **워크플로우**: 2단계
-- **특징**: 빠른 계획 수립 (1-2시간)
-
-#### Phase 3.5: gcx-task
-- **설명**: 범용 3-AI Loop 커맨드
-- **특징**: 동적 작업 계획, Gemini/Claude/Codex 역할 자동 할당
-- **사용 사례**: 화면 설계 + 구현 + 코드 품질 모두 중요한 작업
+- **Git Bash와 MSYS2 병합 설정 (vscode_settings_merged.json)**
+  - JSON 구조 오류 수정 (두 개의 객체 → 하나의 객체)
+  - 모든 터미널 프로필 통합 (MSYS2, Git Bash, PowerShell, CMD)
+  - 기존 설정 유지 (claudeCode, geminicodeassist 등)
+  - 터미널 전환 방법 안내
 
 **Reason**:
-MIGRATION_PLAN.md Phase 3 실행 - Gemini-Claude-Codex 3-AI 협업 시스템 구축
+VS Code 터미널 탭에 "bash"만 표시되고 "MSYS2 UCRT64" 프로필 이름이 표시되지 않는 문제
+기본 설정으로는 셸 실행 파일 이름(bash.exe)만 표시됨
+`overrideName: true` 설정으로 프로필 이름을 강제 표시
+
+Git Bash 삭제 여부 질문에 대한 답변:
+- 삭제 불필요, 여러 프로필을 병합하여 선택 가능하게 구성
+- JSON 구조 오류 수정 필요 (두 객체를 하나로 병합)
 
 **AI Collaborator**:
 - 없음 (Claude 단독 작업)
 
 **Related Issue/Request**:
-사용자 요청: "MIGRATION_PLAN.md phase3 이어서 진행해줘"
-
-**Technical Details**:
-
-### 3-AI 협업 CLI 호출 패턴
-
-#### Gemini CLI (화면 설계/전략 분석 담당)
-```bash
-# 기본 실행
-gemini -m [모델] "프롬프트..."
-
-# 사용 가능 모델
-- gemini-3-pro-preview (최고 품질 UI/UX)
-- gemini-2.5-pro (권장)
-- gemini-2.5-flash (빠른 처리)
-```
-
-#### Codex CLI (코드 품질 검증 담당)
-```bash
-# 기본 실행
-codex exec -m [모델] "프롬프트..."
-
-# Full-Auto 모드
-codex full-auto -m [모델] "프롬프트..."
-
-# 사용 가능 모델
-- gpt-4.1 (권장)
-- o4-mini (빠른 처리)
-```
-
-### 3-AI 워크플로우 템플릿 (gcx-executor)
-
-```
-Phase 0: Input Validation
-    ↓
-┌─────────────────────────────────────┐
-│ Phase 1: Gemini (화면 설계 전문성)   │
-│ - UI 컴포넌트 구조                   │
-│ - 사용자 인터랙션 패턴               │
-│ - 반응형 디자인                      │
-│ → Claude 검증                        │
-└─────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────┐
-│ Phase 2: Claude (구현 전문성)        │
-│ - Infrastructure Setup               │
-│ - Backend Implementation             │
-│ - Frontend Implementation            │
-│   (Gemini 설계 기반)                 │
-│ - Integration                        │
-└─────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────┐
-│ Phase 3: Codex (코드 품질 전문성)    │
-│ - 코드 품질 검증                     │
-│ - 리팩토링 제안                      │
-│ - 보안 검증                          │
-│ - 성능 최적화                        │
-│ → Claude 즉시 반영                   │
-└─────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────┐
-│ Phase 4: Claude (최종 완성)          │
-│ - Codex 제안사항 모두 반영          │
-│ - 최종 빌드 및 테스트               │
-│ - 문서화                             │
-└─────────────────────────────────────┘
-    ↓
-Production Ready (최고 품질) ✓
-```
-
-### AI Collaborator 기록 형식 (3-AI)
-
-```markdown
-**AI Collaborator**:
-- **Step 1 - Gemini**:
-  - Model used: gemini-2.5-pro
-  - Validation status: PASS
-  - Review notes: "화면 설계 검증 완료"
-  - Iterations: 1회
-
-- **Step 2 - Claude**: 구현 완료
-
-- **Step 3 - Codex**:
-  - Model used: gpt-4.1
-  - Validation status: PRODUCTION_READY
-  - Overall Score: 92/100
-  - Review notes: "코드 품질 검증 완료, 리팩토링 제안 반영"
-  - Iterations: 3회
-
-**3-AI Collaboration Benefits**:
-- Gemini: 최고 수준의 UI/UX 설계
-- Claude: 체계적이고 안정적인 구현
-- Codex: 엄격한 코드 품질 검증 및 리팩토링
-- 결과: 최고 품질의 프로덕션 레디 코드 달성
-```
-
-### 선택 가이드 (Phase별)
-
-| **사용자 요구사항** | **추천 시리즈** | **이유** |
-|---------------------|----------------|----------|
-| **화면 설계 + 코드 품질 모두 중요** | **gcx- (3-AI)** | Gemini UI + Codex 품질 동시 달성 |
-| **화면/UI 중심** | gc- (Gemini-Claude) | UI/UX 설계 전문성 |
-| **코드 품질/리팩토링 중심** | cx- (Codex-Claude) | 코드 품질 검증 전문성 |
-| **최고 품질 필요** | gcx- (3-AI) | 3가지 AI의 강점 모두 활용 |
-| **빠른 MVP** | -lite 버전 | 간소화된 워크플로우 |
-| **프로덕션 레디** | 풀 버전 | 완전한 품질 검증 |
+"MSYS2 UCRT64 이터미널 선택하면 vscode에서 오른쪽에 터미널이름? 표시되는데 거기에는 msys2가 표시가안되고 bash가보여 이것도 해결필요해"
+"기존에있던 gitbash내용은 아예 삭제해야하는거야?"
 
 ---
 
-## [2025-12-01 10:10:46 KST] MIGRATION_PLAN.md Phase 2 완료 - Codex 협업 신규 생성
+## [2025-12-17 22:17:12 KST] .zshrc 오류 수정 및 VS Code 설정 추가
 
-**Type**: 생성
-=======
-## [2025-12-05 00:30:12 KST] CLI 도구 학습 콘텐츠 추가 및 UI 개선
-
-**Type**: 생성, 기능추가
->>>>>>> 121720a436434b0347471916cb53155959b43929
+**Type**: 수정 및 생성
 
 **Affected Files**:
-- `.gcx/01_planning/gemini_prd_20251205_001.md` (기획 문서)
-- `.gcx/01_planning/gemini_trd_20251205_001.md` (기술 문서)
-- `content/tools/npm/Step1_NPM_Cheatsheet.md` (신규 콘텐츠)
-- `content/tools/pip/Step1_PIP_Cheatsheet.md` (신규 콘텐츠)
-- `content/tools/uv/Step1_UV_Cheatsheet.md` (신규 콘텐츠)
-- `content/tools/pipx/Step1_PIPX_Cheatsheet.md` (신규 콘텐츠)
-- `content/tools/cargo/Step1_Cargo_Cheatsheet.md` (신규 콘텐츠)
-- `content/tools/homebrew/Step1_Brew_Cheatsheet.md` (신규 콘텐츠)
-- `content/tools/jq/Step1_JQ_Cheatsheet.md` (신규 콘텐츠)
-- `content/tools/curl/Step1_CURL_Cheatsheet.md` (신규 콘텐츠)
-- `platform/templates/content.html` (UI 개선)
+- `fix_zshrc_error.sh` (신규) - .zshrc 오류 수정 스크립트
+- `msys2_auto_install.sh` (업데이트) - alias/함수 충돌 수정 및 기능 추가
+- `vscode_msys2_settings.json` (신규) - VS Code 설정 파일
+- `vscode_msys2_guide.md` (신규) - VS Code 설정 가이드
+- `msys2_setup_guide.md` (업데이트) - VS Code 섹션 추가
 
 **Changes**:
-- **학습 콘텐츠 확장**: 개발자 필수 CLI 도구 8종(`npm`, `pip`, `uv`, `pipx`, `cargo`, `brew`, `jq`, `curl`)에 대한 Cheatsheet 스타일 문서 추가.
-- **UI 기능 추가**: 코드 블록에 "Copy to Clipboard" 버튼 구현 (Vanilla JS + Tailwind CSS).
-  - 마우스 오버 시 버튼 표시
-  - 클릭 시 복사 및 "Copied!" 피드백 제공
-  - 기존 문법 강조(highlight.js)와 호환성 유지
+- **.zshrc 오류 수정 스크립트 (fix_zshrc_error.sh)** 작성
+  - alias 'search'와 function 'search()' 충돌 해결
+  - 'search' alias → 'pkgsearch'로 변경
+  - 'search()' 함수 → 'findtext()' 함수로 변경
+  - 추가 유용한 함수들 포함
+  - 자동 백업 기능
+
+- **자동 설치 스크립트 (msys2_auto_install.sh)** 업데이트
+  - alias/함수 충돌 방지:
+    - `search` alias → `pkgsearch` (pacman -Ss)
+    - `search()` 함수 → `findtext()` 함수
+    - `extract()` 함수 → `unpack()` 함수 (extract 플러그인 충돌 방지)
+  - 추가된 유용한 함수 11개:
+    - `psgrep()` - 프로세스 검색
+    - `git-clean-branches()` - 병합된 브랜치 정리
+    - `serve()` - 간단한 HTTP 서버 (Python)
+    - `jsonformat()` - JSON 포맷팅
+    - `countlines()` - 코드 라인 수 계산
+    - `ltr()` - 디렉토리 트리 (tree 대체)
+    - `note()` - 빠른 메모 시스템
+    - `diskusage()` - 디스크 사용량 TOP 10
+    - `portcheck()` - 포트 사용 확인
+    - `aliases()` - alias 검색
+    - `envgrep()` - 환경변수 검색
+
+- **VS Code 설정 파일 (vscode_msys2_settings.json)** 작성
+  - MSYS2 UCRT64, MINGW64, MSYS 프로필
+  - PowerShell, Git Bash, CMD 프로필 (백업용)
+  - Nerd Font 설정
+  - 터미널 최적화 설정 (복사, 스크롤백, 커서 등)
+  - Git 경로 설정
+  - Shell 파일 연결 설정
+
+- **VS Code 설정 가이드 (vscode_msys2_guide.md)** 작성
+  - JSON 직접 편집 방법 (2분)
+  - GUI 설정 방법 (5분)
+  - 트러블슈팅 7가지
+  - 추가 팁 8가지
+  - 단축키 표
+  - VS Code 확장 추천 (shellcheck, Bash IDE 등)
+  - FAQ 5가지
+
+- **MSYS2 설치 가이드 (msys2_setup_guide.md)** 업데이트
+  - VS Code 터미널 설정 섹션 추가 (목차 6번)
+  - 2가지 설정 방법 안내
+  - 트러블슈팅 섹션
+  - 자세한 가이드 링크
 
 **Reason**:
-사용자 요청에 따라 터미널에서 자주 사용하는 명령어들에 대한 학습 자료를 추가하고, 학습 편의성을 위해 코드 복사 기능을 구현함.
+실제 사용 중 발생한 .zshrc 오류 해결:
+- `/home/Nam/.zshrc:157: defining function based on alias 'search'` 오류
+- Powerlevel10k 설정 파일 로드 실패
 
-**AI Collaborator**:
-- Gemini (Plan & Implementation)
-- Claude (Review - Simulated)
-- Codex (Audit - Simulated)
-
-<<<<<<< HEAD
-**Related Issue/Request**:
-사용자 요청: "MIGRATION_PLAN.md phase2 진행해줘 아직 codex 설치는 미완료라 호출테스트는 불가능해. 호출테스트는 없이 생성 진행해줘"
-
-**Technical Details**:
-- 총 5개 항목 완료 (2.1 ~ 2.5)
-- Skills: 4개 폴더 생성 + 4개 SKILL.md + 4개 PHASES.md 생성
-- Commands: 5개 Command 파일 + 1개 README 파일 생성
-- AI 역할 분담 명시:
-  - cx-executor/lite: Codex(코드 품질 검증/리팩토링 우선) + Claude(구현)
-  - cx-planner/lite: Codex(리팩토링 전략, 마이그레이션 계획 특화) + Claude(검증)
-  - cx-task: Codex(코드 품질 검증, 리팩토링, 마이그레이션 우선) + Claude(구현/검증)
-- Codex CLI 호출 패턴 적용:
-  - `codex exec -m [model] "프롬프트..."`
-  - `codex full-auto -m [model] "프롬프트..."`
-  - `codex resume [작업ID]`
-- 사용 가능 모델: gpt-4.1 (권장), o4-mini (빠른 처리)
-
-**호출 테스트 상태**:
-- Codex 미설치로 호출 테스트 건너뜀
-- 파일 생성 및 구조화만 완료
-- 향후 Codex 설치 후 테스트 필요
-
-**Phase 2 vs Phase 1 비교**:
-- Phase 1 (gc-): Gemini(화면 설계/UI/전략 분석 우선) + Claude(구현/검증)
-- Phase 2 (cx-): Codex(코드 품질 검증/리팩토링/마이그레이션 우선) + Claude(구현/검증)
-
-**선택 가이드**:
-- 화면 설계, UI/UX 중심 → gc- 시리즈 (Gemini-Claude)
-- 코드 품질, 리팩토링, 마이그레이션 중심 → cx- 시리즈 (Codex-Claude)
-
----
-
-## [2025-11-30 21:43:01 KST] MIGRATION_PLAN.md Phase 1 완료 - Skills & Commands 이름 변경
-
-**Type**: 설정변경
-
-**Affected Files**:
-- Skills 폴더 (4개):
-  - `~/.claude/skills/gc-executor/` (구 implementation-executor)
-  - `~/.claude/skills/gc-executor-lite/` (구 implementation-executor-lite)
-  - `~/.claude/skills/gc-planner/` (구 project-planner)
-  - `~/.claude/skills/gc-planner-lite/` (구 project-planner-lite)
-- Commands 파일 (5개):
-  - `~/.claude/commands/nam/gc-executor.md`
-  - `~/.claude/commands/nam/gc-executor-lite.md`
-  - `~/.claude/commands/nam/gc-planner.md`
-  - `~/.claude/commands/nam/gc-planner-lite.md`
-  - `~/.claude/commands/nam/gc-task.md`
-
-**Changes**:
-- **1.1 implementation-executor → gc-executor**:
-  - Skill 폴더 이름 변경
-  - SKILL.md: name 및 description 수정 (Gemini(화면 설계/UI 우선) + Claude(구현 및 검증) 명시)
-  - Command 파일 이름 변경 및 내용 수정
-  - PHASES.md 경로 참조 업데이트
-
-- **1.2 implementation-executor-lite → gc-executor-lite**:
-  - Skill 폴더 이름 변경
-  - SKILL.md: name 및 description 수정
-  - Command 파일 이름 변경 및 내용 수정
-
-- **1.3 project-planner → gc-planner**:
-  - Skill 폴더 이름 변경
-  - SKILL.md: name 및 description 수정 (Gemini(전략 분석 우선) + Claude(검증 및 보완) 명시)
-  - Command 파일 이름 변경 및 내용 수정
-
-- **1.4 project-planner-lite → gc-planner-lite**:
-  - Skill 폴더 이름 변경
-  - SKILL.md: name 및 description 수정
-  - Command 파일 이름 변경 및 내용 수정
-
-- **1.5 gemini-task → gc-task**:
-  - Command 파일 이름 변경 (gc-task.md)
-  - README 파일 이름 변경 (gc-task-README.md)
-  - name 및 description 수정 (Gemini(전략/화면설계 우선) + Claude(구현/검증) 명시)
-
-**Reason**:
-MIGRATION_PLAN.md Phase 1 실행: Gemini 중심 네이밍을 Gemini-Claude 협업 명시로 변경하여 각 AI의 역할을 명확히 표시. 사용자가 적절한 도구를 선택할 수 있도록 개선.
-
-**AI Collaborator**:
-- 없음 (Claude 단독 작업 - 파일/폴더 이름 변경 및 메타데이터 업데이트)
-
-**Related Issue/Request**:
-사용자 요청: "MIGRATION_PLAN.md Phase 1에 해당하는 명칭 변경하는 페이즈만 진행해줘"
-
-**Technical Details**:
-- 총 5개 항목 완료 (1.1 ~ 1.5)
-- Skills: 4개 폴더 이름 변경 + 4개 SKILL.md 수정
-- Commands: 5개 파일 이름 변경 + 5개 내용 수정
-- AI 역할 분담 명시:
-  - gc-executor/lite: Gemini(화면 설계/UI 우선) + Claude(구현 및 검증)
-  - gc-planner/lite: Gemini(전략 분석 우선) + Claude(검증 및 보완)
-  - gc-task: Gemini(전략/화면설계 우선) + Claude(구현/검증)
-
----
-
-## [2025-11-30 21:28:02 KST] MIGRATION_PLAN.md 파일 복구
-
-**Type**: 복구
-
-**Affected Files**:
-- `MIGRATION_PLAN.md`
-
-**Changes**:
-- **파일 내용 완전 복구** (버전 1.1):
-  - Phase별 AI 역할 분담 섹션
-  - Phase 1: 이름 변경 계획 (5개 항목)
-  - Phase 2: Codex 협업 신규 생성 (5개 항목)
-  - Phase 3: 3-AI 협업 신규 생성 (5개 항목)
-  - 공통 생성 가이드 (Codex CLI 호출 패턴, 3-AI 워크플로우 템플릿, AI Collaborator 기록 형식)
-  - 실행 가이드 (Phase별 실행 명령어)
-  - 검증 체크리스트
-  - Gemini vs Codex 선택 가이드 테이블
-  - 참고 자료
-
-**Reason**:
-/compact 실행 후 MIGRATION_PLAN.md 파일 내용이 "\" 문자 2개만 남고 사라짐. MODIFY_HISTORY.md의 기록을 바탕으로 파일 복구:
-- [2025-11-30 17:46:09 KST] 최초 생성 기록
-- [2025-11-30 18:50:17 KST] AI 역할 분담 반영 기록
-
-**AI Collaborator**:
-- 없음 (Claude 단독 작업 - 데이터 복구)
-
-**Related Issue/Request**:
-사용자 요청: "MIGRATION_PLAN.md 내용이 사라졌는데 복구해줘"
-
-**Technical Details**:
-- 복구 소스: MODIFY_HISTORY.md의 변경 이력 2건
-- 복구된 버전: 1.1 (AI 역할 분담 반영)
-- 파일 크기: 약 15KB
-- 총 15개 마이그레이션 항목 (Phase 1: 5개, Phase 2: 5개, Phase 3: 5개)
-
----
-
-## [2025-11-30 20:59:05 KST] Korean-Explanatory Output Style에 Auto Compact 기능 추가
-
-**Type**: 설정변경
-
-**Affected Files**:
-- `c:/Users/Nam/.claude/output-styles/Korean-Explanatory.md`
-
-**Changes**:
-- **Section 6 추가**: Auto Compact After Task Completion
-  - When to Suggest /compact: 파일 생성/수정, MODIFY_HISTORY 업데이트, Multiple tool calls, 긴 코드 설명, Multi-AI 협업 완료 시
-  - Compact Suggestion Format: 작업 완료 메시지 끝에 토큰 최적화 권장 메시지 포함 규칙
-  - Conditions for Skipping: 간단한 질문, 파일 읽기만 수행, 연속 질문 중일 때 생략
-  
-- **Section 7 (Do's and Don'ts) 업데이트**:
-  - DON'T 항목 추가: Forget to suggest /compact after completing significant work
-  - DO 항목 추가: Always suggest /compact after significant task completion
-
-**Reason**:
-사용자 워크플로우 개선 - 작업 완료 후 수동으로 /compact 실행하는 불편함 해소. Claude가 작업 완료 시 자동으로 /compact 실행을 제안하도록 규칙 추가
+사용자 요청 사항 반영:
+1. VS Code 기본 터미널을 MSYS2로 변경
+2. 자동화 스크립트에 유용한 기능 추가
 
 **AI Collaborator**:
 - 없음 (Claude 단독 작업)
 
 **Related Issue/Request**:
-Korean-Explanatory output style에서 작업 완료 후 자동 /compact 제안 기능 요청
+"vs code에서 default 터미널도 변경하고싶어 msys2 이걸로"
+"이것도 해결되게 해줘 자동화 쉘에 내용추가할수있는건 더 추가해줘"
+오류: "/home/Nam/.zshrc:157: defining function based on alias `search'"
 
 ---
 
-## [2025-11-30 18:50:17 KST] MIGRATION_PLAN.md AI 역할 분담 명시 반영
+## [2025-12-17 21:54:12 KST] MSYS2 완벽 설치 가이드 v2 작성 및 자동화 스크립트 추가
 
-**Type**: 문서 수정
+**Type**: 생성 및 업데이트
 
 **Affected Files**:
-- `MIGRATION_PLAN.md`
+- `msys2_auto_install.sh` (신규) - 완전 자동 설치 스크립트
+- `windows_terminal_msys2.json` (신규) - Windows Terminal 설정
+- `msys2_setup_guide.md` (업데이트) - 완전히 새로 작성
+- `msys2_setup_guide_v1_old.md` (백업) - 기존 버전 백업
 
 **Changes**:
-- **Phase별 역할 분담 섹션 추가**:
-  - Phase 1 (gc-): Gemini(화면 설계/UI 우선) + Claude(구현 및 검증)
-  - Phase 2 (cx-): Codex(코드 품질 검증/리팩토링/마이그레이션 우선) + Claude(구현)
-  - Phase 3 (gcx-): Gemini(화면설계 우선) + Claude(구현) + Codex(코드품질 우선)
+- **완전 자동 설치 스크립트 (msys2_auto_install.sh)** 작성
+  - 컬러 로그 출력 (info, success, warning, error)
+  - 11단계 자동 설치 프로세스
+  - 필수 패키지 13개 자동 설치 (zsh, git, curl, vim, tmux, htop 등)
+  - oh-my-zsh 완전 자동 설치 (RUNZSH=no, KEEP_ZSHRC=no)
+  - Powerlevel10k 테마 자동 설치
+  - zsh 플러그인 2개 자동 설치
+  - 완전한 .zshrc 생성 (200+ lines)
+    - Git aliases 20+ 개
+    - MSYS2 패키지 관리 aliases
+    - 디렉토리 단축 aliases
+    - 개발 도구 aliases (Python, Node.js, Docker)
+    - 유용한 functions (mkcd, search, extract, pskill, backup 등)
+    - 고급 히스토리 설정
+    - Completion 설정
+    - Key bindings (Ctrl+P/N, Home/End, Ctrl+Left/Right)
+  - 설치 확인 및 최종 요약
+  - 컬러풀한 완료 메시지
 
-- **Description 업데이트**:
-  - gc-executor, gc-executor-lite: Gemini가 UI/화면 설계 우선 담당 명시
-  - cx-executor, cx-executor-lite: Codex가 코드 품질/리팩토링 우선 담당 명시
-  - cx-planner: 리팩토링 전략, 대규모 마이그레이션 계획 특화 추가
-  - cx-task: 코드 품질 검증/리팩토링/마이그레이션 중심 명시
-  - gcx- 전체: 각 AI의 우선 담당 역할 명시
+- **Windows Terminal JSON 설정 (windows_terminal_msys2.json)** 작성
+  - MSYS2 UCRT64 프로필
+  - MSYS2 MINGW64 프로필
+  - MSYS2 MSYS 프로필
+  - 3가지 색상 테마 (One Half Dark, Tokyo Night, Dracula)
+  - Nerd Font 설정 (MesloLGS NF)
+  - 최적화된 설정 (padding, cursor, acrylic 등)
 
-- **Gemini vs Codex 선택 가이드 테이블 대폭 강화**:
-  - 사용자 요청사항 반영한 4개 항목 최우선 배치:
-    * 화면 설계/UI 디자인 → Gemini (우선)
-    * 코드 품질 검증 → Codex (우선)
-    * 리팩토링 → Codex (우선)
-    * 대규모 마이그레이션 → Codex (우선)
-
-- **3-AI 워크플로우 템플릿 업데이트**:
-  - Step 1 (Gemini): 화면 설계, UI 디자인 우선 담당 명시
-  - Step 3 (Codex): 코드 품질 검증, 리팩토링, 대규모 마이그레이션 우선 담당 명시
-
-- **버전 정보 업데이트**: 1.0 → 1.1 (AI 역할 분담 반영)
+- **MSYS2 설치 가이드 v2 (msys2_setup_guide.md)** 완전 재작성
+  - 목차 및 네비게이션 강화
+  - MSYS2 vs Git Bash vs WSL vs PowerShell 상세 비교표
+  - 자동 설치 / 수동 설치 선택 가이드
+  - 단계별 스크린샷 설명 (텍스트)
+  - Powerlevel10k 설정 마법사 완벽 가이드
+    - 각 질문별 추천 답변
+    - 빠른 설정 (전체 답변 시퀀스)
+  - 트러블슈팅 섹션 대폭 강화
+    - 실제 겪은 8가지 문제와 해결책
+    - oh-my-zsh 경로 문제
+    - p10k configure 오류
+    - 한글 깨짐
+    - Nerd Font 설치
+    - pacman GPG 키 오류
+    - Windows 경로 문제
+    - Git Bash 충돌
+    - 터미널 속도 문제
+  - Windows Terminal 설정 2가지 방법 (JSON / GUI)
+  - MSYS2 환경 종류 설명 (UCRT64, MINGW64, MSYS)
+  - 추가 팁 (fzf, tmux, 개발 도구 설치)
+  - Windows Terminal 단축키 표
+  - 파일 구조 다이어그램
+  - FAQ 5가지
+  - 설치 파일 목록
 
 **Reason**:
-사용자 요청사항 반영 - 화면 설계는 Gemini 우선, 코드 품질/리팩토링/마이그레이션은 Codex 우선 담당 명시화
+실제 설치 과정에서 겪은 모든 문제와 해결책을 반영하여 완벽한 가이드 작성
+- oh-my-zsh 경로 문제 (실제 발생)
+- p10k configure 오류 (실제 발생)
+- Powerlevel10k 설정 마법사 질문들 (실제 경험)
+자동화 스크립트로 5분 안에 완벽한 환경 구축 가능
+Windows Terminal JSON 설정으로 복붙만으로 프로필 추가
 
 **AI Collaborator**:
 - 없음 (Claude 단독 작업)
 
 **Related Issue/Request**:
-MIGRATION_PLAN.md 내 AI별 역할 분담 명확화 요청
+"추가로 설치과정 자동화할수있는 부분은 sh로만들어서 가이드에추가해줘"
+"추가로 windows terminal에 추가할수있는 json도 만들어줘 가이드에 추가"
+"현재내용도 반영해서 설치가이드 업데이트해줘"
 
 ---
 
-## [2025-11-30 17:46:09 KST] Skills & Commands 마이그레이션 계획 수립
-
-**Type**: 문서 생성
-
-**Affected Files**:
-- `MIGRATION_PLAN.md` (신규 생성)
-
-**Changes**:
-- **Phase 1: 이름 변경 계획** (5개 항목)
-  - implementation-executor → gc-executor
-  - implementation-executor-lite → gc-executor-lite
-  - project-planner → gc-planner
-  - project-planner-lite → gc-planner-lite
-  - gemini-task → gc-task
-  - 각 항목별 Skill 폴더, SKILL.md, Command 파일 이름 변경 및 내용 수정 가이드 포함
-
-- **Phase 2: Codex 협업 신규 생성** (5개 항목)
-  - cx-executor, cx-executor-lite, cx-planner, cx-planner-lite, cx-task
-  - Claude + Codex 협업 구조
-  - 기존 gc- 버전을 기반으로 Gemini 호출 → Codex 호출로 변경
-  - 코드 품질 검증 특화
-
-- **Phase 3: 3-AI 협업 신규 생성** (5개 항목)
-  - gcx-executor, gcx-executor-lite, gcx-planner, gcx-planner-lite, gcx-task
-  - Gemini(전략) + Claude(구현) + Codex(검증) 협업 구조
-  - 최고 품질 달성을 위한 3단계 검증 프로세스
-
-- **공통 생성 가이드**
-  - Codex 호출 패턴 (exec, full-auto, JSON, resume)
-  - 3-AI 워크플로우 템플릿
-  - AI Collaborator 기록 형식
-
-- **실행 가이드**
-  - Phase별 실행 명령어 (mv, mkdir, cp)
-  - 검증 체크리스트
-
-- **참고 자료**
-  - Gemini vs Codex 선택 가이드
-  - AI Collaborator 기록 예시
-
-**Reason**:
-향후 Codex를 포함한 멀티 AI 협업 시스템 확장을 위해 체계적인 마이그레이션 계획 필요.
-현재는 Gemini-Claude 협업만 구현되어 있으나, Codex(코드 검증 특화) 및 3-AI 협업(최고 품질)을 추가하여 다양한 사용 시나리오에 대응.
-
-**AI Collaborator**:
-- 없음 (Claude 단독 작업)
-
-**Related Issue/Request**:
-"계획을 세우고 md파일로 저장. 계획에대한 md파일에는 다음을 진행하고 각각 완료 상태를 표시할수있도록 md파일구성
-이름만변경 : 어디경로의 어떤파일을 어떻게 변경하면되는지
-새로만들 커맨드와 스킬 : 현재만들어져있는 커맨드와 스킬을 활용하여 어떤식으로 생성하면될지 자세히 기술할것"
-
-**Technical Details**:
-- 총 15개 항목 (기존 5개 이름 변경 + cx- 5개 신규 + gcx- 5개 신규)
-- 각 항목마다 Skill 폴더 + SKILL.md + PHASES.md + Command 파일 필요
-- gc- (Gemini-Claude), cx- (Claude-Codex), gcx- (Gemini-Claude-Codex) 네이밍 규칙
-- 체크박스 형식으로 진행 상황 추적 가능
-
----
-
-## [2025-11-30 15:04:27 KST] Korean-Explanatory Output Style - KST 시간 계산 가이드 추가
-
-**Type**: 설정변경
-
-**Affected Files**:
-- `~/.claude/output-styles/Korean-Explanatory.md`
-- `~/.claude/output-styles/Korean-Explanatory.md.backup` (백업)
-
-**Changes**:
-- **"How to Get Correct KST Time" 섹션 추가** (112번 라인 이후)
-  - PowerShell 명령어로 정확한 KST 시간 가져오기
-  - Git Bash `TZ='Asia/Seoul' date` 명령의 문제점 명시
-  - 시간 기록 절차 및 예시 제공
-
-- **Do's and Don'ts 섹션 업데이트**
-  - ❌ DON'T: "Use Git Bash `TZ='Asia/Seoul' date` (9시간 느림!)" 추가
-  - ✅ DO: "Use KST timezone via PowerShell" 세부 내용 추가
-  - ✅ DO: PowerShell 명령어 예시 추가
-
-**Reason**:
-Git Bash의 `TZ='Asia/Seoul' date` 명령이 Windows 환경에서 UTC 시간을 반환하여 9시간 느린 시간이 MODIFY_HISTORY.md에 기록되는 문제 발생.
-PowerShell의 `Get-Date`를 사용하면 Windows 시스템 시간(한국 시간)을 정확하게 가져올 수 있음.
-
-**AI Collaborator**:
-- 없음 (Claude 단독 작업)
-
-**Related Issue/Request**:
-"다음과 같이 기록해줬는데 날짜가 +9시간 해야 현재 한국 시간이야 output 스타일에 시간관련한 내용 추가해줘"
-
-**Technical Details**:
-- Git Bash TZ 환경변수는 Windows에서 제대로 작동하지 않음
-- PowerShell의 Get-Date는 시스템 시간을 직접 읽어 정확함
-- 올바른 명령: `powershell.exe -Command "Get-Date -Format 'yyyy-MM-dd HH:mm:ss'"`
-
----
-
-## [2025-11-30 14:53:00 KST] 프로젝트 관리 커맨드 및 스킬 Gemini 샌드박스 모드 제거
-
-**Type**: 설정변경
-
-**Affected Files**:
-
-**커맨드 파일 (4개)**:
-- `~/.claude/commands/nam/implementation-executor.md`
-- `~/.claude/commands/nam/implementation-executor-lite.md`
-- `~/.claude/commands/nam/project-planner.md`
-- `~/.claude/commands/nam/project-planner-lite.md`
-
-**스킬 PHASES.md 파일 (4개)**:
-- `~/.claude/skills/implementation-executor/PHASES.md` (10곳 수정)
-- `~/.claude/skills/implementation-executor-lite/PHASES.md` (3곳 수정)
-- `~/.claude/skills/project-planner/PHASES.md` (1곳 수정)
-- `~/.claude/skills/project-planner-lite/PHASES.md` (2곳 수정)
-
-**백업 파일 (8개)**:
-- 각 파일명에 `.backup` 확장자로 백업 생성
-
-**Changes**:
-- **모든 Gemini CLI 호출에서 샌드박스 플래그 제거**
-  - 수정 전: `gemini -m [모델] -s -p "프롬프트..."`
-  - 수정 후: `gemini -m [모델] "프롬프트..."`
-  - 총 21곳 수정 (커맨드 4곳 + PHASES 17곳)
-
-**Reason**:
-현재 Windows 환경에서 Docker/Podman이 설치되지 않아 샌드박스 모드 실행 시 에러 발생 (Exit Code 44).
-프로젝트 계획 및 구현 워크플로우에서:
-- 사용자가 직접 입력을 제어
-- Claude가 각 단계를 검증
-- 사용자 승인이 각 Phase마다 필요
-→ 다층 안전장치가 있어 샌드박스 격리가 필수가 아님.
-
-샌드박스 제거로 얻는 이점:
-- 실행 속도 향상 (컨테이너 오버헤드 제거)
-- 환경 호환성 개선 (Docker/Podman 불필요)
-- 워크플로우 단순화
-
-**AI Collaborator**:
-- 없음 (Claude 단독 작업)
-
-**Related Issue/Request**:
-"'c:/Users/Nam/.claude/commands/nam/implementation-executor.md', 'implementation-executor-lite.md', 'project-planner.md', 'project-planner-lite.md' 이 커맨드들과 연관되어있는 스킬들도 샌드박스 사용 안하게 변경해줘"
-
-**Technical Details**:
-- 변경 도구: sed (GNU sed for Windows)
-- 변경 패턴: `-s -p ` → 제거, `-s ` → 제거
-- 영향받는 워크플로우:
-  - `/nam:project-planner`: PRD/TRD 생성 시 Gemini 호출 (5회)
-  - `/nam:project-planner-lite`: IRD/WORKPLAN 생성 시 Gemini 호출 (2회)
-  - `/nam:implementation-executor`: 6-Phase 구현 시 Gemini 검증 (10회 이상)
-  - `/nam:implementation-executor-lite`: 3-Phase MVP 구현 시 Gemini 검증 (3회)
-
----
-
-## [2025-11-30 14:40:00 KST] Gemini 샌드박스 모드 제거
-
-**Type**: 설정변경
-
-**Affected Files**:
-- `C:/Users/Nam/.claude/commands/nam/gemini-task.md`
-
-**Changes**:
-- **Gemini CLI 호출 시 샌드박스 플래그 제거**
-  - 수정 전: `gemini -m [모델] -s -p "프롬프트..."`
-  - 수정 후: `gemini -m [모델] "프롬프트..."`
-  - 3곳 모두 수정 (36, 83, 137번 라인)
-  - 백업 파일 생성: `gemini-task.md.backup`
-
-**Reason**:
-현재 Windows 환경에서 Docker/Podman이 설치되지 않아 샌드박스 모드 실행 시 에러 발생.
-개발/학습 환경에서는 샌드박스 격리가 필수가 아니며, Claude 검증 + 사용자 승인 프로세스로 충분한 안전장치 제공.
-샌드박스 제거로 성능 향상 및 환경 호환성 개선.
-
-**AI Collaborator**:
-- 없음 (Claude 단독 작업)
-
-**Related Issue/Request**:
-"샌드박스 모드가 필요한 이유를 설명해줘 필요없으면 제거하려고"
-
-**Technical Details**:
-- 샌드박스 모드는 Docker/Podman 컨테이너를 통한 격리 실행 환경 제공
-- 개발 환경 + 사용자 제어 + Claude 검증 체계에서는 선택사항
-- 프로덕션 서버나 자동화 스크립트에서는 샌드박스 권장
-- 현재 환경에서는 성능과 호환성을 위해 제거 결정
-
----
-
-## [2025-11-30 14:11:00 KST] 범용 Gemini-Claude Loop 커맨드 생성
+## [2025-12-17 21:33:09 KST] MSYS2 oh-my-zsh 완전 설치 스크립트 작성
 
 **Type**: 생성
 
 **Affected Files**:
-- `C:/Users/Nam/.claude/commands/nam/gemini-task.md` (신규)
-- `C:/Users/Nam/.claude/commands/nam/gemini-task-README.md` (신규)
+- `install_ohmyzsh_msys2.sh` (신규)
 
 **Changes**:
-- **범용 커맨드 `/nam:gemini-task` 생성**
-  - 어떤 종류의 요청이든 Gemini-Claude 협업 루프로 처리 가능
-  - 사용자 요청을 Gemini가 분석하여 동적으로 단계 생성
-  - Step 0: Gemini 모델 선택 및 상태 모니터링 포함
-  - EXECUTION PROTOCOL: 6단계 실행 규칙
-    1. 작업 설명 받기 (AskUserQuestion)
-    2. 작업 분석 및 단계 분할 (Gemini)
-    3. Claude 검증 및 사용자 승인
-    4. 단계별 실행 (Gemini-Claude Loop)
-    5. 최종 검증
-    6. AI Collaborator 기록
-
-- **사용 가이드 문서 생성**
-  - 상세한 사용 예시 3가지 포함:
-    - 전체 프로젝트 보안 감사
-    - API 문서 자동 생성
-    - React 컴포넌트 현대화
-  - 기존 커맨드와 비교표 제공
-  - 트러블슈팅 섹션 포함
+- **완전 자동화된 oh-my-zsh 설치 스크립트** 작성
+  - 환경 확인 (HOME, SHELL, 현재 위치)
+  - 필수 패키지 자동 설치 (git, curl, zsh)
+  - 기존 oh-my-zsh 완전 제거 후 재설치
+  - Powerlevel10k 테마 자동 설치
+  - zsh 플러그인 자동 설치 (autosuggestions, syntax-highlighting)
+  - 완전한 .zshrc 작성 (instant prompt 포함)
+  - .bashrc 자동 설정 (zsh 자동 실행)
+  - 설치 확인 및 상세 로깅
+  - 디렉토리 단축 alias (proj, downloads, desktop)
+  - 고급 히스토리 설정 (중복 제거, 검색)
+  - 키 바인딩 (Ctrl+P/N으로 히스토리 검색)
 
 **Reason**:
-사용자가 PRD/TRD 계획 수립이나 코드 구현 외에도 다양한 요청(코드 리뷰, 문서 생성, 마이그레이션, 보안 감사 등)을 Gemini와 협업하여 처리하고 싶어했습니다. 
-기존 4개 커맨드는 특정 워크플로우에 특화되어 있어, 예상을 벗어나는 요구사항을 유연하게 처리할 수 있는 범용 커맨드가 필요했습니다.
+이전 스크립트(fix_zsh_setup.sh)에서 oh-my-zsh 설치 체크 로직이 잘못되어
+"✅ 이미 설치됨"이라고 표시했지만 실제로는 설치되지 않은 문제 발생
+`/home/Nam/.zshrc:source:17: no such file or directory: /home/Nam/.oh-my-zsh/oh-my-zsh.sh` 오류
+완전히 새로 설치하는 안전한 스크립트로 대체
 
 **AI Collaborator**:
 - 없음 (Claude 단독 작업)
 
 **Related Issue/Request**:
-"범용 커맨드를 생성하고싶어" - 어떤 요청이든 gemini랑 협업해서 처리 가능한 상태 원함
-
-**Features**:
-- **동적 단계 생성**: 작업에 따라 2-10단계 자동 생성
-- **범용성**: 코드 리뷰, 문서화, 마이그레이션, 테스트 작성, 보안 감사 등 모든 작업
-- **상태 모니터링**: 1분 간격 Gemini 호출 상태 체크 (15분 타임아웃)
-- **품질 보장**: 각 단계마다 Claude 검증 및 사용자 승인
-- **자동 기록**: MODIFY_HISTORY.md에 AI 협업 내역 자동 기록
-
-**Usage**:
-```
-/nam:gemini-task
-```
-
----
-## [2025-11-30 04:50:46 KST] Claude Code Commands - Gemini 모델 선택 및 상태 모니터링 추가
-
-**Type**: 설정변경
-
-**Affected Files**:
-- `C:/Users/Nam/.claude/commands/nam/project-planner-lite.md`
-- `C:/Users/Nam/.claude/commands/nam/project-planner.md`
-- `C:/Users/Nam/.claude/commands/nam/implementation-executor.md`
-- `C:/Users/Nam/.claude/commands/nam/implementation-executor-lite.md`
-
-**Changes**:
-- **Step 0 섹션 추가**: 4개 커맨드 파일 모두에 "Gemini 모델 선택 및 상태 모니터링" 섹션 추가
-  - **0.1 Gemini 모델 선택**: 커맨드 실행 즉시 AskUserQuestion으로 모델 선택
-    - gemini-2.5-flash (빠른 처리)
-    - gemini-2.5-pro (권장)
-    - gemini-3-pro-preview (복잡한 요구사항)
-    - Let AI decide (자동 선택)
-  - **0.2 Gemini 호출 상태 모니터링**: 1분 간격 상태 체크 프로토콜
-    - Bash tool의 `run_in_background: true` 사용
-    - BashOutput tool로 주기적 상태 확인
-    - 진행 중/완료/에러 상태 사용자에게 알림
-    - 타임아웃 설정 (10-15분)
-
-- **EXECUTION PROTOCOL 업데이트**: Step 0.2 상태 모니터링 프로토콜 준수 명시
-
-- **각 커맨드별 최적화**:
-  - `project-planner-lite.md`: 타임아웃 10분
-  - `project-planner.md`: 총 5회 Gemini 호출, 타임아웃 10분
-  - `implementation-executor.md`: 총 6회 Gemini 호출, 타임아웃 15분 (코드 검증 시간 고려)
-  - `implementation-executor-lite.md`: MVP 프로젝트 최적화, 타임아웃 10분
-
-**Reason**:
-사용자가 커맨드 실행 시 Gemini 모델 선택창을 즉시 보고 싶어했고, Gemini 호출 후 정상 동작 여부를 실시간으로 확인하고 싶어했습니다. 기존에는:
-1. 모델 선택이 PHASES.md 내부에만 있어 실제로 자동 실행되지 않음
-2. Gemini 호출 후 상태를 알 수 없어 장시간 대기 시 진행 여부 불확실
-
-개선 내용:
-1. 커맨드 파일 최상단(Step 0)에 모델 선택 프로토콜 추가 → 즉시 실행 보장
-2. 백그라운드 실행 + 1분 간격 상태 체크로 사용자 경험 개선
-3. 에러/완료 상태를 실시간으로 알려 디버깅 용이
-
-**AI Collaborator**:
-- 없음 (Claude 단독 작업 - Command 메타 개선)
-
-**Related Issue/Request**:
-사용자 요청: "이커맨드들을 실행했을때 gemini 도 호출하게되는데 커맨드 실행하자마자 gemini 어떤모델 사용할건지 선택하는창이 나왔으면하고 정상적으로 호출되는지 확인하고싶어"
-사용자 요청: "여기에 제미나이 호출이후 동작하고있는지 상태체크를 1분에 한번씩 하는것도 추가하고싶어"
+"exec zsh 실행 시 '/home/Nam/.zshrc:source:17: no such file or directory: /home/Nam/.oh-my-zsh/oh-my-zsh.sh' 오류"
 
 ---
 
-## [2025-11-30 09:45:43 KST] Learning Code 웹 플랫폼 - 파일 파싱 시스템 구현
+## [2025-12-17 21:23:39 KST] MSYS2 zsh 설정 수정 스크립트 작성
 
 **Type**: 생성
 
 **Affected Files**:
-- `web/lib/parsers/parseMarkdown.ts` (새 파일)
-- `web/lib/parsers/parseCode.ts` (새 파일)
-- `web/scripts/generateLearningData.ts` (새 파일)
-- `web/public/learning-data.json` (728KB, 자동 생성)
-- `web/package.json` (스크립트 추가)
+- `msys2_zshrc_template.sh` (신규)
+- `fix_zsh_setup.sh` (신규)
 
 **Changes**:
-- **Markdown 파서 구현**: learning_plan.md 파일에서 학습 계획 테이블 자동 파싱
-  - 32개 카테고리 자동 발견
-  - Step 번호, 제목, 목표, 상태 추출
-  - 정규식 기반 견고한 파싱
+- **MSYS2용 완전한 .zshrc 템플릿** 작성
+  - oh-my-zsh 초기화 코드 포함 (source $ZSH/oh-my-zsh.sh)
+  - Powerlevel10k 테마 설정
+  - zsh-autosuggestions, zsh-syntax-highlighting 플러그인
+  - UTF-8 인코딩, 히스토리, 자동완성 설정
+  - Git alias, MSYS2 패키지 관리 alias
 
-- **코드 파일 파서 구현**: Bad/Good Example 자동 분리
-  - Java: 클래스 기반 파싱 (중괄호 카운팅)
-  - 기타 언어: 주석 기반 섹션 분리
-  - 학습 포인트 자동 추출 (JavaDoc, 단일 라인 주석 지원)
-  - 9개 언어 지원 (Java, JavaScript, TypeScript, Python, Vue, Rust, Go, Kotlin, Dart)
-
-- **데이터 생성 스크립트**: 빌드타임 자동 실행
-  - 127개 Step 성공적으로 파싱
-  - 각 Step에 code 섹션 및 learningPoints 포함
-  - `npm run generate-data` 명령으로 수동 실행 가능
-  - `prebuild` 훅으로 빌드 전 자동 실행
-
-- **package.json 스크립트 추가**:
-  - `generate-data`: 학습 데이터 생성
-  - `prebuild`: 빌드 전 데이터 자동 생성
-  - `tsx` 패키지 추가 (TypeScript 실행)
+- **자동 수정 스크립트 (fix_zsh_setup.sh)** 작성
+  - 기존 .zshrc 자동 백업 (타임스탬프 포함)
+  - oh-my-zsh 자동 설치 (미설치 시)
+  - Powerlevel10k 테마 자동 설치 (미설치 시)
+  - zsh 플러그인 자동 설치 (autosuggestions, syntax-highlighting)
+  - 완전한 .zshrc 자동 생성
+  - .bashrc에 zsh 자동 실행 추가 (중복 방지)
+  - 단계별 진행 상황 표시
 
 **Reason**:
-기존 프로젝트는 `sampleData.ts`에 하드코딩된 4개 카테고리만 지원하여 실제 학습 자료(32개 카테고리, 127 Step)와 연동 불가. IRD/WORKPLAN 문서의 핵심 요구사항인 "실제 파일 파싱 시스템" 구현 필요.
+사용자가 `echo 'ZSH_THEME="..."' >> ~/.zshrc`로 테마만 추가하여
+oh-my-zsh 초기화 코드가 없어 `p10k` 명령어를 찾지 못하는 문제 발생
+원클릭 수정 스크립트로 완전한 설정을 자동화
 
 **AI Collaborator**:
-- Suggested by: Claude
-- Model used: claude-sonnet-4-5
-- Validation status: PASS
-- Validated by: Gemini (gemini-2.5-flash)
-- Review notes:
-  - parseMarkdown.ts: 타입 정의 적절, 에러 핸들링 완벽, 파싱 로직 견고, 보안 이슈 없음
-  - parseCode.ts: Java 클래스 파싱 로직 매우 견고, 다중 언어 지원 우수, 보안 이슈 없음
-  - generateLearningData.ts: 파일 구조 올바름, 에러 핸들링 우수, 경로 탐색 공격 방어됨
-  - **발견된 이슈: 없음**
+- 없음 (Claude 단독 작업)
 
 **Related Issue/Request**:
-사용자 요청: "WORKPLAN_Learning_Platform.md, IRD_Learning_Platform.md 설계가 제대로 구현되었는지 확인" → 누락된 핵심 기능(파일 파싱) 발견 및 구현 완료
-
-# 코드 수정 이력
-
-## [2025-11-30 01:05:00 KST] Command 파일 EXECUTION PROTOCOL 추가
-
-**Type**: 설정변경
-
-**Affected Files**:
-- `~/.claude/commands/nam/project-planner-lite.md`
-- `~/.claude/commands/nam/project-planner.md`
-- `~/.claude/commands/nam/implementation-executor-lite.md`
-- `~/.claude/commands/nam/implementation-executor.md`
-- `update_commands.py` (자동화 스크립트)
-
-**Changes**:
-- 4개 Command 파일 상단에 **EXECUTION PROTOCOL** 섹션 추가
-- 각 Command 실행 시 Claude가 반드시 따라야 할 필수 규칙 명시:
-  1. **PHASES.md 즉시 읽기**: Command 시작 즉시 해당 Skill의 PHASES.md 파일 읽기
-  2. **Gemini 호출 필수**: PHASES.md의 `gemini -m [model] -s -p "..."` 명령 반드시 실행
-  3. **검증 PASS 확인**: 각 Phase마다 Gemini 검증 결과 PASS 확인 후 진행
-  4. **사용자 승인 필수**: 각 Phase 완료 후 AskUserQuestion으로 승인 받기
-  5. **AI Collaborator 기록**: MODIFY_HISTORY.md에 Gemini 협업 내용 기록
-  6. **절대 단독 작업 금지**: Claude 혼자 작업 금지, Gemini-Claude 협업 필수
-- 각 Command 파일 하단에 "**Now reading PHASES.md and executing...**" 추가
-
-**Reason**:
-기존 Command 파일이 "Use the Skill tool to execute..." 같은 **설명 텍스트**만 포함하여, Claude가 Command를 읽어도 실제로 Skill을 호출하지 않았음. 사용자가 `/nam:project-planner-lite` 실행 시 Claude가 Skill 대신 직접 작업을 수행하여 Gemini 호출이 0회로 기록되는 문제 발생.
-
-**문제 해결**:
-- Command 파일에 EXECUTION PROTOCOL 명시로 Claude가 반드시 PHASES.md를 읽고 실행하도록 강제
-- Gemini 호출 명령 예시 제공으로 실제 실행 가능성 향상
-- "절대 단독 작업 금지" 규칙으로 Claude 단독 작업 방지
-- AI Collaborator 기록 의무화로 협업 내용 추적 가능
-
-**검증 결과**:
-- ✅ 4개 Command 파일 모두 EXECUTION PROTOCOL 추가 완료
-- ✅ 백업 파일 생성 완료 (*.md.bak)
-- ✅ 파일 크기 확인: 1.1K → 2.0K~2.2K (PROTOCOL 추가로 증가)
-- ✅ PROTOCOL 내용 확인: PHASES.md 읽기, Gemini 호출 명시
-
-**AI Collaborator**:
-- 없음 (Claude 단독 작업 - Command 메타 개선)
-
-**Related Issue/Request**:
-사용자 요청: "/nam:project-planner-lite [...] 정상동작 될수있게 만들어줘" 실행 시 Gemini 호출이 없었다는 지적
-사용자 요청: "command에도 execution protocol 관련을 추가해야하는건지 모르겠는데 분석해줘"
-사용자 요청: "자동수정 진행해줘" → 자동화 스크립트로 4개 파일 일괄 업데이트
-
-
-## [2025-11-30 00:52:00 KST] Learning Code 웹 플랫폼 동작 검증 완료
-
-**Type**: 검증
-
-**Affected Files**:
-- `web/package.json`
-- `web/app/page.tsx`
-- `web/app/layout.tsx`
-- `web/components/CategoryCard.tsx`
-- `web/lib/sampleData.ts`
-- `web/stores/progressStore.ts`
-- `web/types/learning.ts`
-
-**Changes**:
-- Next.js 15.5.6 + React 19 개발 서버 정상 실행 확인 (http://localhost:3001)
-- Turbopack 번들러 활성화 (Ready in 1.3초)
-- 메인 페이지 컴파일 성공 (Compiled / in 2.8s, HTTP 200 응답)
-- 4개 카테고리 카드 정상 렌더링 (Java, Vue3, Python, Spring Boot)
-- Zustand 상태 관리 정상 동작 확인
-- TypeScript 타입 시스템 정상 작동
-- 샘플 데이터 기반 MVP 동작 확인
-
-**Reason**:
-사용자가 `npm install` 후 "정상동작 될수있게 만들어줘"라고 요청하여, WORKPLAN에 따라 구성된 프로젝트가 실제로 동작하는지 검증 필요. 모든 의존성 설치 완료, 컴파일 에러 없음, 페이지 렌더링 성공을 확인함.
-
-**검증 결과**:
-- ✅ npm install: 438 packages, 0 vulnerabilities
-- ✅ 개발 서버: localhost:3001에서 정상 실행
-- ✅ 페이지 컴파일: 2.8초 만에 성공
-- ✅ 컴포넌트 렌더링: CategoryCard, ProgressStore 정상 동작
-- ✅ 라우팅: Next.js App Router 정상 동작
-- ✅ 스타일링: Tailwind CSS 정상 적용
-
-**AI Collaborator**:
-- 없음 (Claude 단독 작업 - 프로젝트 검증)
-
-**Related Issue/Request**:
-사용자 요청: "WORKPLAN_Learning_Platform.md 대로 구성했고 가이드대로 web에서 npm install 하는데 정상동작 될수있게 만들어줘"
-
-
-## [2025-11-30 00:46:00 KST] Claude Code 스킬 EXECUTION PROTOCOL 추가
-
-**Type**: 설정변경
-
-**Affected Files**:
-- `~/.claude/skills/project-planner-lite/SKILL.md`
-- `~/.claude/skills/project-planner/SKILL.md`
-- `~/.claude/skills/implementation-executor-lite/SKILL.md`
-- `~/.claude/skills/implementation-executor/SKILL.md`
-- `update_skills.py` (자동화 스크립트)
-
-**Changes**:
-- 4개 스킬 파일에 **EXECUTION PROTOCOL** 섹션 추가
-- 각 스킬 실행 시 Claude가 반드시 따라야 할 필수 규칙 명시:
-  1. **PHASES.md 즉시 읽기**: 스킬 시작 즉시 PHASES.md 파일을 읽고 순차 실행
-  2. **Gemini 호출 필수**: PHASES.md의 `gemini -m [model] -s -p "..."` 명령 반드시 실행
-  3. **검증 PASS 확인**: 각 Phase마다 Gemini 검증 결과 PASS 확인 후 진행
-  4. **사용자 승인 필수**: 각 Phase 완료 후 AskUserQuestion으로 승인 받기
-  5. **AI Collaborator 기록**: MODIFY_HISTORY.md에 Gemini 협업 내용 기록
-  6. **절대 단독 작업 금지**: Claude 혼자 작업 금지, Gemini-Claude 협업 필수
-
-**Reason**:
-기존 스킬 실행 시 Claude가 SKILL.md의 추상적 워크플로우만 읽고 PHASES.md의 구체적 Gemini 호출 명령을 실행하지 않아, Gemini-Claude 협업이 전혀 이루어지지 않았음. 결과적으로 MODIFY_HISTORY.md에 "AI Collaborator: 없음 (Claude 단독 작업)"으로 기록되는 문제 발생.
-
-**문제 해결**:
-- SKILL.md에 EXECUTION PROTOCOL 명시로 Claude가 반드시 PHASES.md를 읽고 실행하도록 강제
-- Gemini 호출 명령 예시 제공으로 실제 실행 가능성 향상
-- AI Collaborator 기록 의무화로 협업 내용 추적 가능
-
-**AI Collaborator**:
-- 없음 (Claude 단독 작업 - 스킬 메타 개선)
-
-**Related Issue/Request**:
-사용자 요청: "각각 디렉토리 하위에 SKILL.md를 확인하면돼" → 스킬 파일 개선 필요 인지
-사용자 요청: "수정 진행해줘" → 자동화 스크립트로 4개 스킬 파일 일괄 업데이트
+"p10k configure 실행 시 'zsh: command not found: p10k' 오류 발생"
 
 ---
 
-## [2025-11-29 15:29:05 KST] Learning Code 웹 플랫폼 MVP 구현 완료
+## [2025-12-17 21:09:58 KST] PowerShell + Oh My Posh 및 Cygwin 가이드 작성
 
 **Type**: 생성
 
 **Affected Files**:
-- `web/` (전체 Next.js 프로젝트)
-- `web/README.md`
+- `powershell_ohmyposh_guide.md` (신규)
+- `cygwin_setup_guide.md` (신규)
 
 **Changes**:
-- **Phase 1: Setup (완료)**
-  - Next.js 15 프로젝트 생성 (TypeScript, Tailwind CSS, Turbopack)
-  - 기본 디렉토리 구조 설정
-  - 타입 정의 및 샘플 데이터 생성
-  - 개발 서버 실행 확인
+- **PowerShell + Oh My Posh 완벽 가이드** 작성
+  - PowerShell 7 설치 방법
+  - Oh My Posh 설치 및 테마 설정
+  - Nerd Fonts 설치 가이드
+  - 프로필 설정 및 커스터마이징
+  - PSReadLine, Terminal-Icons, PSFzf, z 모듈 설치
+  - Windows Terminal 통합 설정
+  - 리눅스 alias 추가 (touch, which, head, tail 등)
+  - 트러블슈팅 섹션
+  - 커스텀 테마 만들기 고급 가이드
+  - 완성된 프로필 전체 예시
 
-- **Phase 2: Development (완료)**
-  - 메인 페이지: 카테고리 목록 + 실시간 진행률
-  - 카테고리 페이지: Step 목록
-  - Step 상세 페이지: Bad/Good 코드 비교
-  - CodeTabs 컴포넌트: react-syntax-highlighter로 문법 하이라이팅
-  - 진행률 추적: Zustand + LocalStorage 기반
-  - CompleteButton 컴포넌트: Step 완료 토글
-
-- **Phase 3: Basic QA (완료)**
-  - ✅ 프로덕션 빌드 성공 (npm run build)
-  - ✅ Lint 검사 통과 (No warnings or errors)
-  - ✅ README.md 작성
-
-**구현된 기능**:
-1. **카테고리 시스템**: Java, Vue3, Python, Spring Boot
-2. **코드 비교 학습**: Bad Example ↔ Good Example 탭 전환
-3. **진행률 자동 저장**: LocalStorage 기반 영구 저장
-4. **반응형 디자인**: 모바일/태블릿 지원
-5. **다크 모드**: 시스템 설정 자동 감지
-
-**기술 스택**:
-- Next.js 15.5 (App Router, Turbopack)
-- TypeScript 5.7
-- Tailwind CSS 3.4
-- Zustand (상태 관리)
-- react-syntax-highlighter (코드 하이라이팅)
-
-**성능**:
-- 빌드 시간: 2.8초
-- First Load JS: 102-355 KB
-- Static Pages: 4개
-
-**MVP Ready 달성**:
-- ✅ 핵심 기능 동작
-- ✅ 기본 UI/UX 완성
-- ✅ 진행률 추적 시스템
-- ✅ 빌드 성공
-- ✅ Lint 통과
+- **Cygwin 설치 및 설정 가이드** 작성
+  - Cygwin 설치 및 패키지 선택 방법
+  - apt-cyg 패키지 관리자 설치
+  - zsh + oh-my-zsh + Powerlevel10k 설치
+  - Windows Terminal 통합
+  - Windows 경로 통합 (cygpath 사용법)
+  - fzf, tmux, htop 추가 도구
+  - X11 GUI 앱 실행 가이드
+  - Cygwin vs MSYS2 vs Git Bash vs WSL 상세 비교
+  - 트러블슈팅 섹션
 
 **Reason**:
-사용자가 로컬 학습 자료를 웹에서 인터랙티브하게 학습할 수 있는 플랫폼이 필요했으며, 3단계 Implementation Executor Lite 프로세스를 통해 MVP를 빠르게 완성했습니다.
+Windows 환경에서 사용 가능한 모든 터미널 옵션 제공:
+1. PowerShell - Windows 네이티브, .NET 통합 완벽
+2. Cygwin - 레거시 안정판, POSIX 95% 호환
+3. MSYS2 (이전 작성) - 현대적, Pacman 패키지 관리자
+
+각 옵션의 장단점과 사용 상황을 명확히 제시
 
 **AI Collaborator**:
 - 없음 (Claude 단독 작업)
 
 **Related Issue/Request**:
-사용자 요청: "/nam:implementation-executor-lite로 구현 시작해줘"
+"혹시 다른 옵션(PowerShell + Oh My Posh, Cygwin 등) 이것도 가이드 작성해줘"
 
 ---
 
-## [2025-11-29 15:15:08 KST] Learning Code 웹 플랫폼 기획 문서 생성
+## [2025-12-17 19:11:06 KST] MSYS2 설치 및 zsh 설정 가이드 작성
 
 **Type**: 생성
 
 **Affected Files**:
-- `docs/IRD_Learning_Platform.md`
-- `docs/WORKPLAN_Learning_Platform.md`
+- `msys2_setup_guide.md` (신규)
 
 **Changes**:
-- **IRD (통합 요구사항 문서)** 생성:
-  - 프로젝트 개요: 로컬 학습 자료를 웹 기반 인터랙티브 플랫폼으로 전환
-  - 기능 요구사항: 네비게이션 시스템, 코드 실행 환경, 학습 진행 관리, 반응형 디자인
-  - 기술 스택: Next.js 15, ShadCN UI, Monaco Editor, Pyodide
-  - 데이터 구조: 파일 파싱 방식, 메타데이터 추출, 코드 블록 분리
-  - UI/UX 와이어프레임 설계
-  - 개발 우선순위 3단계 정의
-
-- **WORKPLAN (실행 계획)** 생성:
-  - Phase 1 (1주): 프로젝트 초기화 및 파일 파싱
-    - Next.js 프로젝트 생성
-    - Markdown/코드 파일 파서 구현
-    - 사이드바 네비게이션 구현
-    - 코드 뷰어 컴포넌트
-    - 진행률 추적 시스템 (Zustand + LocalStorage)
-  - Phase 2 (1주): 코드 실행 환경 구축
-    - Monaco Editor 통합
-    - JavaScript 실행 (Web Worker)
-    - Python 실행 (Pyodide)
-    - Java 실행 (선택사항 - Judge0 API)
-  - Phase 3 (1주): 고급 기능 및 최적화
-    - 검색 기능 (Fuse.js)
-    - 다크모드 (next-themes)
-    - 반응형 디자인 (모바일 지원)
-    - 학습 이력 시각화
-    - 성능 최적화 및 Vercel 배포
+- Windows용 MSYS2 + zsh 완벽 설정 가이드 작성
+  - MSYS2 설치 및 초기 설정 방법
+  - zsh + oh-my-zsh + Powerlevel10k 테마 설치
+  - zsh 플러그인 (autosuggestions, syntax-highlighting) 설정
+  - Windows Terminal 통합 방법
+  - Nerd Fonts 설치 가이드
+  - 유용한 alias 및 환경변수 설정
+  - MSYS2 vs Git Bash 상세 비교표
+  - 트러블슈팅 섹션 (한글 깨짐, GPG 키 오류, 경로 문제 등)
 
 **Reason**:
-사용자가 기존 학습 자료를 웹에서 체계적으로 학습하고, 샘플 코드를 직접 실행해볼 수 있는 플랫폼이 필요했습니다. 파일 기반 학습의 한계를 극복하고 다음 기능을 제공하기 위함:
-1. 카테고리별 구조화된 학습 경로
-2. Bad/Good Practice 코드 비교
-3. 브라우저 내 코드 실행 환경
-4. 학습 진행률 추적 및 시각화
+WSL 설치가 불가능한 환경에서도 리눅스 명령어와 zsh를 사용할 수 있는 완벽한 대안 제공
+Git Bash보다 강력한 Pacman 패키지 관리자와 90%+ 리눅스 명령어 호환성 제공
 
 **AI Collaborator**:
 - 없음 (Claude 단독 작업)
 
 **Related Issue/Request**:
-사용자 요청: "이 프로젝트에 내가 학습하고자 하는 내용들 샘플이 생성되어 있어 웹에 띄워서 코드들을 학습하고 싶다면 어떤 형태로 구현 가능할까? 예를 들어 웹 화면에서 왼쪽편에는 작성되어 있는 스킬 모음들 (vue2, vue3, spring 등) 카테고리가 나오고, 클릭했을 때 메인 페이지에는 해당 스킬의 학습할 내용들이 나오고 순서대로 학습해 나갈 수 있도록 구성되었으면 해. 그리고 샘플로 실행해볼 수 있는 게 있으면 더 좋을 것 같고"
+"윈도우용 terminal 중에 리눅스명령어 완벽호환가능한거 없어? wsl 설치불가한 환경도있어서 git bash 말고도 zsh처럼 뭔가 이쁘게 구성되어있는 뭔가가 없을까"
 
 ---
 
-## [2025-11-29 14:51:51 KST] Git Ignore 패턴 추가 - 개발 도구 디렉토리
+## [2025-12-17 19:03:36 KST] Git Bash 설정 가이드 문서 작성
+
+**Type**: 생성
+
+**Affected Files**:
+- `wsl2_setup_commands_gitbash.md` (신규)
+
+**Changes**:
+- Git Bash 전용 설정 가이드 작성
+  - 문제 1: 한글 파일명 깨짐 현상 해결 방법
+    - Git `core.quotepath` 설정
+    - Bash UTF-8 locale 설정
+  - 문제 2: 백스페이스 깜박임 문제 해결 방법
+    - `.inputrc` 파일 생성 및 벨 비활성화
+    - Windows Terminal 벨 알림 설정
+  - 전체 설정 일괄 실행 스크립트
+  - 추가 팁: MesloLGS NF 폰트 적용, 프롬프트 커스터마이징
+
+**Reason**:
+Windows Terminal + Git Bash 사용자들을 위한 통합 설정 가이드 필요
+한글 표시와 백스페이스 깜박임 문제를 한 번에 해결할 수 있는 문서 제공
+
+**Related Issue/Request**:
+"그리고 gitbash 창에서 백스페이스를 누르면 화면이 깜박여 이증상도 수정필요해"
+
+---
+
+## [2025-12-17 19:03:36 KST] Git Bash 백스페이스 깜박임 문제 해결
 
 **Type**: 설정변경
 
 **Affected Files**:
-- `.gitignore`
+- `~/.inputrc` (신규 생성)
 
 **Changes**:
-- `.claude/` 디렉토리를 gitignore에 추가 (Claude Code 개인 설정)
-- `mcp_*/` 패턴을 gitignore에 추가 (MCP 관련 디렉토리 전체)
+- `.inputrc` 파일 생성 및 시스템 벨 비활성화:
+  ```bash
+  set bell-style none
+  ```
+- `bind -f ~/.inputrc` 명령으로 즉시 적용
 
 **Reason**:
-- `.claude/` 디렉토리는 개인별 개발 환경 설정으로 버전 관리 대상이 아님
-- `mcp_shrimp_task_manager/` 등 MCP 관련 디렉토리는 로컬 도구 설정으로 프로젝트 레포지토리에 포함할 필요가 없음
-- Untracked files 목록을 정리하여 Git 상태를 깔끔하게 유지
-
-**AI Collaborator**:
-- 없음 (Claude 단독 작업)
+Git Bash에서 백스페이스 키를 누를 때 화면이 깜박이는 문제 해결
+Readline의 시스템 벨(Bell)이 Windows Terminal에서 시각적 피드백으로 표시되는 것을 차단
 
 **Related Issue/Request**:
-사용자 요청: "불필요한 파일들을 git ignore 에 등록해줘"
-=======
+"그리고 gitbash 창에서 백스페이스를 누르면 화면이 깜박여 이증상도 수정필요해"
+
 ---
->>>>>>> 121720a436434b0347471916cb53155959b43929
+
+## [2025-12-17 19:00:52 KST] Git Bash 한글 표시 문제 해결
+
+**Type**: 설정변경
+
+**Affected Files**:
+- `~/.bashrc` (UTF-8 locale 설정 추가)
+- Git global config (core.quotepath 비활성화)
+
+**Changes**:
+- Git 설정 변경: `core.quotepath = false`
+  - 비ASCII 문자(한글 등)를 이스케이프하지 않고 원본 그대로 표시
+- `~/.bashrc`에 UTF-8 locale 설정 추가:
+  ```bash
+  export LANG=ko_KR.UTF-8
+  export LC_ALL=ko_KR.UTF-8
+  ```
+- 결과: 파일명 "화면 캡처"가 정상 표시됨 (이전: □□□)
+
+**Reason**:
+Windows Terminal의 Git Bash에서 한글 파일명이 깨져 보이는 문제 해결
+Git의 기본 quotepath 설정과 locale 미설정으로 인한 인코딩 문제 수정
+
+**Related Issue/Request**:
+"windows terminal에서 gitbash 열었는데 이렇게 한글이 잘안보여 해결해줘"
+
+---
+
+## [2025-12-17 18:12:27 KST] WSL2 설정 가이드 업데이트 (v4.0)
+
+**Type**: 수정
+
+**Affected Files**:
+- `WSL2_Complete_Setup_Guide.md` (v3.0 → v4.0)
+
+**Changes**:
+- **섹션 10: 성능 최적화** 추가
+  - WSL 성능 문제 진단 및 해결
+  - /mnt/c vs WSL 홈 성능 비교 (5-10배 차이)
+  - 프로젝트를 WSL 홈으로 이동하는 방법 (rsync)
+  - .zshrc 최적화 (Git 상태 확인 비활성화)
+  - 권장 작업 흐름 (개발/백업)
+
+- **섹션 11: 추가 커스터마이징** 추가
+  - zsh 테마 변경 (agnoster, robbyrussell)
+  - Windows Terminal 색상 스킴 변경 (Solarized Dark 등)
+  - Git Bash를 Windows Terminal 프로필에 추가 (JSON/GUI)
+  - 단축키로 프로필 열기 설정
+
+- 목차 업데이트 (섹션 10, 11 추가)
+- 문서 버전 및 변경 이력 추가
+
+**Reason**:
+오늘 실제로 진행한 성능 최적화 및 커스터마이징 작업을 가이드에 반영하여,
+다른 컴퓨터에서도 동일한 최적화를 적용할 수 있도록 함
+
+**Related Issue/Request**:
+"지금 작업한 내용도 WSL2_Complete_Setup_Guide.md에 추가해줘"
+
+---
+
+## [2025-12-17 17:37:22 KST] WSL2 완벽 설정 가이드 (A-Z) 작성
+
+**Type**: 생성
+
+**Affected Files**:
+- `WSL2_Complete_Setup_Guide.md` (신규)
+
+**Changes**:
+- 다른 컴퓨터에서 처음부터 끝까지 재현 가능한 WSL2 설정 가이드 작성
+- 기존 5개 문서 통합 및 보완:
+  - wsl2.md (기본 설치 가이드)
+  - wsl2_tools_guide.md (도구 사용법)
+  - wsl2_setup_commands.md (명령어 모음)
+  - WSL2_Setup_Report.md (설치 결과 보고서)
+  - WSL2_Setup_Final_Report.md (최종 보고서)
+- 오늘 진행한 추가 작업 포함:
+  1. Windows Terminal 설치 및 설정
+  2. MesloLGS NF 폰트 다운로드 및 설치
+  3. PowerLevel10k 테마 재활성화
+  4. zoxide PATH 문제 해결 ($HOME/.local/bin 추가)
+  5. VS Code 터미널 폰트 설정 (MesloLGS NF)
+  6. .zshrc 최적화 (조건부 zoxide 초기화, instant prompt 경고 억제)
+
+**Reason**:
+사용자가 다른 컴퓨터에도 동일한 WSL2 환경을 구축하기 위해 완벽한 A-Z 가이드 요청
+
+**Related Issue/Request**:
+"오늘 WSL 설치 및 그 이후 작업한 내용들을 다른 컴퓨터에도 적용해야 해. A-Z를 작성해줘."
+
+---
+
+
+## [2025-12-12 11:35:00 KST] Airflow 학습 콘텐츠 추가
+**Type**: 생성
+**Affected Files**:
+- `content/devops/airflow/*` (총 6개 Step)
+- `.gcx/00_requirements/*`
+- `.gcx/01_planning/*`
+**Changes**:
+- Apache Airflow 학습을 위한 커리큘럼 및 가이드 작성
+- Step 1: 개념, Step 2: Docker 환경, Step 3~4: DAG 예제, Step 5: 테스트, Step 6: 운영
+**Reason**: 사용자 요청에 따라 DevOps 카테고리에 Airflow 모듈 추가
+**AI Collaborator**:
+- Planning: Claude-3 Opus
+- Audit: GPT-5.1 Codex Max
+---

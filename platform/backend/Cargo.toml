@@ -1,0 +1,28 @@
+[package]
+name = "platform"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.7"
+tokio = { version = "1.0", features = ["full"] }
+askama = { version = "0.12.1", features = ["with-axum"] }
+askama_axum = "0.4"
+pulldown-cmark = "0.9"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["fs", "trace", "cors"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+walkdir = "2"
+anyhow = "1.0"
+alphanumeric-sort = "1.5"
+html-escape = "0.2"
+ammonia = "4.1.2"
+
+[dev-dependencies]
+tempfile = "3.8"
+
+[profile.release]
+lto = true
