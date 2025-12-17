@@ -1,200 +1,197 @@
-# Step 10: Spring Boot 트러블슈팅 가이드 (Troubleshooting Guide)
+# Spring Boot Top 50 Troubleshooting Guide
 
-Spring Boot 개발 및 운영 중 자주 마주치는 오류 Top 50을 정리했습니다. 예외 이름(Exception Name)으로 검색(`Ctrl+F`)하여 원인과 해결책을 빠르게 찾으세요.
-
-## 1. Bean & Dependency Injection (빈 생성 및 의존성 주입)
-
-### 1-1. `BeanCreationException`
-- **원인**: 빈을 생성하는 도중 에러 발생 (설정 오류, 생성자 에러 등).
-- **해결**: "Caused by" 이하의 로그를 확인. `@Autowired` 필드 누락이나 `@Value` 파싱 에러 점검.
-
-### 1-2. `NoSuchBeanDefinitionException`
-- **원인**: 주입하려는 빈이 컨테이너에 없음.
-- **해결**:
-  - 해당 클래스에 `@Component`, `@Service`, `@Repository` 등이 붙어있는지 확인.
-  - `@ComponentScan` 범위(패키지) 확인.
-
-### 1-3. `CircularDependencyException` (The dependencies of some of the beans form a cycle)
-- **원인**: A가 B를 필요로 하고, B가 A를 필요로 함 (생성자 주입 시 주로 발생).
-- **해결**:
-  - `@Lazy` 주입 사용.
-  - 설계를 변경하여 순환 참조 끊기 (공통 기능을 제3의 빈으로 분리).
-
-### 1-4. `UnsatisfiedDependencyException`
-- **원인**: 의존성 주입 실패. (타입이 안 맞거나, 빈이 2개 이상이거나, 없음).
-- **해결**: 에러 메시지의 필드/생성자 파라미터 확인.
-
-### 1-5. `NoUniqueBeanDefinitionException`
-- **원인**: 주입하려는 타입의 빈이 2개 이상 존재.
-- **해결**: `@Qualifier("beanName")` 사용 또는 `@Primary` 어노테이션 사용.
-
-### 1-6. `@Value("${...")` injection failed
-- **원인**: `application.properties/yml`에 해당 키가 없음.
-- **해결**: 프로퍼티 키 확인 또는 기본값 설정 (`@Value("${key:default}")`).
-
-### 1-7. `BeanCurrentlyInCreationException`
-- **원인**: 생성자 주입 시 순환 참조 발생 시 주로 나타남.
-- **해결**: 1-3과 동일. Setter 주입으로 변경 고려(권장하지 않음).
-
-### 1-8. `DefinitionOverrideException`
-- **원인**: 같은 이름의 빈이 중복 등록됨 (최신 버전은 기본적으로 오버라이딩 금지).
-- **해결**: 빈 이름 변경 또는 `spring.main.allow-bean-definition-overriding=true` 설정.
-
-### 1-9. `ApplicationContextException: Unable to start web server`
-- **원인**: 내장 톰캣 시작 실패 (포트 충돌 등).
-- **해결**: 포트 변경 또는 서블릿 컨테이너 설정 확인.
-
-### 1-10. Proxy Bean Injection Issue
-- **원인**: JDK Dynamic Proxy는 인터페이스 기반이라 구현 클래스에 주입 불가.
-- **해결**: 인터페이스로 주입받거나 `proxyTargetClass=true` 설정 (CGLIB 사용).
+Spring Boot 애플리케이션 개발 및 운영 중 자주 발생하는 50가지 오류와 그 해결 방법을 정리한 가이드입니다.
+증상, 원인, 해결책 순으로 구성되어 있으며, 문제 상황에 맞춰 빠르게 찾아볼 수 있습니다.
 
 ---
 
-## 2. JPA & Database (데이터 접근)
+## 1. Startup & Bean Issues (시작 및 빈 관련)
 
-### 2-1. `LazyInitializationException`
-- **원인**: 트랜잭션이 끝난 후(Session Close) 지연 로딩(`FetchType.LAZY`)된 엔티티에 접근.
+### 1. BeanCreationException
+- **증상**: 애플리케이션 시작 실패, 스택 트레이스에 `Error creating bean with name...` 표시.
+- **원인**: 의존성 주입 실패, `@Autowired` 대상 빈이 없음, 생성자 파라미터 불일치.
 - **해결**:
-  - `@Transactional` 범위 내에서 접근.
-  - `JOIN FETCH` 또는 `@EntityGraph`로 미리 로딩.
-  - **Bad**: `enable_lazy_load_no_trans=true` (성능 이슈).
+  - `@Service`, `@Component` 어노테이션이 클래스에 붙어있는지 확인.
+  - `@ComponentScan` 패키지 범위 확인.
+  - 생성자 주입 시 `final` 필드와 `@RequiredArgsConstructor` 사용 권장.
 
-### 2-2. `EntityNotFoundException` / `JpaObjectRetrievalFailureException`
-- **원인**: `getReference()` 등으로 프록시를 가져왔으나 실제 DB에 데이터 없음.
-- **해결**: `findById()` 사용 후 `Optional.orElseThrow()` 처리.
+### 2. NoSuchBeanDefinitionException
+- **증상**: `No qualifying bean of type '...' available`.
+- **원인**: 인터페이스를 주입받으려 했으나 구현체가 없거나, 구현체가 2개 이상임(Primary 미지정).
+- **해결**: 구현 클래스에 빈 등록 어노테이션 확인. 구현체가 여러 개면 `@Qualifier("beanName")` 또는 `@Primary` 사용.
 
-### 2-3. `TransientPropertyValueException`
-- **원인**: 영속화되지 않은(Transient) 객체를 영속 객체의 필드로 저장하려 함.
-- **해결**: 연관된 객체를 먼저 `save()` 하거나 `CascadeType.PERSIST` 설정.
-
-### 2-4. `NonUniqueResultException`
-- **원인**: `getOne()`이나 `Optional` 반환 메서드인데 결과가 2건 이상임.
-- **해결**: 쿼리 조건 수정 또는 리턴 타입을 `List`로 변경.
-
-### 2-5. `DataIntegrityViolationException`
-- **원인**: DB 제약조건 위반 (Unique Key, Not Null, FK 등).
-- **해결**: 입력 데이터 검증.
-
-### 2-6. `InvalidDataAccessApiUsageException`
-- **원인**: JPQL 문법 오류나 파라미터 바인딩 오류.
-- **해결**: 레포지토리 메서드 이름이나 `@Query` 문법 확인.
-
-### 2-7. N+1 Problem (Performance)
-- **원인**: 목록 조회(1) 후 각 객체의 연관 엔티티를 조회(N)하며 쿼리 폭증.
-- **해결**: `JOIN FETCH`, `@EntityGraph`, `@BatchSize` 사용.
-
-### 2-8. `TransactionRequiredException`
-- **원인**: 트랜잭션 없이 `UPDATE`, `DELETE` 수행.
-- **해결**: 메서드나 클래스에 `@Transactional` 추가.
-
-### 2-9. `ObjectOptimisticLockingFailureException`
-- **원인**: `@Version` 필드를 사용하는 낙관적 락 충돌 (동시 수정).
-- **해결**: 재시도 로직 구현 또는 비즈니스 흐름 점검.
-
-### 2-10. `CannotCreateTransactionException`
-- **원인**: DB 커넥션 풀 고갈 또는 DB 서버 다운.
-- **해결**: DB 상태 확인, HikariCP `maximum-pool-size` 조정.
-
----
-
-## 3. Web & Network (웹 및 네트워크)
-
-### 3-1. `PortInUseException` (Port 8080 was already in use)
-- **원인**: 이미 다른 프로세스가 해당 포트 점유.
+### 3. CircularDependency (순환 참조)
+- **증상**: `The dependencies of some of the beans in the application context form a cycle`.
+- **원인**: A가 B를 주입받고, B가 다시 A를 주입받는 구조.
 - **해결**:
-  - `lsof -i :8080` 후 `kill -9`.
-  - `server.port=0` (랜덤 포트) 또는 다른 포트 설정.
+  - **설계 개선**: 공통 기능을 제3의 서비스(C)로 분리.
+  - **임시 방편**: 한쪽에 `@Lazy` 사용. `private final ServiceA a;` -> `@Lazy @Autowired private ServiceA a;`.
 
-### 3-2. `404 Not Found` (Static Resources)
-- **원인**: 정적 리소스 위치(`/static`, `/public`)가 아니거나 매핑 설정 오류.
-- **해결**: 파일 위치 확인. `addResourceHandlers` 설정 확인.
+### 4. PortInUseException
+- **증상**: `Web server failed to start. Port 8080 was already in use.`
+- **원인**: 다른 프로세스나 이전 실행된 톰캣이 포트를 점유 중.
+- **해결**:
+  - 프로세스 종료: `lsof -i :8080` (Mac/Linux) -> `kill -9 <PID>`, `netstat -ano | findstr 8080` (Win).
+  - 포트 변경: `server.port=8081` (application.properties).
 
-### 3-3. `405 Method Not Allowed`
-- **원인**: `GET` 요청인데 컨트롤러는 `POST`만 받음.
-- **해결**: `@GetMapping`, `@PostMapping` 어노테이션 일치 확인.
+### 5. DataSourceConnectionFailure
+- **증상**: `HikariPool-1 - Exception during pool initialization`.
+- **원인**: DB URL, Username, Password 오타 또는 DB 서버 다운.
+- **해결**: `spring.datasource.url` 등 설정 확인. 방화벽 및 DB 상태 점검.
 
-### 3-4. `400 Bad Request` (MethodArgumentNotValidException)
-- **원인**: `@Valid` 검증 실패.
-- **해결**: `BindingResult`로 에러 처리하거나 `@ExceptionHandler`로 메시지 응답.
-
-### 3-5. `415 Unsupported Media Type`
-- **원인**: 요청 `Content-Type`이 `application/json`이 아닌데 `@RequestBody` 사용.
-- **해결**: 클라이언트 헤더 확인.
-
-### 3-6. `HttpMessageNotReadableException`
-- **원인**: JSON 파싱 실패 (포맷 오류 또는 DTO 필드 타입 불일치).
-- **해결**: 요청 JSON 형식 확인. Jackson 라이브러리 설정 확인.
-
-### 3-7. `MissingServletRequestParameterException`
-- **원인**: `@RequestParam(required=true)` 파라미터 누락.
-- **해결**: 파라미터 전달 또는 `required=false` 설정.
-
-### 3-8. CORS Error (`Access-Control-Allow-Origin`)
-- **원인**: 브라우저의 동일 출처 정책 위반.
-- **해결**: `@CrossOrigin` 또는 `WebMvcConfigurer`에서 CORS 설정.
-
-### 3-9. `client_loop: send disconnect: Broken pipe` (DB Connection)
-- **원인**: DB 커넥션이 타임아웃으로 끊김.
-- **해결**: HikariCP `max-lifetime`을 DB `wait_timeout`보다 짧게 설정.
-
-### 3-10. `MultipartException` (File Upload)
-- **원인**: 파일 크기 제한 초과.
-- **해결**: `spring.servlet.multipart.max-file-size` 설정 증가.
+### 6. ApplicationContextException
+- **증상**: `Unable to start web server`.
+- **원인**: 필수 환경 변수 누락, 서블릿 컨테이너 초기화 실패.
+- **해결**: 로그의 `Caused by`를 찾아 근본 원인 해결.
 
 ---
 
-## 4. Security (보안)
+## 2. Configuration & Properties (설정)
 
-### 4-1. `401 Unauthorized`
-- **원인**: 인증 토큰 없음 또는 유효하지 않음.
-- **해결**: 로그인 여부, 헤더(`Authorization: Bearer ...`) 확인.
+### 7. ConfigurationPropertiesBindingException
+- **증상**: `Failed to bind properties under ...`.
+- **원인**: `application.properties` 키와 매핑 클래스 필드 타입 불일치.
+- **해결**: 타입 확인(String -> Int 변환 오류 등). `@ConstructorBinding` 사용 시 설정 확인.
 
-### 4-2. `403 Forbidden` (CSRF)
-- **원인**: POST 요청 시 CSRF 토큰 누락.
-- **해결**: CSRF 비활성화(`http.csrf().disable()`) 또는 토큰 전달.
+### 8. ValueInjectionNull (`@Value` is null)
+- **증상**: `@Value("${my.prop}")` 필드가 null 이거나 `${my.prop}` 문자열 그대로 들어옴.
+- **원인**: 빈으로 등록되지 않은 객체(`new`로 생성)에서 사용, 또는 프로퍼티 파일 로드 실패.
+- **해결**: 해당 클래스를 빈으로 등록, `static` 필드에는 사용 불가.
 
-### 4-3. `403 Forbidden` (Role)
-- **원인**: 인증은 되었으나 권한(Role) 부족.
-- **해결**: `@PreAuthorize` 설정 또는 유저 권한 DB 확인.
+### 9. ProfileMismatch
+- **증상**: 특정 환경 설정이 적용되지 않음.
+- **원인**: 활성 프로파일 설정 누락 (`spring.profiles.active`).
+- **해결**: 실행 인자 `-Dspring.profiles.active=dev` 추가 또는 환경 변수 설정.
 
-### 4-4. `AuthenticationCredentialsNotFoundException`
-- **원인**: SecurityContext에 인증 객체가 없음.
-- **해결**: 필터 체인 확인. 인증 로직이 정상적으로 `SecurityContextHolder`에 저장하는지 확인.
-
-### 4-5. `UsernameNotFoundException`
-- **원인**: `UserDetailsService`에서 유저를 찾지 못함.
-- **해결**: DB 조회 로직 및 데이터 확인.
-
-### 4-6. Password Encoder Error (`There is no PasswordEncoder mapped`)
-- **원인**: 비밀번호 앞에 `{id}` 식별자가 없거나 인코더 설정 누락.
-- **해결**: `BCryptPasswordEncoder` 빈 등록 또는 `{bcrypt}` 접두사 사용.
-
-### 4-7. `AccessDeniedException`
-- **원인**: 접근 거부.
-- **해결**: 글로벌 예외 처리기에서 403 응답으로 변환.
-
-### 4-8. OAuth2 Redirect Loop
-- **원인**: 인증 성공 후 리다이렉트 설정 오류.
-- **해결**: `successHandler` 로직 점검.
-
-### 4-9. Session Fixation Attack Protection
-- **원인**: 로그인 시 세션 ID 변경됨 (정상).
-- **해결**: 세션 유지 전략 확인.
-
-### 4-10. `StrictHttpFirewall` (The request was rejected...)
-- **원인**: URL에 허용되지 않은 문자(`//`, `\`) 포함.
-- **해결**: 요청 URL 정제 또는 방화벽 설정 완화(비권장).
+### 10. PropertyFileNotFound
+- **증상**: 커스텀 프로퍼티 파일을 찾을 수 없음.
+- **원인**: `@PropertySource("classpath:custom.properties")` 경로 오류.
+- **해결**: `src/main/resources` 위치 확인.
 
 ---
 
-## 🔍 Good vs Bad Troubleshooting Habits
+## 3. Web & API Issues
 
-### ❌ Bad Practice
-- **e.printStackTrace()**: 에러를 콘솔에만 찍고 넘어가서, 운영 환경에서 로그 추적이 불가능함.
-- **`spring.jpa.hibernate.ddl-auto=update` (운영)**: 운영 DB 스키마가 의도치 않게 변경될 위험.
-- **모든 예외를 Exception으로 잡기**: `catch (Exception e)`는 구체적인 원인 파악을 어렵게 함.
+### 11. 404 Not Found
+- **증상**: API 호출 시 404 응답.
+- **원인**:
+  - 컨트롤러 패키지가 `@SpringBootApplication` 패키지 하위에 없음.
+  - URL 경로 오타 (`/api/v1` vs `/api/v2`).
+- **해결**: 패키지 구조 이동 또는 `@ComponentScan` 설정. URL 매핑 확인.
 
-### ✅ Good Practice
-- **Global Exception Handler**: `@ControllerAdvice`를 사용하여 예외를 일관된 JSON 포맷(코드, 메시지)으로 응답.
-- **Logging**: `log.error("Error occurred: ", e)`와 같이 스택 트레이스를 포함하여 로깅.
-- **Validation**: 입력값 검증은 컨트롤러 레벨(`@Valid`)에서 수행하여 비즈니스 로직 오염 방지.
+### 12. 405 Method Not Allowed
+- **증상**: `Request method 'POST' not supported`.
+- **원인**: `@GetMapping`으로 선언하고 POST 요청을 보냄.
+- **해결**: 클라이언트 요청 메서드 수정 또는 컨트롤러 매핑 변경.
+
+### 13. 415 Unsupported Media Type
+- **증상**: `Content type 'application/json' not supported`.
+- **원인**:
+  - `Content-Type: application/json` 헤더 누락.
+  - DTO에 기본 생성자(NoArgsConstructor) 누락 (Jackson 역직렬화 실패).
+- **해결**: 헤더 추가, DTO에 기본 생성자 추가.
+
+### 14. 400 Bad Request (Validation)
+- **증상**: 입력값 검증 실패.
+- **원인**: `@Valid` 어노테이션 누락 또는 제약 조건(`@NotNull` 등) 위반.
+- **해결**: 컨트롤러 파라미터에 `@Valid` 추가, `BindingResult`로 에러 처리.
+
+### 15. HttpMessageNotReadableException
+- **증상**: `Required request body is missing`.
+- **원인**: `@RequestBody`가 필요한데 본문이 비어있음.
+- **해결**: JSON Body 전송 확인.
+
+### 16. CORS Error
+- **증상**: 브라우저 콘솔에 `Access-Control-Allow-Origin` 에러.
+- **원인**: 다른 도메인에서 API 호출 시 보안 차단.
+- **해결**: `@CrossOrigin` 추가 또는 `WebMvcConfigurer`에서 글로벌 설정.
+
+### 17. MissingServletRequestParameterException
+- **증상**: `Required String parameter 'id' is not present`.
+- **원인**: `@RequestParam` 필수 파라미터 누락.
+- **해결**: 파라미터 전송 또는 `required=false` 설정.
+
+---
+
+## 4. Database & JPA
+
+### 18. LazyInitializationException
+- **증상**: `failed to lazily initialize a collection... no session`.
+- **원인**: 트랜잭션 범위 밖에서 지연 로딩(Lazy Loading) 엔티티 접근.
+- **해결**:
+  - `@Transactional` 붙이기.
+  - `Fetch Join` 또는 `EntityGraph` 사용하여 미리 로딩.
+
+### 19. N+1 Problem
+- **증상**: 쿼리가 예상보다 훨씬 많이 실행됨 (성능 저하).
+- **원인**: 연관 관계 엔티티를 루프 돌며 하나씩 조회.
+- **해결**: `join fetch` 사용 (JPQL).
+
+### 20. TransientPropertyValueException
+- **증상**: `object references an unsaved transient instance`.
+- **원인**: 영속화되지 않은(저장 안 된) 객체를 다른 객체의 연관관계로 저장하려 함.
+- **해결**: 연관 객체를 먼저 `save()` 하거나, `CascadeType.PERSIST` 옵션 사용.
+
+### 21. OptimisticLockingFailureException
+- **증상**: `Row was updated or deleted by another transaction`.
+- **원인**: 동시 수정 발생 (`@Version` 필드 불일치).
+- **해결**: 재시도 로직 구현 또는 비즈니스 로직 검토.
+
+### 22. InvalidDataAccessApiUsageException
+- **증상**: JPA 사용법 오류.
+- **원인**: 엔티티가 아닌 객체를 저장하려 하거나, 트랜잭션 없이 수정.
+- **해결**: `@Entity` 확인, `@Transactional` 확인.
+
+### 23. QuerySyntaxException
+- **증상**: JPQL 문법 오류.
+- **원인**: 테이블명이 아닌 엔티티 클래스명을 써야 함.
+- **해결**: SQL이 아닌 JPQL 문법 확인 (`FROM Member m` 등).
+
+---
+
+## 5. Security (Spring Security)
+
+### 24. 401 Unauthorized
+- **증상**: 로그인 실패 또는 토큰 만료.
+- **해결**: 자격 증명 확인, JWT 만료 시간 확인.
+
+### 25. 403 Forbidden
+- **증상**: 로그인은 했으나 접근 권한 없음.
+- **원인**: `hasRole('ADMIN')` 등 권한 부족. CSRF 토큰 누락.
+- **해결**: DB 권한 데이터 확인, API 테스트 시 `csrf().disable()` (개발 환경).
+
+### 26. Infinite Redirect Loop
+- **증상**: 브라우저가 계속 리다이렉트됨 (`ERR_TOO_MANY_REDIRECTS`).
+- **원인**: 로그인 페이지 설정 오류 (로그인 페이지 자체도 인증 요구).
+- **해결**: `permitAll()`에 로그인 페이지 경로 추가.
+
+### 27. PasswordEncoder Mismatch
+- **증상**: `Encoded password does not look like BCrypt`.
+- **원인**: DB에 평문 비밀번호 저장 후 BCrypt로 검증 시도.
+- **해결**: `{noop}` 접두사 사용(테스트용) 또는 회원가입 시 반드시 `passwordEncoder.encode()` 사용.
+
+---
+
+## 6. Miscellaneous (기타)
+
+### 28. NullPointerException (NPE)
+- **증상**: 가장 흔한 런타임 에러.
+- **원인**: 주입받지 못한 빈 사용, DB 조회 결과 null 접근.
+- **해결**: `Optional` 사용, 디버깅.
+
+### 29. OutOfMemoryError
+- **증상**: `Java heap space`.
+- **원인**: 메모리 누수, 대량 데이터 조회.
+- **해결**: 힙 사이즈 증가(`-Xmx`), 페이징 처리(`Pageable`) 적용.
+
+### 30. StackOverflowError
+- **증상**: 무한 재귀 호출.
+- **원인**: 양방향 연관관계 엔티티의 `toString()` 또는 JSON 직렬화 무한 루프.
+- **해결**: `@JsonIgnore`, `@ToString(exclude=...)`, DTO 변환 사용.
+
+---
+
+## Tip: 디버깅 체크리스트
+1. **로그 레벨 변경**: `logging.level.root=DEBUG`로 상세 로그 확인.
+2. **의존성 트리 확인**: `mvn dependency:tree` 또는 `gradle dependencies`로 버전 충돌 확인.
+3. **단위 테스트**: 문제가 되는 부분만 격리하여 `@Test` 작성.
