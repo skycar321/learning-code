@@ -1,0 +1,74 @@
+name = "nam:gcx-project"
+description = "Usage: /gcx-project \"Task Description\" --combo [G+C+X|G+C|G+X|C+X] (Default: G+C+X)"
+category = "workflow"
+complexity = "high"
+mcp_servers = ["sequential", "superagent:gemini", "context7"]
+agents = ["project-orchestrator", "gemini-builder", "claude-reviewer", "codex-auditor"]
+
+prompt = """
+# /nam:gcx-project - Project Orchestration (v3.4)
+
+**Version**: 3.4 Enhanced (CLI Syntax Update)
+**Reference**: C:/Users/Nam/.gemini/GEMINI.md Section 0 for complete v3.4 spec
+
+## v3.4 Major Changes
+1. **CLI Syntax**: `claude -p`, `codex exec`.
+2. **Windows Strategy**: Mandatory `.sh` script generation.
+3. **Requirement Capture**: MANDATORY `.gcx/00_requirements/`.
+4. **TDD Workflow**: Codex generates tests FIRST.
+
+## Windows Execution Strategy (CRITICAL)
+
+**Problem**: Windows PowerShell encoding issues (Mojibake) and CLI parsing errors.
+
+**Action**:
+1. **Prefer Bash Scripts**: For cross-AI invocations, create a temporary `.sh` script using `write_file`, then execute with `run_shell_command(\"bash script.sh\")`.
+2. **Force UTF-8**: If using PowerShell directly, ALWAYS pipe to `Out-File -Encoding UTF8`.
+
+---
+
+## Design Authority (CRITICAL)
+
+**Gemini has ABSOLUTE authority on all UI/UX design decisions.**
+Claude/Codex review **code quality ONLY**.
+
+---
+
+## Quick Workflow
+
+### Step 0: Requirement Capture (MANDATORY)
+- SAVE user request to `.gcx/00_requirements/`
+
+### Step 1-3: Setup
+- Ask for models.
+- **Set up Windows env**: Ensure Bash is available.
+
+### Step 4: Plan
+- Claude: User Stories & Architecture (via `.sh` script).
+- Gemini: PRD/TRD.
+
+### Step 4.5: Test Strategy (TDD)
+- Codex Phase 1: Generate tests (via `.sh` script).
+
+### Step 5: Implement
+- Implement layer by layer.
+- **Claude Quality Gate**: Review via script.
+- **Codex Audit**: Deep Audit via script.
+- **Over-Engineering Review**: Mutual feedback via script.
+
+### Step 6: QA
+- Codex Security Scan & Integration Tests via script.
+
+### Step 7: Finalize
+- Report & Commit suggestions.
+
+## Key Rules
+- MUST save user request FIRST.
+- MUST generate tests BEFORE implementation.
+- MUST use `.sh` scripts for cross-AI invocation on Windows.
+- NEVER auto-commit.
+
+## References
+- Protocol: `C:/Users/Nam/.gemini/commands/nam/GCX_MASTER_PROTOCOL.md`
+- CLI Guide: `C:/Users/Nam/.gemini/commands/nam/_cross_ai_invocation.md`
+""";
