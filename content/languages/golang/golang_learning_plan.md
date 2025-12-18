@@ -21,6 +21,14 @@ Go(Golang)는 Google에서 개발한 오픈소스 프로그래밍 언어로, 효
 *   패키지(Packages) 및 모듈(Modules) 이해 (Understanding Packages & Modules)
 *   Go CLI 도구 활용 (Using Go CLI Tools) - `go run`, `go build`, `go mod`
 
+### 빠른 실행 안내 (Step 1~3)
+```bash
+go run Step1_GolangBasicsAndTools.go
+go run Step2_DataStructuresAndInterfaces.go
+go run Step3_ConcurrencyProgramming.go
+```
+> bad 예시는 주석으로 남겨 두었습니다. 주석을 해제하고 실행해 보며 컴파일러/런타임의 경고를 직접 확인하세요.
+
 ### 2단계: 데이터 구조 및 인터페이스 (Data Structures & Interfaces)
 *   배열(Arrays) 및 슬라이스(Slices) (Arrays & Slices)
 *   맵(Maps) (Maps)

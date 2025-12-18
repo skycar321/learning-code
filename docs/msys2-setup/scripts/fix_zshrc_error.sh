@@ -1,0 +1,319 @@
+#!/bin/bash
+# .zshrc 오류 수정 스크립트
+# 실행: bash fix_zshrc_error.sh
+
+set -e
+
+echo "🔧 .zshrc 오류 수정 중..."
+echo ""
+
+# 백업
+if [ -f ~/.zshrc ]; then
+    BACKUP="$HOME/.zshrc.error_backup.$(date +%Y%m%d_%H%M%S)"
+    cp ~/.zshrc "$BACKUP"
+    echo "✅ 백업 완료: $BACKUP"
+fi
+
+# 수정된 .zshrc 작성
+cat > ~/.zshrc << 'ZSHRC_EOF'
+# Enable Powerlevel10k instant prompt
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Path to your oh-my-zsh installation
+export ZSH="$HOME/.oh-my-zsh"
+
+# Theme
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+# Plugins
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  colored-man-pages
+  command-not-found
+  extract
+  sudo
+)
+
+# Load oh-my-zsh
+source $ZSH/oh-my-zsh.sh
+
+# ============================================================================
+# User Configuration
+# ============================================================================
+
+# UTF-8 설정
+export LANG=ko_KR.UTF-8
+export LC_ALL=ko_KR.UTF-8
+
+# Editor
+export EDITOR=vim
+export VISUAL=vim
+
+# ============================================================================
+# Aliases - 기본
+# ============================================================================
+
+# 디렉토리 리스팅
+alias ll='ls -alh --color=auto'
+alias la='ls -A --color=auto'
+alias l='ls -CF --color=auto'
+alias lt='ls -alht --color=auto'
+
+# 디렉토리 이동
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+
+# 색상 지원
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias diff='diff --color=auto'
+
+# 안전한 파일 조작
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# 유틸리티
+alias cls='clear'
+alias h='history'
+alias j='jobs -l'
+alias path='echo -e ${PATH//:/\\n}'
+alias now='date +"%Y-%m-%d %H:%M:%S"'
+alias ports='netstat -tulanp'
+
+# ============================================================================
+# Aliases - Git
+# ============================================================================
+
+alias gs='git status'
+alias ga='git add'
+alias gaa='git add --all'
+alias gc='git commit -m'
+alias gca='git commit --amend'
+alias gp='git push'
+alias gpl='git pull'
+alias gl='git log --oneline --graph --decorate --all'
+alias gd='git diff'
+alias gdc='git diff --cached'
+alias gco='git checkout'
+alias gb='git branch'
+alias gba='git branch -a'
+alias gbd='git branch -d'
+alias gm='git merge'
+alias gr='git remote -v'
+alias gf='git fetch'
+alias gst='git stash'
+alias gstp='git stash pop'
+
+# ============================================================================
+# Aliases - MSYS2 패키지 관리
+# ============================================================================
+
+alias update='pacman -Syu'
+alias install='pacman -S'
+alias pkgsearch='pacman -Ss'
+alias remove='pacman -R'
+alias autoremove='pacman -Rns $(pacman -Qtdq)'
+alias list-installed='pacman -Q'
+alias clean='pacman -Sc'
+
+# ============================================================================
+# Aliases - 디렉토리 단축
+# ============================================================================
+
+alias home='cd ~'
+alias downloads='cd /c/Users/$USER/Downloads'
+alias desktop='cd /c/Users/$USER/Desktop'
+alias documents='cd /c/Users/$USER/Documents'
+alias proj='cd /c/Users/$USER/Documents/Cursor/Workspace/origin/learning-code'
+
+# ============================================================================
+# Aliases - 개발 도구
+# ============================================================================
+
+# Python
+alias py='python'
+alias py3='python3'
+alias pip='python -m pip'
+
+# Node.js
+alias ni='npm install'
+alias nid='npm install --save-dev'
+alias nig='npm install -g'
+alias nr='npm run'
+alias ns='npm start'
+alias nt='npm test'
+
+# Docker (설치된 경우)
+alias d='docker'
+alias dc='docker-compose'
+alias dps='docker ps'
+alias dpsa='docker ps -a'
+alias di='docker images'
+alias drm='docker rm'
+alias drmi='docker rmi'
+alias dstop='docker stop $(docker ps -aq)'
+alias dclean='docker system prune -af'
+
+# ============================================================================
+# Functions (alias 충돌 해결)
+# ============================================================================
+
+# 디렉토리 생성 후 이동
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# 파일 내용 검색 (alias 'search'를 함수로 대체)
+findtext() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: findtext <pattern> [path]"
+        return 1
+    fi
+    grep -r "$1" "${2:-.}"
+}
+
+# 압축 해제 (extract 플러그인도 사용 가능)
+unpack() {
+    if [ -f "$1" ]; then
+        case "$1" in
+            *.tar.bz2)   tar xjf "$1"     ;;
+            *.tar.gz)    tar xzf "$1"     ;;
+            *.bz2)       bunzip2 "$1"     ;;
+            *.rar)       unrar x "$1"     ;;
+            *.gz)        gunzip "$1"      ;;
+            *.tar)       tar xf "$1"      ;;
+            *.tbz2)      tar xjf "$1"     ;;
+            *.tgz)       tar xzf "$1"     ;;
+            *.zip)       unzip "$1"       ;;
+            *.Z)         uncompress "$1"  ;;
+            *.7z)        7z x "$1"        ;;
+            *)           echo "'$1' cannot be extracted" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+# 프로세스 검색
+psgrep() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: psgrep <process_name>"
+        return 1
+    fi
+    ps aux | grep -i "$1" | grep -v grep
+}
+
+# 프로세스 종료
+pskill() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: pskill <process_name>"
+        return 1
+    fi
+    ps aux | grep -i "$1" | grep -v grep | awk '{print $2}' | xargs kill -9
+}
+
+# 빠른 백업
+backup() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: backup <file>"
+        return 1
+    fi
+    cp "$1" "$1.backup.$(date +%Y%m%d_%H%M%S)"
+}
+
+# 파일 크기 확인
+filesize() {
+    if [ $# -eq 0 ]; then
+        du -sh * | sort -h
+    else
+        du -sh "$@"
+    fi
+}
+
+# Git 브랜치 정리
+git-clean-branches() {
+    git branch --merged | grep -v "\*" | grep -v "master" | grep -v "main" | xargs -n 1 git branch -d
+}
+
+# 빠른 서버 실행
+serve() {
+    local port="${1:-8000}"
+    python3 -m http.server "$port"
+}
+
+# JSON 포맷팅
+jsonformat() {
+    if [ $# -eq 0 ]; then
+        python3 -m json.tool
+    else
+        python3 -m json.tool "$1"
+    fi
+}
+
+# ============================================================================
+# History Configuration
+# ============================================================================
+
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_FIND_NO_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt HIST_IGNORE_SPACE
+setopt HIST_VERIFY
+
+# ============================================================================
+# Completion Configuration
+# ============================================================================
+
+autoload -Uz compinit && compinit
+
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' menu select
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
+zstyle ':completion:*:warnings' format '%F{red}-- no matches found --%f'
+
+# ============================================================================
+# Key Bindings
+# ============================================================================
+
+bindkey '^P' history-search-backward
+bindkey '^N' history-search-forward
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey '^[[3~' delete-char
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+
+# ============================================================================
+# Powerlevel10k Configuration
+# ============================================================================
+
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+ZSHRC_EOF
+
+echo "✅ .zshrc 수정 완료"
+echo ""
+echo "🎯 변경 사항:"
+echo "  - 'search' alias 제거 (충돌 방지)"
+echo "  - 'findtext' 함수 추가 (대체 기능)"
+echo "  - 'psgrep' 함수 추가 (프로세스 검색)"
+echo "  - 'pskill' 함수 개선"
+echo "  - 추가 유용한 함수들"
+echo ""
+echo "🚀 zsh를 재시작하세요:"
+echo "   exec zsh"
+echo ""

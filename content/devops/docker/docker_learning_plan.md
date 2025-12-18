@@ -1,5 +1,18 @@
 # 실무 Docker 코드 학습 계획
 
+```mermaid
+flowchart LR
+  A[Step1 컨테이너 개념] --> B[Step2 이미지 빌드]
+  B --> C[Step3 컨테이너 운영]
+  C --> D[Step4 볼륨]
+  D --> E[Step5 네트워크]
+  E --> F[Step6 Compose]
+  F --> G[Step7 Dockerize 앱]
+  G --> H[Step8 보안]
+  H --> I[Step9 오케스트레이션]
+  I --> J[Step10 CI/CD]
+```
+
 안녕하세요! 미래의 멋진 Docker 개발자 여러분!
 
 이 학습 계획은 여러분이 단순한 문법 지식을 넘어, 실제 프로젝트에서 마주하게 될 상황에 대비하여 견고하고 유지보수하기 쉬운 컨테이너 기반 애플리케이션을 구성하고 관리하는 데 필요한 핵심 역량을 길러주기 위해 기획되었습니다. 각 단계에서 제시하는 '나쁜 예시'를 통해 흔히 저지르는 실수를 파악하고, '좋은 예시'를 통해 모범 사례와 그 배경에 있는 원칙을 깊이 있게 이해하는 것이 중요합니다.
@@ -31,6 +44,30 @@
 - **나쁜 예시**: 하나의 레이어에 모든 명령을 넣거나, 불필요한 파일(로그, 임시 파일)을 포함하여 이미지 크기를 비대하게 만듭니다.
 - **좋은 예시**: 멀티-스테이지 빌드를 사용하여 최종 이미지 크기를 최소화하고, `.dockerignore`를 사용하여 불필요한 파일이 이미지에 포함되지 않도록 합니다. 각 `RUN` 명령을 논리적으로 분리하여 레이어 캐시를 효율적으로 활용합니다.
 - **학습 포인트**: 작고 효율적인 이미지는 배포 속도를 높이고 보안 위험을 줄입니다. Dockerfile의 각 명령이 이미지 레이어를 생성하는 원리를 이해하고, 레이어 캐시와 멀티-스테이지 빌드를 적극적으로 활용하는 것이 중요합니다.
+
+```Dockerfile
+# bad: 단일 단계, 불필요 파일 포함
+FROM node:18
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
+CMD ["node", "dist/app.js"]
+
+# good: 멀티-스테이지 + .dockerignore 사용
+FROM node:18 AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:18-slim
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+CMD ["node", "dist/app.js"]
+```
+
+> 실행 팁: `docker build -t myapp:dev .` 후 `docker run --rm -p 3000:3000 myapp:dev`
 
 ---
 
@@ -68,3 +105,9 @@ learning-code/docker/
 | **컨테이너 모니터링** | Prometheus, Grafana, ELK Stack을 활용한 컨테이너 환경 모니터링과 로깅을 학습합니다. | 중급 |
 | **Istio/Service Mesh** | 마이크로서비스 간 통신, 트래픽 관리, 보안을 위한 서비스 메시 아키텍처를 익힙니다. | 고급 |
 | **GitOps (ArgoCD, Flux)** | Git을 단일 진실 공급원으로 활용한 선언적 인프라 및 애플리케이션 배포를 학습합니다. | 고급 |
+
+### ����/��ĵ ���� ���̵�
+- SBOM: docker sbom myapp:dev (Docker 23+)
+- ����� ��ĵ: 	rivy image myapp:dev`n- �̹��� ����: cosign sign myapp:dev (������Ʈ�� Ǫ�� ��)
+- ���̽� �̹��� �ֽ� ����, ��Ʈ �ƴ� �����(USER node) ���
+

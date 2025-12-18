@@ -1,5 +1,18 @@
 # 실무 PostgreSQL 성능 최적화 학습 계획 (제약 반영)
 
+```mermaid
+flowchart LR
+  A[Step1 모니터링] --> B[Step2 실행계획]
+  B --> C[Step3 인덱스]
+  C --> D[Step4 쿼리 튜닝]
+  D --> E[Step5 설정 튜닝]
+  E --> F[Step6 VACUUM/ANALYZE]
+  F --> G[Step7 테이블 설계]
+  G --> H[Step8 쓰기 최적화]
+  H --> I[Step9 고급 SQL]
+  I --> J[Step10 HW/OS 이해]
+```
+
 안녕하세요! 미래의 멋진 PostgreSQL 성능 튜닝 전문가 여러분!
 
 이 학습 계획은 **제한된 서버 접근**이라는 제약을 반영하여 **PostgreSQL 핵심 기능과 SQL 기반의 최적화**에 초점을 맞춥니다. 제약 사항으로 인해 **운영 프로그램 설치, DB 서버의 `postgresql.conf` 파일 직접 접근, OS 레벨 튜닝, 하드웨어 교체 등 요구 사항을 고려할 수 없는 환경**을 가정하며, 여러분이 기존 권한 내에서 데이터베이스의 성능 병목 현상을 진단하고 최적화하는 데 필요한 핵심 역량을 길러주기 위해 기획되었습니다. 각 단계에서 제시하는 '나쁜 예시'를 통해 흔히 저지르는 실수를 파악하고, '좋은 예시'를 통해 모범 사례와 그 배경에 있는 원칙을 깊이 있게 이해하는 것이 중요합니다.
@@ -31,6 +44,46 @@
 - **나쁜 예시**: 데이터베이스 성능 문제를 추측에 의존하여 해결하려 하거나, 단순히 서버 리소스만 보고 판단.
 - **좋은 예시**: `pg_stat_activity`를 통해 현재 실행 중인 쿼리 및 대기 이벤트를 확인하고, `pg_stat_user_tables`, `pg_stat_user_indexes` 뷰를 통해 테이블/인덱스 사용량을 파악하여 병목 현상 식별.
 - **학습 포인트**: 직접적인 서버 접근이 어려운 환경에서도 SQL 기반의 뷰를 적극 활용하여 문제를 진단하는 것이 중요합니다.
+
+#### **Step 2: 실행 계획 분석 (EXPLAIN / EXPLAIN ANALYZE)**
+| 구분 | 나쁜 예시 (bad plan) | 좋은 예시 (good plan) |
+| --- | --- | --- |
+| 쿼리 | `SELECT * FROM orders WHERE customer_id = 'A'` | `SELECT * FROM orders WHERE customer_id = $1` |
+| 계획 | `Seq Scan on orders` (필터로 전 테이블 스캔) | `Index Scan using idx_orders_customer_id` |
+| 비용/행 | cost=0..12000 rows=500000 | cost=0..200 rows=1000 |
+| 원인/조치 | 상수 박힌 쿼리, 인덱스 없음 → 전역 테이블 스캔 | 바인딩 사용 + 고객아이디 인덱스 생성(`CREATE INDEX ON orders(customer_id)`) |
+
+#### **Step 9: 고급 SQL 튜닝 (병렬/힌트)**
+| 구분 | 나쁜 예시 | 개선 예시 |
+| --- | --- | --- |
+| 쿼리 | `SELECT sum(amount) FROM big_table;` | `SET max_parallel_workers_per_gather = 4; SELECT sum(amount) FROM big_table;` |
+| 계획 | `Seq Scan on big_table` | `Gather  (cost=..)` + `Parallel Seq Scan` |
+| 포인트 | 병렬 허용 설정이 기본값 낮음, 큰 테이블도 단일 워커 | 병렬 워커로 I/O 분산, 실제 시간 단축 |
+
+샘플 SQL 실습:
+```sql
+EXPLAIN (ANALYZE,BUFFERS)
+SELECT /*+ Parallel(4) */ sum(amount) FROM big_table;
+```
+
+#### 추가 EXPLAIN 실측 예 (bad → good)
+| 케이스 | 계획 | 실행 시간 | 개선 포인트 |
+| --- | --- | --- | --- |
+| **bad**: 필터 없는 넓은 테이블 | `Seq Scan on sales rows=10M` | 1200 ms | where 절로 범위 축소, 필요한 컬럼만 SELECT |
+| **good**: 인덱스 + 컬럼 절제 | `Index Only Scan using idx_sales_date` rows=200k | 180 ms | `SELECT date, amount FROM ... WHERE date >= '2024-01-01'` |
+| **bad**: 함수 기반 필터 | `Seq Scan` (조건 `date_trunc('day', ts) = '2024-01-01'`) | 900 ms | 함수가 인덱스 사용 막음 |
+| **good**: 범위 조건 | `Index Scan using idx_ts` | 90 ms | `ts >= '2024-01-01' AND ts < '2024-01-02'` |
+| **bad**: OR 다중 컬럼 | `BitmapOr, Seq Scan` | 700 ms | 조건 분리 후 UNION ALL + 인덱스 활용 |
+| **good**: UNION으로 강제 인덱스 | `Append -> Index Scan idx_a / idx_b` | 220 ms | `SELECT ... WHERE a=.. UNION ALL SELECT ... WHERE b=..` |
+| **bad**: OFFSET 큰 페이지네이션 | `Limit (cost=.. rows=10) -> Seq Scan` | 느림 | OFFSET이 커질수록 스캔 증가 |
+| **good**: 커서/seek 기반 | `Index Scan` + `WHERE id > :last_id LIMIT 10` | 빠름 | 키 기반 페이지네이션 |
+| **bad**: 스칼라 서브쿼리 N회 실행 | `Nested Loop` (서브쿼리 반복) | 1500 ms | 상관 서브쿼리 |
+| **good**: JOIN + 집계 재사용 | `Hash Join` + `HashAggregate` | 180 ms | 서브쿼리를 미리 집계 후 JOIN |
+
+#### **Step 3: 인덱스(Indexes) 최적화**
+- **나쁜 예시 (bad)**: “혹시 필요할까?” 하며 대부분 컬럼에 인덱스를 추가 → INSERT/UPDATE가 느려지고 autovacuum 비용 증가.
+- **좋은 예시 (good)**: 실제 WHERE/JOIN/ORDER BY 컬럼 조합만 멀티컬럼/부분/표현식 인덱스로 설계, `pg_stat_user_indexes` 로 사용률 점검 후 불필요 인덱스 제거.
+- **학습 포인트**: 인덱스는 읽기-쓰기 트레이드오프. 사용률을 수치로 확인하고 주기적으로 다이어트한다.
 
 ---
 

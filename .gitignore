@@ -50,3 +50,26 @@ Thumbs.db
 
 # MCP (Model Context Protocol) directories
 mcp_*/
+
+# GCX 프로토콜 디렉토리 (재사용 가능한 것만 형상관리)
+.gcx/
+# 재사용 가능한 템플릿 및 테스트 스크립트는 포함
+!.gcx/
+!.gcx/README_v4.md
+!.gcx/UCRT64_GUIDE.md
+!.gcx/USAGE_GUIDE.md
+!.gcx/templates/
+!.gcx/templates/*.sh
+!.gcx/templates/*.py
+!.gcx/templates/*.txt
+!.gcx/tests/
+!.gcx/tests/*.sh
+# 개인 작업 데이터는 제외
+.gcx/00_requirements/
+.gcx/01_planning/
+.gcx/02_implementation/
+.gcx/03_verification/
+.gcx/pipeline/
+.gcx/output/
+.gcx/review/
+.gcx/temp/

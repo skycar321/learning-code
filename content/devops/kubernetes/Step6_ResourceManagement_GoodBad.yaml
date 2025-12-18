@@ -1,0 +1,141 @@
+# ========================================================================
+# Kubernetes Deployment 비교: Good vs Bad
+# 
+# 주제: Resource Management, Probes, Security
+# 
+# [학습 목표]
+# 1. 리소스 요청/제한(Resource Requests/Limits) 설정의 중요성을 이해한다.
+# 2. Liveness/Readiness Probe가 없으면 어떤 문제가 발생하는지 배운다.
+# 3. 보안 컨텍스트(SecurityContext)를 통해 컨테이너 권한을 제어하는 법을 익힌다.
+# ========================================================================
+
+# ------------------------------------------------------------------------
+# [BAD EXAMPLE] 설정 부족으로 인한 불안정한 배포
+# 
+# 문제점:
+# 1. Resource 설정 없음: 노드 자원을 무제한 사용하여 다른 앱(Neighbor)에 피해를 줌 (Noisy Neighbor).
+# 2. Probes 없음: 앱이 죽어도 재시작되지 않고(Liveness), 준비 안 된 상태로 트래픽을 받음(Readiness).
+# 3. Privileged 모드: 컨테이너가 호스트의 root 권한을 가짐 (보안 취약점).
+# 4. Latest 태그: 배포 시점에 따라 버전이 달라져 롤백이 불가능함.
+# ------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bad-app
+  labels:
+    app: bad-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bad-app
+  template:
+    metadata:
+      labels:
+        app: bad-app
+    spec:
+      containers:
+        - name: web
+          # [BAD] 'latest' 태그 사용 (버전 관리 불가능)
+          image: myregistry.example.com/app:latest
+          
+          # [BAD] 보안 설정 부재 또는 과도한 권한 (Privileged)
+          securityContext:
+            privileged: true  # 호스트 시스템 접근 가능 (매우 위험)
+            
+          ports:
+            - containerPort: 8080
+            
+          # [BAD] 리소스 설정(resources) 누락 -> OOMKilled 위험 증가, 스케줄링 예측 불가
+          
+          # [BAD] Probes 누락 -> 앱이 멈춰도(Deadlock) 쿠버네티스가 모름
+
+---
+# ------------------------------------------------------------------------
+# [GOOD EXAMPLE] 안정적이고 안전한 프로덕션 배포
+# 
+# 개선점:
+# 1. Guaranteed QoS: Request와 Limit을 동일하게 설정하여 자원을 보장받음.
+# 2. 3-Way Probes: Startup(부팅), Readiness(트래픽), Liveness(복구) 분리 설정.
+# 3. Security Hardening: Root가 아닌 사용자로 실행, 파일시스템 읽기 전용.
+# 4. Immutable Tag: 특정 버전(v1.4.3)을 명시하여 언제든 동일 환경 재현 가능.
+# ------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: good-app
+  labels:
+    app: good-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: good-app
+  template:
+    metadata:
+      labels:
+        app: good-app
+    spec:
+      # [GOOD] Pod 수준 보안: Root 실행 차단
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: web
+          # [GOOD] 고정된 버전 태그 사용
+          image: myregistry.example.com/app:1.4.3
+          imagePullPolicy: IfNotPresent
+
+          # [GOOD] 컨테이너 수준 보안 강화
+          securityContext:
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true # 해킹 당해도 파일 변조 불가
+            capabilities:
+              drop: ["ALL"] # 불필요한 리눅스 권한 모두 제거
+
+          ports:
+            - containerPort: 8080
+
+          # [GOOD] 리소스 명시 (Guaranteed QoS 클래스)
+          resources:
+            requests:
+              cpu: "250m"    # 0.25 코어 보장
+              memory: "256Mi" # 256MB 보장
+            limits:
+              cpu: "500m"    # 최대 0.5 코어 (Throttling)
+              memory: "512Mi" # 최대 512MB (넘으면 OOMKilled)
+
+          # [GOOD] 트래픽 제어 (준비 완료 전까지 503 에러 방지)
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+
+          # [GOOD] 자가 치유 (데드락 발생 시 재시작)
+          livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+
+          # [GOOD] 느린 시작 지원 (Liveness가 죽이지 않도록 보호)
+          startupProbe:
+            httpGet:
+              path: /healthz/startup
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 30 # 최대 150초(5*30) 동안 부팅 대기
+            
+          env:
+            - name: APP_ENV
+              value: "production"

@@ -30,6 +30,29 @@ git commit -m "feat: add login page"
 git push origin main
 ```
 
+| 명령 | 예상 출력/효과 | 흔한 실수 |
+| --- | --- | --- |
+| `git status` | 변경 파일 목록, 브랜치, 추적 여부 표시 | 스테이징된 변경과 워킹트리 변경을 혼동 |
+| `git add -p` | 변경을 덩어리(hunk) 단위로 선택 | 전체 `git add .`로 불필요한 파일까지 올리기 |
+| `git commit -m "msg"` | 새 커밋 생성 | 메시지에 작업 맥락이 없거나 오타 |
+| `git push origin main` | 원격 브랜치 업데이트 | 로컬이 뒤쳐진 상태에서 force push 시도 |
+
+> TIP: 추가/삭제/수정된 파일만 올리고 싶을 때는 `git add -p`로 부분 스테이징을 습관화하세요.
+
+## 4. 자주 쓰는 복구/확인
+```bash
+git log --oneline --graph --all   # 히스토리 트리 보기
+git reflog                        # HEAD 이동 기록 (복구용)
+git stash push -m "msg"           # 현재 변경 임시 보관
+git restore <file>                # 워킹트리 변경 취소 (Git 2.23+)
+```
+| 명령 | 기대 출력/효과 | 흔한 실수 |
+| --- | --- | --- |
+| `git log --oneline` | 최근 커밋 요약 | 긴 로그에서 빠져나올 때 `q` 잊음 |
+| `git reflog` | HEAD 이동 기록 표시 | reflog도 지워질 수 있음(보존기간 주의) |
+| `git stash pop` | 스태시 적용+삭제 | 충돌 시 drop까지 동시에 일어남 주의 |
+| `git restore <file>` | 워킹 변경 취소 | 스테이징 해제는 `--staged` 필요 |
+
 ## 3. 브랜치 관리 (Branching)
 ```bash
 # 브랜치 목록 확인
