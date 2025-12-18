@@ -61,20 +61,27 @@ p10k configure
 ```
 msys2-setup/
 ├── README.md                    ← 지금 보고 있는 파일 (시작은 여기서!)
-├── scripts/                     ← 설치 스크립트
-│   ├── 1_msys2_auto_install.sh    → 메인 자동 설치 스크립트 ⭐
-│   ├── 2_install_ohmyzsh.sh       → oh-my-zsh 단독 설치 (선택)
-│   ├── fix_zshrc_error.sh         → .zshrc 오류 수정
-│   └── fix_zsh_setup.sh           → zsh 설정 전체 재설정
+├── scripts/                     ← 설치 및 관리 스크립트
+│   ├── 1_msys2_auto_install.sh        → 메인 자동 설치 스크립트 ⭐
+│   ├── 2_install_ohmyzsh.sh           → oh-my-zsh 단독 설치 (선택)
+│   ├── install_nodejs_npm.sh          → Node.js & npm 자동 설치 🟢
+│   ├── fix_windows_terminal_path.sh   → Windows Terminal PATH 자동 수정 🔧
+│   ├── check_node_path.sh             → Node.js PATH 진단 도구 🔍
+│   ├── diagnose_terminal.sh           → 설치 상태 진단 도구 🔍
+│   ├── fix_default_shell.sh           → 기본 셸을 zsh로 변경 🔧
+│   ├── fix_zshrc_error.sh             → .zshrc 오류 수정
+│   └── fix_zsh_setup.sh               → zsh 설정 전체 재설정
 ├── configs/                     ← 설정 파일
 │   ├── windows_terminal_msys2.json  → Windows Terminal 설정
 │   ├── vscode_settings_final.json   → VS Code 설정
 │   └── zshrc_template.sh            → .zshrc 템플릿
 └── guides/                      ← 상세 가이드
-    ├── msys2_setup_guide.md         → 메인 가이드 (상세 버전)
-    ├── vscode_msys2_guide.md        → VS Code 통합 가이드
-    ├── powershell_ohmyposh_guide.md → PowerShell 대안
-    └── cygwin_setup_guide.md        → Cygwin 대안
+    ├── msys2_setup_guide.md             → 메인 가이드 (상세 버전)
+    ├── nodejs_npm_setup_guide.md        → Node.js & npm 설치 가이드 🟢
+    ├── windows_terminal_path_fix.md     → Windows Terminal PATH 수정 가이드 🔧
+    ├── vscode_msys2_guide.md            → VS Code 통합 가이드
+    ├── powershell_ohmyposh_guide.md     → PowerShell 대안
+    └── cygwin_setup_guide.md            → Cygwin 대안
 
 ```
 
@@ -177,6 +184,52 @@ VS Code에서 MSYS2를 기본 터미널로 사용하려면:
 ---
 
 ## 🔧 문제 해결
+
+### 🔍 진단 도구: 설치 상태 확인
+
+설치가 제대로 되었는지 확인하려면:
+
+```bash
+bash scripts/diagnose_terminal.sh
+```
+
+**이 도구가 확인하는 항목:**
+- ✅ 기본 로그인 셸 (`echo $SHELL`)
+- ✅ zsh, oh-my-zsh, Powerlevel10k 설치 여부
+- ✅ .bashrc 자동 zsh 실행 설정
+- ✅ .zshrc 설정 파일
+- ✅ VSCode 설정
+- ✅ Nerd Font 설치
+
+**출력 예시:**
+```
+✓ 모든 검사 통과!
+축하합니다! MSYS2 + zsh + Powerlevel10k 설정이 완벽합니다.
+```
+
+### 🔧 수정 도구: 기본 셸을 zsh로 변경
+
+**증상:**
+- VSCode 터미널 탭에 "bash"로 표시됨 (MSYS2 UCRT64 아님)
+- `echo $SHELL` 실행 시 `/bin/bash` 또는 `/usr/bin/bash` 출력
+
+**해결:**
+```bash
+bash scripts/fix_default_shell.sh
+```
+
+**이 스크립트가 하는 일:**
+1. `/etc/passwd`에서 사용자의 기본 셸을 zsh로 변경
+2. `.bashrc`에 자동 zsh 실행 코드 추가
+3. 백업 파일 생성 (복구 가능)
+4. 변경사항 검증
+
+**실행 후:**
+- 터미널 재시작
+- `echo $SHELL` → `/usr/bin/zsh` 출력 확인
+- VSCode 터미널 탭에 "MSYS2 UCRT64" 표시 확인
+
+---
 
 ### 문제 1: `p10k configure` 명령어를 찾을 수 없음
 
@@ -287,6 +340,56 @@ bash scripts/fix_zsh_setup.sh
 ---
 
 ## 🌟 추가 옵션
+
+### Node.js & npm 설치 🟢
+
+JavaScript/TypeScript 개발 환경이 필요하다면:
+
+**빠른 설치:**
+```bash
+# 자동 설치 스크립트 실행
+bash scripts/install_nodejs_npm.sh
+```
+
+**수동 설치:**
+```bash
+# UCRT64 환경 (npm 자동 포함)
+pacman -S mingw-w64-ucrt-x86_64-nodejs
+
+# 설치 확인
+node --version
+npm --version
+```
+
+**⚠️ Windows Terminal PATH 문제 해결:**
+
+VS Code에서는 작동하지만 Windows Terminal에서 `npm: command not found` 오류가 발생하나요?
+
+```bash
+# 빠른 해결: 자동 수정 스크립트
+bash scripts/fix_windows_terminal_path.sh
+
+# 또는 수동으로 ~/.zshrc에 추가
+echo 'export PATH="/c/Program Files/nodejs:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**진단 도구:**
+```bash
+# Node.js PATH 상태 확인
+bash scripts/check_node_path.sh
+```
+
+**상세 가이드:**
+- Node.js 설치: `guides/nodejs_npm_setup_guide.md`
+- Windows Terminal PATH 문제: `guides/windows_terminal_path_fix.md`
+
+**주요 기능:**
+- ✅ Node.js 및 npm 설치
+- ✅ 전역 패키지 경로 자동 설정
+- ✅ @openai/codex, TypeScript 등 설치 가능
+- ✅ Windows Terminal PATH 자동 수정
+- ✅ 권한 오류 방지
 
 ### PowerShell 대안
 
