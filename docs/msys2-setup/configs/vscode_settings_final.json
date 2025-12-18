@@ -59,16 +59,23 @@
     // ============================================================================
     // 터미널 탭 제목 설정 (핵심!)
     // ============================================================================
+    // IMPORTANT: 터미널 탭에 프로필 이름(MSYS2 UCRT64)을 표시하려면
+    // title 설정을 주석 처리하고 overrideName: true를 사용하세요
 
-    // 옵션 1: 프로필 이름만 표시 (깔끔)
-    "terminal.integrated.tabs.title": "${process}",
+    // 옵션 1: 프로필 이름만 표시 (추천) ⭐
+    // "terminal.integrated.tabs.title" 주석 처리 + "overrideName": true 사용
+    // 결과: "MSYS2 UCRT64" 표시
     "terminal.integrated.tabs.description": "${cwdFolder}",
 
-    // 옵션 2: 상세 정보 표시 (주석 해제하여 사용)
+    // 옵션 2: 프로세스 이름 표시 (주석 해제하여 사용)
+    // "terminal.integrated.tabs.title": "${process}",
+    // 결과: "bash" 표시
+
+    // 옵션 3: 상세 정보 표시 (주석 해제하여 사용)
     // "terminal.integrated.tabs.title": "${process} ${separator} ${task}",
     // "terminal.integrated.tabs.description": "${cwdFolder}",
 
-    // 옵션 3: 아이콘 추가 (주석 해제하여 사용)
+    // 옵션 4: 아이콘 추가 (주석 해제하여 사용)
     // "terminal.integrated.tabs.title": "⚡ ${process}",
     // "terminal.integrated.tabs.description": "${task} | ${cwdFolder}",
 

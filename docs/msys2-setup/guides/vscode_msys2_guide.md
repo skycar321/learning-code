@@ -164,21 +164,64 @@ echo $MSYSTEM
 
 ## 트러블슈팅
 
-### 문제 1: 터미널이 bash로 시작됨 (zsh 아님)
+### 문제 1: 터미널 탭에 "bash"로 표시됨 (MSYS2 UCRT64 아님)
 
-**원인**: `.bashrc`에 `exec zsh`가 없거나 작동하지 않음
+**원인**: VSCode가 실행 파일 이름(bash.exe)을 표시하고 있음
 
 **해결**:
 
-```bash
-# MSYS2에서 확인
-cat ~/.bashrc | grep "exec zsh"
+VSCode `settings.json`에 `"overrideName": true` 추가:
 
-# 없으면 추가
-echo 'if [ -t 1 ] && command -v zsh &> /dev/null; then exec zsh; fi' >> ~/.bashrc
+```json
+"terminal.integrated.profiles.windows": {
+  "MSYS2 UCRT64": {
+    "path": "C:\\msys64\\usr\\bin\\bash.exe",
+    "args": ["--login", "-i"],
+    "env": {
+      "MSYSTEM": "UCRT64",
+      "CHERE_INVOKING": "1",
+      "MSYS2_PATH_TYPE": "inherit"
+    },
+    "icon": "terminal-bash",
+    "overrideName": true  // 이 줄 추가!
+  }
+}
 ```
 
 VS Code 터미널 재시작: `Ctrl + Shift + P` → "Terminal: Kill All Terminals"
+
+### 문제 1-1: echo $SHELL이 bash로 나옴 (zsh가 아님)
+
+**원인**: 기본 로그인 셸이 bash로 설정되어 있음
+
+**해결**:
+
+자동 수정 스크립트 실행:
+```bash
+bash scripts/fix_default_shell.sh
+```
+
+또는 수동으로 수정:
+```bash
+# 1. .bashrc에 자동 zsh 실행 추가
+echo 'if [ -t 1 ] && command -v zsh &> /dev/null; then export SHELL=$(command -v zsh); exec zsh; fi' >> ~/.bashrc
+
+# 2. 터미널 재시작
+```
+
+### 문제 1-2: 진단 도구로 문제 확인
+
+설치 상태를 확인하려면:
+```bash
+bash scripts/diagnose_terminal.sh
+```
+
+이 스크립트는 다음을 확인합니다:
+- 기본 로그인 셸 설정
+- zsh 설치 여부
+- oh-my-zsh 및 Powerlevel10k 설치
+- .bashrc 자동 zsh 실행 설정
+- VSCode 설정
 
 ### 문제 2: "bash.exe not found" 오류
 
