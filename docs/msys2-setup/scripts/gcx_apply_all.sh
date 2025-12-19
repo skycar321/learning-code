@@ -9,4 +9,6 @@ if ! command -v "$POWERSHELL_EXE" >/dev/null 2>&1; then
   exit 1
 fi
 
+: "${GCX_FIX_CODEX_WRAPPER:=1}"
+
 exec "$POWERSHELL_EXE" -ExecutionPolicy Bypass -File "$SCRIPT_DIR/gcx_apply_all.ps1"

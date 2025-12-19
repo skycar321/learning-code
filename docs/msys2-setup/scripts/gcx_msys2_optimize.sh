@@ -91,6 +91,9 @@ run_script "$SCRIPT_DIR/fix_zsh_setup.sh"
 run_script "$SCRIPT_DIR/fix_zshrc_error.sh"
 run_script "$SCRIPT_DIR/fix_windows_terminal_path.sh"
 run_script "$SCRIPT_DIR/fix_claude_gemini_wrappers.sh"
+if [[ "${GCX_FIX_CODEX_WRAPPER:-1}" == "1" ]]; then
+  run_script "$SCRIPT_DIR/fix_codex_wrapper.sh"
+fi
 run_script "$SCRIPT_DIR/check_node_path.sh"
 run_script "$SCRIPT_DIR/diagnose_terminal.sh"
 
