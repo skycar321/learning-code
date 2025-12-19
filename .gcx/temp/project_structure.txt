@@ -1,0 +1,31 @@
+=== Backend Structure ===
+src/
+    main.rs
+
+=== Frontend Structure ===
+app/
+    favicon.ico
+    globals.css
+    layout.tsx
+    page.tsx
+    view/
+        [...slug]/
+            page.tsx
+components/
+    AppSidebar.tsx
+    component-example.tsx
+    example.tsx
+    ui/
+        alert-dialog.tsx
+        badge.tsx
+        button.tsx
+        card.tsx
+        combobox.tsx
+        dropdown-menu.tsx
+        field.tsx
+        input-group.tsx
+        input.tsx
+        label.tsx
+        select.tsx
+        separator.tsx
+        textarea.tsx

@@ -1,0 +1,15 @@
+Loaded cached credentials.
+Server 'sequential-thinking' supports tool updates. Listening for changes...
+Server 'context7' supports tool updates. Listening for changes...
+Loading extension: nanobanana
+Skipping MCP config for server with name "nanobanana" from extension "nanobanana" as it already exists.
+[STARTUP] StartupProfiler.flush() called with 9 phases
+[STARTUP] Recording metric for phase: cli_startup duration: 1468.7874000000002
+[STARTUP] Recording metric for phase: load_settings duration: 3.1458999999995285
+[STARTUP] Recording metric for phase: migrate_settings duration: 1.6166999999995824
+[STARTUP] Recording metric for phase: parse_arguments duration: 17.71889999999985
+[STARTUP] Recording metric for phase: load_cli_config duration: 56.486400000000685
+[STARTUP] Recording metric for phase: initialize_app duration: 1353.8518000000004
+[STARTUP] Recording metric for phase: authenticate duration: 1348.3532999999998
+[STARTUP] Recording metric for phase: discover_tools duration: 6.40520000000015
+[STARTUP] Recording metric for phase: initialize_mcp_clients duration: 1854.9736999999996

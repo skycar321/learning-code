@@ -1,0 +1,35 @@
+# Kubernetes Troubleshooting Context
+(Search Results Summary)
+
+## 1. Pod Issues
+- CrashLoopBackOff: App crash, Liveness probe fail. Fix: `kubectl logs --previous`
+- Pending: No resources, Taint/Toleration mismatch. Fix: `kubectl describe pod`
+- ImagePullBackOff: Auth fail, Wrong tag. Fix: `kubectl describe pod`
+- CreateContainerConfigError: ConfigMap/Secret missing.
+- Exit Code 1 (App error), 125 (Container engine/perm), 137 (OOMKilled).
+- Pod Stuck Terminating: Finalizers. Fix: force delete.
+
+## 2. Node Issues
+- Node NotReady: Kubelet down, network, disk pressure. Fix: `kubectl describe node`
+- Node out of disk space.
+- Scheduler not placing pods.
+- Time sync issues.
+
+## 3. Network Issues
+- Service not exposing pod: Selector mismatch. Fix: `kubectl get endpoints`
+- External IP pending (LoadBalancer).
+- DNS resolution failure (CoreDNS).
+- NodePort inaccessible.
+- CNI plugin failure.
+- Gateway Timeout / Connection Refused.
+
+## 4. Storage Issues
+- PVC Pending: No StorageClass, Size mismatch.
+- Read-only file system.
+
+## 5. Deployment/Cluster
+- Deployment update fails.
+- RBAC Permission denied.
+- OOMKilled (Resource Limits).
+- Ingress not routing.
+- HPA not scaling.

@@ -1,0 +1,9 @@
+다음 질문에 한글로 답변해주세요:
+
+질문: "Hello World"를 한글로 뭐라고 하나요?
+
+답변 형식:
+- 한글 번역: [여기에 답변]
+- 설명: [간단한 설명]
+
+Output Language: KOREAN (Testing MSYS2 encoding support)
