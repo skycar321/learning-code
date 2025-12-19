@@ -1,0 +1,32 @@
+# Spring Boot Troubleshooting Context
+
+## 1. Startup Failures
+- `BeanCreationException`: DI failure, Missing @Service/@Component, Constructor mismatch.
+- `ApplicationContextException`: Env config missing.
+- `PortInUseException`: Port 8080 already used.
+- `DataSourceConnectionFailure`: DB URL/User/Pwd wrong.
+- `NoSuchBeanDefinitionException`: Autowiring interface with no impl.
+- `CircularDependency`: Bean A -> Bean B -> Bean A.
+
+## 2. Configuration Issues
+- Properties not loaded: `application.properties` location wrong.
+- Profile mismatch: `@Profile("dev")` vs `spring.profiles.active=prod`.
+- `@Value` injection null: Syntax error `${...}`.
+
+## 3. Web/API Issues
+- 404 Not Found: Controller package not scanned (`@ComponentScan`).
+- 405 Method Not Allowed: GET vs POST mismatch.
+- 415 Unsupported Media Type: Missing JSON dependency or Content-Type header.
+- 400 Bad Request: Validation failed (`@Valid` missing).
+- CORS Error: `Access-Control-Allow-Origin`.
+
+## 4. Database/JPA
+- `LazyInitializationException`: Accessing lazy collection outside Transaction.
+- `OptimisticLockingFailureException`: Concurrent update version mismatch.
+- `TransientPropertyValueException`: Saving entity with unsaved child (Cascade missing).
+- N+1 Problem: Performance issue.
+
+## 5. Security
+- 401 Unauthorized: JWT token invalid/expired.
+- 403 Forbidden: Missing Role (`hasRole`).
+- CSRF Token missing.

@@ -1,0 +1,67 @@
+{
+  "$schema": "../.gcx/schemas/models.schema.json",
+  "version": "1.0.0",
+  "lastUpdated": "2025-12-19",
+
+  "models": {
+    "claude": {
+      "default": "claude-sonnet-4-20250514",
+      "planning": "claude-opus-4-5-20251101",
+      "quick": "claude-3-5-haiku-20241022",
+      "alias": {
+        "sonnet": "claude-sonnet-4-20250514",
+        "opus": "claude-opus-4-5-20251101",
+        "haiku": "claude-3-5-haiku-20241022"
+      }
+    },
+    "codex": {
+      "default": "codex-1",
+      "reasoning": "o3",
+      "quick": "gpt-4.1-mini",
+      "alias": {
+        "max": "codex-1",
+        "standard": "o4-mini"
+      }
+    },
+    "gemini": {
+      "default": "gemini-2.5-pro",
+      "design": "gemini-2.5-pro",
+      "quick": "gemini-2.5-flash",
+      "alias": {
+        "pro": "gemini-2.5-pro",
+        "flash": "gemini-2.5-flash"
+      }
+    }
+  },
+
+  "taskMapping": {
+    "requirement-capture": {
+      "primary": "gemini.default",
+      "fallback": "claude.default"
+    },
+    "plan-architect": {
+      "primary": "claude.planning",
+      "fallback": "gemini.default"
+    },
+    "tdd-generator": {
+      "primary": "codex.default",
+      "fallback": "claude.default"
+    },
+    "implementation": {
+      "primary": "codex.default",
+      "fallback": "claude.default"
+    },
+    "design-review": {
+      "primary": "gemini.design",
+      "fallback": null
+    },
+    "qa-validator": {
+      "primary": "codex.reasoning",
+      "fallback": "claude.default"
+    },
+    "finalize-reporter": {
+      "primary": "gemini.default",
+      "fallback": "claude.default"
+    }
+  }
+}

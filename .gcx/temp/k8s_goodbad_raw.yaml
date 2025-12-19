@@ -1,0 +1,103 @@
+Here’s the requested multi-document YAML with clear Good vs Bad examples and inline English comments.
+
+```yaml
+# BAD: Missing resource controls and probes; runs privileged as root with floating tag.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bad-app
+  labels:
+    app: bad-app
+spec:
+  replicas: 2  # replicas exist but no safeguards on container behavior
+  selector:
+    matchLabels:
+      app: bad-app
+  template:
+    metadata:
+      labels:
+        app: bad-app
+    spec:
+      securityContext:
+        runAsNonRoot: false  # allows root
+      containers:
+        - name: web
+          image: myregistry.example.com/app:latest  # floating tag blocks rollbacks & reproducibility
+          securityContext:
+            privileged: true  # broad host access; unnecessary attack surface
+          ports:
+            - containerPort: 8080
+          # No resources: scheduler cannot guarantee placement; container can starve neighbors
+          # No liveness/readiness probes: kubelet cannot detect hangs or gate traffic
+          # No imagePullPolicy comment: defaults may hide freshness or caching behavior
+
+# GOOD: Predictable resources, health probes, least-privilege security, immutable image tag.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: good-app
+  labels:
+    app: good-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: good-app
+  template:
+    metadata:
+      labels:
+        app: good-app
+    spec:
+      securityContext:
+        runAsNonRoot: true  # blocks UID 0
+        seccompProfile:
+          type: RuntimeDefault  # hardened syscall surface
+      containers:
+        - name: web
+          image: myregistry.example.com/app:1.4.3  # immutable version enables rollbacks & SBOM mapping
+          imagePullPolicy: IfNotPresent  # avoids unnecessary pulls while keeping deterministic version
+          securityContext:
+            privileged: false  # least privilege; avoids host access
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ "ALL" ]
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:  # requests == limits -> Guaranteed QoS; no noisy-neighbor risk
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          readinessProbe:  # gates traffic until app is ready; avoids 503s
+            httpGet:
+              path: /healthz/ready
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+            successThreshold: 1
+          livenessProbe:  # restarts on hangs; self-healing
+            httpGet:
+              path: /healthz/live
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+            successThreshold: 1
+          startupProbe:  # protects slow boots from liveness kill loops
+            httpGet:
+              path: /healthz/startup
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 12
+          env:
+            - name: APP_MODE
+              value: "prod"  # explicit configuration over implicit defaults
+```

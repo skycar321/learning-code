@@ -1,0 +1,160 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gcx.dev/schemas/baton.schema.json",
+  "title": "GCX v6 Context Baton Schema",
+  "description": "Subagent 간 전달되는 Context Baton의 JSON Schema",
+  "type": "object",
+  "required": ["metadata", "user_request", "project_root"],
+  "properties": {
+    "metadata": {
+      "$ref": "#/definitions/batonMetadata"
+    },
+    "user_request": {
+      "type": "string",
+      "description": "사용자 요청 원문"
+    },
+    "project_root": {
+      "type": "string",
+      "description": "프로젝트 루트 경로"
+    },
+    "requirements": {
+      "type": "object",
+      "description": "요구사항 캡처 결과"
+    },
+    "planning": {
+      "type": "object",
+      "description": "계획 수립 결과"
+    },
+    "implementation": {
+      "type": "object",
+      "description": "구현 결과"
+    },
+    "verification": {
+      "type": "object",
+      "description": "검증 결과"
+    },
+    "design_review": {
+      "type": "object",
+      "description": "디자인 리뷰 결과"
+    },
+    "qa_validation": {
+      "type": "object",
+      "description": "QA 검증 결과"
+    },
+    "final_report": {
+      "type": "object",
+      "description": "최종 보고서"
+    },
+    "phase_results": {
+      "type": "array",
+      "description": "단계별 실행 결과",
+      "items": {
+        "$ref": "#/definitions/phaseResult"
+      }
+    }
+  },
+  "definitions": {
+    "batonMetadata": {
+      "type": "object",
+      "required": ["session_id", "created_at", "updated_at", "current_phase", "total_phases"],
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "description": "세션 ID",
+          "pattern": "^\\d{8}_\\d{6}_[a-z0-9]{4}$"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "생성 시간 (ISO 8601)",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "업데이트 시간 (ISO 8601)",
+          "format": "date-time"
+        },
+        "current_phase": {
+          "type": "string",
+          "description": "현재 단계",
+          "enum": [
+            "requirement-capture",
+            "plan-architect",
+            "tdd-generator",
+            "implementation",
+            "qa-validator",
+            "finalize-reporter"
+          ]
+        },
+        "total_phases": {
+          "type": "integer",
+          "description": "전체 단계 수",
+          "minimum": 1,
+          "default": 6
+        }
+      }
+    },
+    "phaseResult": {
+      "type": "object",
+      "required": ["phase_name", "status", "ai_type", "model"],
+      "properties": {
+        "phase_name": {
+          "type": "string",
+          "description": "단계 이름",
+          "enum": [
+            "requirement-capture",
+            "plan-architect",
+            "tdd-generator",
+            "implementation",
+            "design-review",
+            "qa-validator",
+            "finalize-reporter"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "실행 상태",
+          "enum": ["pending", "in_progress", "completed", "failed"]
+        },
+        "ai_type": {
+          "type": "string",
+          "description": "사용된 AI 타입",
+          "enum": ["gemini", "claude", "codex"]
+        },
+        "model": {
+          "type": "string",
+          "description": "사용된 모델 ID"
+        },
+        "started_at": {
+          "type": ["string", "null"],
+          "description": "시작 시간 (ISO 8601)",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": ["string", "null"],
+          "description": "완료 시간 (ISO 8601)",
+          "format": "date-time"
+        },
+        "output_files": {
+          "type": "array",
+          "description": "생성된 출력 파일 목록",
+          "items": {
+            "type": "string"
+          }
+        },
+        "summary": {
+          "type": ["string", "null"],
+          "description": "단계 요약"
+        },
+        "error": {
+          "type": ["string", "null"],
+          "description": "에러 메시지"
+        },
+        "duration": {
+          "type": ["number", "null"],
+          "description": "실행 시간 (초)",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

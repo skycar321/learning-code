@@ -1,3 +1,51 @@
+## [2025-12-19 22:21:27 KST] Claude Code 설정 스키마 URL 수정
+
+**Type**: 설정변경
+
+**Affected Files**:
+- `.claude/settings.json`
+
+**Changes**:
+- `$schema` URL을 공식 schemastore.org URL로 수정
+- 기존: `https://raw.githubusercontent.com/anthropics/claude-code/main/schemas/settings.schema.json`
+- 변경: `https://json.schemastore.org/claude-code-settings.json`
+
+**Reason**:
+Claude Code 실행 시 "Settings Error" 발생 - 잘못된 스키마 URL로 인해 전체 설정 파일이 무효화됨
+
+**AI Collaborator**:
+- 없음 (Claude 단독 작업)
+
+**Related Issue/Request**:
+claude --dangerously-skip-permissions 실행 시 settings.json 스키마 오류 수정
+
+---
+
+## [2025-12-19 20:41:30 KST] GCX v6.1 통합 계획 문서 개선 - Claude 공식 문서 준수
+
+**Type**: 문서 수정
+
+**Affected Files**:
+- `GCX_v6_Integration_Plan.md` (수정)
+- `GCX_v6_Integration_Plan_backup.md` (백업)
+
+**Changes**:
+- **터미널 설정 섹션 추가**: 기본 셸 zsh, 차선책 bash
+- **모델 설정 분리 섹션 추가**: `.claude/config/models.json` 파일로 AI 모델 버전 분리
+- **Hook 경로 수정**: `$CLAUDE_PROJECT_DIR` 환경변수 사용 (Claude 공식 문서 준수)
+- **Subagent/Skill Frontmatter 업데이트**: Claude 공식 문서 형식으로 예시 업데이트
+- **검증 체크리스트 확장**: AI 모델 설정, Bash Fallback 체크항목 추가
+
+**AI Collaborator**:
+- Suggested by: Gemini, Codex (v6 피드백)
+- Validated by: Claude (공식 문서 준수 검증)
+- Model used: claude-opus-4-5-20251101
+
+**Related Issue/Request**:
+gcx 프로토콜 Claude 적용 - 터미널 zsh/bash 설정, 모델 선택 분리
+
+---
+
 ## [2025-12-19 14:32:45 KST] GCX 프로토콜 v5.0 완성 - Zsh Shell 전환
 
 **Type**: 프로토콜 업그레이드

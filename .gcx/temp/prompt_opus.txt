@@ -1,0 +1,18 @@
+You are the Lead System Architect (Model: Opus).
+We are splitting a Monolithic Rust App into **Rust Backend API** + **Next.js Frontend**.
+
+**Context**:
+- Current Rust app reads file system (markdowns) and renders HTML.
+- New Frontend needs to display a **Sidebar (File Tree)** and **Main Content (Markdown)**.
+
+**Your Task**: Design the Architecture.
+1. **API Schema (Rust -> JSON)**:
+   - Define the JSON structure for the Sidebar (Categories > Subcategories > Files).
+   - Define the API endpoints (e.g., `/api/tree`, `/api/content`).
+2. **Frontend Structure (Next.js 14 App Router)**:
+   - File structure (`app/`, `components/`).
+   - Key components needed (Sidebar, MarkdownViewer).
+   - State management strategy (Server Components vs Client State).
+
+**Output**: Markdown document named `TRD_Platform_Split.md` containing the specs.
+**Language**: English (for safety).

@@ -1,0 +1,15 @@
+=== set-msys2-zsh-default ===
+& "C:\Users\Nam\Documents\Cursor\Workspace\origin\learning-code\scripts\\set-msys2-zsh-default.ps1"
+
+Done.
+Backup saved: C:\Users\Nam\Documents\Cursor\Workspace\origin\learning-code\.gcx\state\msys2_shell_backup.json
+Restart Claude Code / terminals to apply changes.
+
+=== apply-msys2-win-env ===
+& "C:\Users\Nam\Documents\Cursor\Workspace\origin\learning-code\scripts\\apply-msys2-win-env.ps1"
+
+Applied: C:\\msys64\\home\\Nam\.zshrc.d\windows_env.sh
+Inventory: C:\Users\Nam\Documents\Cursor\Workspace\origin\learning-code\.gcx\\state\windows_env_inventory.json
+Backup: C:\Users\Nam\Documents\Cursor\Workspace\origin\learning-code\.gcx\\state\msys2_win_env_backup.json
+Restart MSYS2 zsh sessions to apply.
+
