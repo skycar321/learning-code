@@ -1,0 +1,17 @@
+{
+  "reviewer": "Claude-3-Haiku",
+  "status": "PASS",
+  "quality_score": 100,
+  "feedback": [
+    {
+      "category": "Logic",
+      "comment": "Factorial logic is correct and handles edge cases as requested.",
+      "severity": "Info"
+    },
+    {
+      "category": "Style",
+      "comment": "Code follows PEP 8. Docstrings are clear.",
+      "severity": "Info"
+    }
+  ]
+}

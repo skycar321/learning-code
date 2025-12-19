@@ -71,7 +71,6 @@ msys2-setup/
 │   ├── fix_default_shell.sh           → 기본 셸을 zsh로 변경 🔧
 │   ├── fix_zshrc_error.sh             → .zshrc 오류 수정
 │   └── fix_zsh_setup.sh               → zsh 설정 전체 재설정
-│   └── fix_claude_gemini_wrappers.sh   → Claude/Gemini CLI wrapper 자동 수정 🤖
 ├── configs/                     ← 설정 파일
 │   ├── windows_terminal_msys2.json  → Windows Terminal 설정
 │   ├── vscode_settings_final.json   → VS Code 설정
@@ -83,7 +82,6 @@ msys2-setup/
     ├── vscode_msys2_guide.md            → VS Code 통합 가이드
     ├── powershell_ohmyposh_guide.md     → PowerShell 대안
     └── cygwin_setup_guide.md            → Cygwin 대안
-├── claude_gemini_cli_fix.md         → Claude/Gemini CLI 문제 해결 🤖
 
 ```
 
@@ -307,7 +305,6 @@ echo $MSYSTEM
 **해결:**
 ```bash
 bash scripts/fix_zsh_setup.sh
-│   └── fix_claude_gemini_wrappers.sh   → Claude/Gemini CLI wrapper 자동 수정 🤖
 ```
 
 **더 많은 문제 해결:** `guides/msys2_setup_guide.md`의 "문제 해결" 섹션 참조
@@ -394,7 +391,6 @@ bash scripts/check_node_path.sh
 - ✅ Windows Terminal PATH 자동 수정
 - ✅ 권한 오류 방지
 
-### Claude Code & Gemini CLI 수정 🤖npm으로 설치한 Claude Code나 Gemini CLI가 MSYS2에서 `MODULE_NOT_FOUND` 오류를 발생시키나요?**증상:**```bash❯ claude --dangerously-skip-permissionsError: Cannot find module 'C:msys64UsersNam...'```**원인:** npm wrapper 스크립트의 `cygpath -w` 경로 변환 오류**빠른 해결:**```bash# 자동 수정 스크립트 실행bash scripts/fix_claude_gemini_wrappers.sh```**수동 해결:**```bash# 1. 백업 생성cp /c/Users/Nam/AppData/Roaming/npm/claude /c/Users/Nam/AppData/Roaming/npm/claude.backupcp /c/Users/Nam/AppData/Roaming/npm/gemini /c/Users/Nam/AppData/Roaming/npm/gemini.backup# 2. wrapper 수정 (guides/claude_gemini_cli_fix.md 참조)# 스크립트가 자동으로 처리합니다```**검증:**```bashclaude --version# 출력: 2.0.73 (Claude Code)gemini --version# 출력: 0.21.2```**상세 가이드:**- 문제 해결: `guides/claude_gemini_cli_fix.md`- codex도 같은 방식으로 해결됨**주요 기능:**- ✅ Claude Code wrapper 자동 수정- ✅ Gemini CLI wrapper 자동 수정- ✅ 기존 파일 백업 (.backup)- ✅ 검증 및 버전 확인- ✅ npm 재설치 후 재실행 가능
 ### PowerShell 대안
 
 Windows PowerShell을 선호한다면:
@@ -405,7 +401,6 @@ Windows PowerShell을 선호한다면:
 
 레거시 시스템이나 특수 요구사항:
 - `guides/cygwin_setup_guide.md` 참조
-├── claude_gemini_cli_fix.md         → Claude/Gemini CLI 문제 해결 🤖
 - X11 지원 필요 시 유용
 
 ---
@@ -531,7 +526,7 @@ git pull
 
 작성자: Nam
 작성일: 2025-12-17
-최종 수정: 2025-12-19
+최종 수정: 2025-12-18
 
 ---
 
