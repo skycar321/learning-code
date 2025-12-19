@@ -1,0 +1,13 @@
+{
+  "user_stories": [
+    "As a developer, I want a `calculate_factorial` function to compute factorials for positive integers.",
+    "As a developer, I want the function to raise a ValueError for negative inputs.",
+    "As a developer, I want the function to raise a TypeError for non-integer inputs."
+  ],
+  "architecture": {
+    "file": "src/factorial.py",
+    "function": "calculate_factorial",
+    "signature": "def calculate_factorial(n: int) -> int:",
+    "description": "Recursive or iterative implementation of factorial logic."
+  }
+}
