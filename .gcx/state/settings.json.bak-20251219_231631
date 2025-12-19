@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "version": "6.1.0",
+  "lastUpdated": "2025-12-19",
+  "terminal": {
+    "shell": {
+      "default": "zsh",
+      "fallback": "bash",
+      "path": {
+        "zsh": "C:\\msys64\\usr\\bin\\zsh.exe",
+        "bash": "C:\\msys64\\usr\\bin\\bash.exe"
+      }
+    },
+    "encoding": "UTF-8",
+    "locale": "ko_KR.UTF-8"
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/user_prompt.py",
+            "description": "GCX v6 세션 초기화 및 요구사항 자동 캡처"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pre_bash.py",
+            "description": "Bash 명령어 실행 전 환경 검증"
+          }
+        ]
+      },
+      {
+        "matcher": "run_shell_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pre_bash.py",
+            "description": "쉘 명령어 실행 전 환경 검증"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|run_shell_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post_bash.py",
+            "description": "AI 출력 파싱 및 Baton 업데이트"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/subagent_stop.py",
+            "description": "Subagent 종료 시 체크포인트 저장"
+          }
+        ]
+      }
+    ]
+  },
+  "outputStyle": "Korean-Explanatory"
+}

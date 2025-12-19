@@ -1,289 +1,132 @@
-#!/bin/bash
-# MSYS2 터미널 설정 진단 스크립트
-# 실행: bash diagnose_terminal.sh
+#!/usr/bin/env bash
+# MSYS2 terminal diagnostics (ASCII-safe)
+# Usage: bash diagnose_terminal.sh
 
-# 색상 정의
+set -u
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# 로그 함수
-log_info() {
-    echo -e "${CYAN}ℹ${NC} $1"
-}
+log_info()    { echo -e "${CYAN}i${NC} $1"; }
+log_ok()      { echo -e "${GREEN}ok${NC} $1"; }
+log_warn()    { echo -e "${YELLOW}warn${NC} $1"; }
+log_err()     { echo -e "${RED}err${NC} $1"; }
+log_header()  { echo -e "\n${BLUE}== $1 ==${NC}"; }
 
-log_success() {
-    echo -e "${GREEN}✓${NC} $1"
-}
+clear || true
+echo -e "${BLUE}MSYS2 Terminal Diagnostics${NC}\n"
 
-log_warning() {
-    echo -e "${YELLOW}⚠${NC} $1"
-}
+issues=0
 
-log_error() {
-    echo -e "${RED}✗${NC} $1"
-}
-
-log_header() {
-    echo ""
-    echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║${NC} $1"
-    echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
-    echo ""
-}
-
-clear
-echo ""
-echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
-echo -e "${BLUE}    MSYS2 터미널 설정 진단 도구${NC}"
-echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
-echo ""
-
-# 1. 기본 환경 정보
-log_header "1. 기본 환경 정보"
-log_info "현재 사용자: ${USER:-'(not set)'}"
-log_info "홈 디렉토리: ${HOME:-'(not set)'}"
-log_info "현재 셸: $0"
+log_header "1) Environment"
+log_info "USER: ${USER:-'(not set)'}"
+log_info "HOME: ${HOME:-'(not set)'}"
+log_info "SHELL: ${SHELL:-'(not set)'}"
 log_info "MSYSTEM: ${MSYSTEM:-'(not set)'}"
-log_info "PATH: ${PATH:0:100}..."
-echo ""
+log_info "PATH (head): ${PATH:0:120}..."
 
-# 2. 기본 로그인 셸 확인
-log_header "2. 기본 로그인 셸 확인"
-echo -n "echo \$SHELL: "
-echo $SHELL
-
-if [ "$SHELL" = "/usr/bin/zsh" ] || [ "$SHELL" = "/bin/zsh" ]; then
-    log_success "기본 셸이 zsh로 설정되어 있습니다"
+log_header "2) Default shell"
+if [[ "${SHELL:-}" == "/usr/bin/zsh" || "${SHELL:-}" == "/bin/zsh" ]]; then
+  log_ok "Default shell is zsh"
 else
-    log_warning "기본 셸이 bash입니다: $SHELL"
-    log_info "해결: 수정 스크립트를 실행하세요"
+  log_warn "Default shell is not zsh: ${SHELL:-'(not set)'}"
+  log_info "Fix: run docs/msys2-setup/scripts/fix_default_shell.sh"
+  issues=$((issues+1))
 fi
-echo ""
 
-# 3. /etc/passwd 파일 확인
-log_header "3. /etc/passwd 설정 확인"
-if [ -f /etc/passwd ]; th2013
-en
-    USER_LINE=$(grep "^${USER}:" /etc/passwd)
-    if [ -n "$USER_LINE" ]; then
-        log_info "현재 설정: $USER_LINE"
-
-        LOGIN_SHELL=$(echo $USER_LINE | awk -F: '{print $NF}')
-        log_info "로그인 셸: $LOGIN_SHELL"
-
-        if [ "$LOGIN_SHELL" = "/usr/bin/zsh" ] || [ "$LOGIN_SHELL" = "/bin/zsh" ]; then
-            log_success "/etc/passwd에 zsh로 설정됨"
-        else
-            log_warning "/etc/passwd에 bash로 설정됨"
-        fi
+log_header "3) /etc/passwd"
+if [[ -f /etc/passwd ]]; then
+  user_line="$(grep "^${USER}:" /etc/passwd 2>/dev/null || true)"
+  if [[ -n "$user_line" ]]; then
+    login_shell="$(echo "$user_line" | awk -F: '{print $NF}')"
+    log_info "Login shell: $login_shell"
+    if [[ "$login_shell" == "/usr/bin/zsh" || "$login_shell" == "/bin/zsh" ]]; then
+      log_ok "/etc/passwd uses zsh"
     else
-        log_warning "사용자 정보를 /etc/passwd에서 찾을 수 없습니다"
+      log_warn "/etc/passwd does not use zsh"
+      issues=$((issues+1))
     fi
+  else
+    log_warn "User entry not found in /etc/passwd"
+    issues=$((issues+1))
+  fi
 else
-    log_error "/etc/passwd 파일이 없습니다"
+  log_warn "/etc/passwd not found (MSYS2 may not be configured)"
+  issues=$((issues+1))
 fi
-echo ""
 
-# 4. zsh 설치 확인
-log_header "4. zsh 설치 확인"
-if command -v zsh &> /dev/null; then
-    ZSH_PATH=$(command -v zsh)
-    ZSH_VERSION=$(zsh --version | head -n1)
-    log_success "zsh 설치됨: $ZSH_PATH"
-    log_info "버전: $ZSH_VERSION"
+log_header "4) zsh installed"
+if command -v zsh >/dev/null 2>&1; then
+  log_ok "zsh path: $(command -v zsh)"
+  log_info "zsh version: $(zsh --version | head -n1)"
 else
-    log_error "zsh가 설치되지 않았습니다!"
-    log_info "해결: pacman -S zsh"
+  log_err "zsh not installed"
+  log_info "Fix: pacman -S zsh"
+  issues=$((issues+1))
 fi
-echo ""
 
-# 5. oh-my-zsh 설치 확인
-log_header "5. oh-my-zsh 설치 확인"
-if [ -d "$HOME/.oh-my-zsh" ]; then
-    log_success "oh-my-zsh 설치됨: $HOME/.oh-my-zsh"
-
-    # Powerlevel10k 확인
-    if [ -d "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" ]; then
-        log_success "Powerlevel10k 테마 설치됨"
-    else
-        log_warning "Powerlevel10k 테마가 설치되지 않았습니다"
-    fi
-
-    # 플러그인 확인
-    if [ -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]; then
-        log_success "zsh-autosuggestions 플러그인 설치됨"
-    else
-        log_warning "zsh-autosuggestions 플러그인이 설치되지 않았습니다"
-    fi
-
-    if [ -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]; then
-        log_success "zsh-syntax-highlighting 플러그인 설치됨"
-    else
-        log_warning "zsh-syntax-highlighting 플러그인이 설치되지 않았습니다"
-    fi
+log_header "5) oh-my-zsh / plugins"
+if [[ -d "$HOME/.oh-my-zsh" ]]; then
+  log_ok "oh-my-zsh found"
 else
-    log_error "oh-my-zsh가 설치되지 않았습니다!"
-    log_info "해결: bash scripts/1_msys2_auto_install.sh"
+  log_warn "oh-my-zsh not found"
+  issues=$((issues+1))
 fi
-echo ""
+[[ -d "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" ]] && log_ok "powerlevel10k found" || log_warn "powerlevel10k missing"
+[[ -d "$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions" ]] && log_ok "zsh-autosuggestions found" || log_warn "zsh-autosuggestions missing"
+[[ -d "$HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting" ]] && log_ok "zsh-syntax-highlighting found" || log_warn "zsh-syntax-highlighting missing"
 
-# 6. .zshrc 파일 확인
-log_header "6. .zshrc 설정 확인"
-if [ -f "$HOME/.zshrc" ]; then
-    log_success ".zshrc 파일 존재: $HOME/.zshrc"
-
-    # 파일 크기
-    FILE_SIZE=$(wc -c < "$HOME/.zshrc")
-    log_info "파일 크기: $FILE_SIZE bytes"
-
-    # oh-my-zsh 경로 확인
-    if grep -q 'ZSH="$HOME/.oh-my-zsh"' "$HOME/.zshrc"; then
-        log_success "oh-my-zsh 경로 설정 확인됨"
-    else
-        log_warning "oh-my-zsh 경로 설정이 없습니다"
-    fi
-
-    # Powerlevel10k 테마 확인
-    if grep -q 'ZSH_THEME="powerlevel10k/powerlevel10k"' "$HOME/.zshrc"; then
-        log_success "Powerlevel10k 테마 설정 확인됨"
-    else
-        log_warning "Powerlevel10k 테마 설정이 없습니다"
-    fi
-
-    # 플러그인 확인
-    if grep -q "zsh-autosuggestions" "$HOME/.zshrc"; then
-        log_success "zsh-autosuggestions 플러그인 활성화됨"
-    else
-        log_warning "zsh-autosuggestions 플러그인이 활성화되지 않았습니다"
-    fi
+log_header "6) .zshrc / .bashrc"
+if [[ -f "$HOME/.zshrc" ]]; then
+  log_ok ".zshrc exists"
+  grep -q 'ZSH="$HOME/.oh-my-zsh"' "$HOME/.zshrc" && log_ok "oh-my-zsh configured" || log_warn "oh-my-zsh config missing"
+  grep -q 'powerlevel10k/powerlevel10k' "$HOME/.zshrc" && log_ok "p10k theme configured" || log_warn "p10k theme missing"
 else
-    log_error ".zshrc 파일이 없습니다!"
-    log_info "해결: cp configs/zshrc_template.sh ~/.zshrc"
+  log_warn ".zshrc not found"
+  issues=$((issues+1))
 fi
-echo ""
 
-# 7. .bashrc 자동 zsh 실행 확인
-log_header "7. .bashrc 자동 zsh 실행 설정 확인"
-if [ -f "$HOME/.bashrc" ]; then
-    log_success ".bashrc 파일 존재: $HOME/.bashrc"
-
-    # exec zsh 확인
-    if grep -q "exec zsh" "$HOME/.bashrc"; then
-        log_success ".bashrc에 'exec zsh' 설정 확인됨"
-    else
-        log_warning ".bashrc에 'exec zsh' 설정이 없습니다"
-        log_info "해결: 수정 스크립트를 실행하세요"
-    fi
+if [[ -f "$HOME/.bashrc" ]]; then
+  grep -q "exec zsh" "$HOME/.bashrc" && log_ok ".bashrc auto zsh enabled" || log_warn ".bashrc auto zsh not set"
 else
-    log_warning ".bashrc 파일이 없습니다"
-    log_info "해결: 수정 스크립트를 실행하세요"
+  log_warn ".bashrc not found"
 fi
-echo ""
 
-# 8. VSCode 설정 확인
-log_header "8. VSCode 설정 확인"
-VSCODE_SETTINGS="$HOME/AppData/Roaming/Code/User/settings.json"
-VSCODE_SETTINGS_ALT="C:/Users/$USER/AppData/Roaming/Code/User/settings.json"
-
-if [ -f "$VSCODE_SETTINGS" ] || [ -f "$VSCODE_SETTINGS_ALT" ]; then
-    log_success "VSCode 설정 파일 존재함"
-
-    # MSYS2 프로필 확인
-    if [ -f "$VSCODE_SETTINGS" ]; then
-        SETTINGS_FILE="$VSCODE_SETTINGS"
-    else
-        SETTINGS_FILE="$VSCODE_SETTINGS_ALT"
-    fi
-
-    if grep -q "MSYS2 UCRT64" "$SETTINGS_FILE" 2>/dev/null; then
-        log_success "VSCode에 MSYS2 UCRT64 프로필 설정 확인됨"
-    else
-        log_warning "VSCode에 MSYS2 UCRT64 프로필 설정이 없습니다"
-        log_info "해결: configs/vscode_settings_final.json 참조"
-    fi
+log_header "7) VS Code profile"
+vscode_settings="$HOME/AppData/Roaming/Code/User/settings.json"
+vscode_settings_alt="/c/Users/$USER/AppData/Roaming/Code/User/settings.json"
+if [[ -f "$vscode_settings" || -f "$vscode_settings_alt" ]]; then
+  settings_file="$vscode_settings"
+  [[ -f "$vscode_settings_alt" ]] && settings_file="$vscode_settings_alt"
+  if grep -q "MSYS2 UCRT64" "$settings_file" 2>/dev/null; then
+    log_ok "VS Code profile includes MSYS2 UCRT64"
+  else
+    log_warn "VS Code profile missing MSYS2 UCRT64"
+  fi
 else
-    log_warning "VSCode 설정 파일을 찾을 수 없습니다"
-    log_info "VSCode가 설치되어 있습니까?"
+  log_warn "VS Code settings.json not found"
 fi
-echo ""
 
-# 9. 폰트 확인
-log_header "9. Nerd Font 설치 확인"
-FONT_DIR_1="C:/Windows/Fonts"
-FONT_DIR_2="/c/Windows/Fonts"
-
-if [ -d "$FONT_DIR_2" ]; then
-    FONT_COUNT=$(find "$FONT_DIR_2" -iname "*MesloLGS*" 2>/dev/null | wc -l)
-    if [ "$FONT_COUNT" -gt 0 ]; then
-        log_success "MesloLGS NF 폰트 설치됨 (파일 $FONT_COUNT개)"
-    else
-        log_warning "MesloLGS NF 폰트가 설치되지 않았습니다"
-        log_info "다운로드: https://github.com/romkatv/powerlevel10k#fonts"
-    fi
+log_header "8) Fonts (MesloLGS)"
+if [[ -d "/c/Windows/Fonts" ]]; then
+  count=$(find /c/Windows/Fonts -iname "*MesloLGS*" 2>/dev/null | wc -l | tr -d ' ')
+  if [[ "$count" -gt 0 ]]; then
+    log_ok "MesloLGS found: $count"
+  else
+    log_warn "MesloLGS not found"
+  fi
 else
-    log_warning "폰트 디렉토리 확인 실패"
-fi
-echo ""
-
-# 10. 요약 및 권장 사항
-log_header "10. 진단 요약 및 권장 사항"
-
-echo -e "${CYAN}=== 진단 결과 ===${NC}"
-echo ""
-
-# 문제점 체크
-ISSUES=0
-
-if [ "$SHELL" != "/usr/bin/zsh" ] && [ "$SHELL" != "/bin/zsh" ]; then
-    echo -e "${YELLOW}⚠ 문제 발견:${NC} 기본 셸이 bash입니다"
-    echo -e "   ${CYAN}해결:${NC} fix_default_shell.sh 실행"
-    ISSUES=$((ISSUES + 1))
+  log_warn "Windows Fonts dir not found"
 fi
 
-if [ ! -f "$HOME/.bashrc" ] || ! grep -q "exec zsh" "$HOME/.bashrc" 2>/dev/null; then
-    echo -e "${YELLOW}⚠ 문제 발견:${NC} .bashrc에 자동 zsh 실행 설정이 없습니다"
-    echo -e "   ${CYAN}해결:${NC} fix_default_shell.sh 실행"
-    ISSUES=$((ISSUES + 1))
-fi
-
-if ! command -v zsh &> /dev/null; then
-    echo -e "${RED}✗ 문제 발견:${NC} zsh가 설치되지 않았습니다"
-    echo -e "   ${CYAN}해결:${NC} pacman -S zsh"
-    ISSUES=$((ISSUES + 1))
-fi
-
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    echo -e "${RED}✗ 문제 발견:${NC} oh-my-zsh가 설치되지 않았습니다"
-    echo -e "   ${CYAN}해결:${NC} bash scripts/1_msys2_auto_install.sh"
-    ISSUES=$((ISSUES + 1))
-fi
-
-if [ $ISSUES -eq 0 ]; then
-    echo -e "${GREEN}✓ 모든 검사 통과!${NC}"
-    echo ""
-    echo -e "${GREEN}축하합니다! MSYS2 + zsh + Powerlevel10k 설정이 완벽합니다.${NC}"
-    echo ""
-    echo -e "${CYAN}다음 단계:${NC}"
-    echo "  1. VSCode를 재시작하세요"
-    echo "  2. 새 터미널을 열어보세요"
-    echo "  3. 터미널 탭에 'MSYS2 UCRT64'가 표시되는지 확인하세요"
-    echo "  4. echo \$SHELL을 실행하여 /usr/bin/zsh 또는 /bin/zsh가 출력되는지 확인하세요"
+log_header "Summary"
+if [[ "$issues" -eq 0 ]]; then
+  log_ok "No blocking issues detected"
 else
-    echo ""
-    echo -e "${YELLOW}총 $ISSUES개의 문제가 발견되었습니다.${NC}"
-    echo ""
-    echo -e "${CYAN}권장 조치:${NC}"
-    echo "  1. 수정 스크립트 실행: bash scripts/fix_default_shell.sh"
-    echo "  2. 터미널 재시작"
-    echo "  3. 진단 스크립트 재실행: bash scripts/diagnose_terminal.sh"
+  log_warn "Issues detected: $issues"
+  log_info "Re-run: bash docs/msys2-setup/scripts/fix_default_shell.sh"
 fi
-
-echo ""
-echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
-echo -e "${BLUE}    진단 완료 - $(date '+%Y-%m-%d %H:%M:%S')${NC}"
-echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
-echo ""

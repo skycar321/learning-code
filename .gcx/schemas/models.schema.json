@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gcx.dev/schemas/models.schema.json",
+  "title": "GCX v6 Model Configuration Schema",
+  "description": "AI 모델 설정 파일의 JSON Schema",
+  "type": "object",
+  "required": ["version", "models", "taskMapping"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema 참조"
+    },
+    "version": {
+      "type": "string",
+      "description": "설정 파일 버전",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "description": "마지막 업데이트 날짜 (YYYY-MM-DD)",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "models": {
+      "type": "object",
+      "description": "AI 타입별 모델 설정",
+      "required": ["claude", "codex", "gemini"],
+      "properties": {
+        "claude": {
+          "$ref": "#/definitions/aiConfig"
+        },
+        "codex": {
+          "$ref": "#/definitions/aiConfig"
+        },
+        "gemini": {
+          "$ref": "#/definitions/aiConfig"
+        }
+      },
+      "additionalProperties": false
+    },
+    "taskMapping": {
+      "type": "object",
+      "description": "태스크별 AI 모델 매핑",
+      "properties": {
+        "requirement-capture": {
+          "$ref": "#/definitions/taskConfig"
+        },
+        "plan-architect": {
+          "$ref": "#/definitions/taskConfig"
+        },
+        "tdd-generator": {
+          "$ref": "#/definitions/taskConfig"
+        },
+        "implementation": {
+          "$ref": "#/definitions/taskConfig"
+        },
+        "design-review": {
+          "$ref": "#/definitions/taskConfig"
+        },
+        "qa-validator": {
+          "$ref": "#/definitions/taskConfig"
+        },
+        "finalize-reporter": {
+          "$ref": "#/definitions/taskConfig"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "aiConfig": {
+      "type": "object",
+      "description": "AI 타입별 모델 설정",
+      "required": ["default"],
+      "properties": {
+        "default": {
+          "type": "string",
+          "description": "기본 모델 ID"
+        },
+        "planning": {
+          "type": "string",
+          "description": "계획 수립용 모델 ID"
+        },
+        "quick": {
+          "type": "string",
+          "description": "빠른 응답용 모델 ID"
+        },
+        "design": {
+          "type": "string",
+          "description": "디자인 리뷰용 모델 ID"
+        },
+        "reasoning": {
+          "type": "string",
+          "description": "고급 추론용 모델 ID"
+        },
+        "alias": {
+          "type": "object",
+          "description": "모델 별칭",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "taskConfig": {
+      "type": "object",
+      "description": "태스크 모델 설정",
+      "required": ["primary"],
+      "properties": {
+        "primary": {
+          "type": "string",
+          "description": "주 모델 (ai_type.purpose 형식)",
+          "pattern": "^(claude|codex|gemini)\\.(default|planning|quick|design|reasoning|[a-z]+)$"
+        },
+        "fallback": {
+          "type": ["string", "null"],
+          "description": "대체 모델 (ai_type.purpose 형식)",
+          "pattern": "^(claude|codex|gemini)\\.(default|planning|quick|design|reasoning|[a-z]+)$"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
