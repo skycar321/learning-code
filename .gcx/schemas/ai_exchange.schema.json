@@ -1,0 +1,184 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gcx.dev/schemas/ai_exchange.schema.json",
+  "title": "GCX v6 AI Exchange Schema",
+  "description": "AI간 문서 교환 표준 양식 - 요청/응답의 일관된 구조",
+  "type": "object",
+  "required": ["exchange_id", "type", "from_ai", "to_ai", "timestamp"],
+  "properties": {
+    "exchange_id": {
+      "type": "string",
+      "description": "교환 ID (ex_XXXXXXXX 형식)",
+      "pattern": "^ex_[a-z0-9]{8}$"
+    },
+    "type": {
+      "type": "string",
+      "description": "교환 타입",
+      "enum": ["request", "response", "validation", "approval", "rejection"]
+    },
+    "from_ai": {
+      "$ref": "#/definitions/aiParticipant"
+    },
+    "to_ai": {
+      "$ref": "#/definitions/aiParticipant"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "context": {
+      "$ref": "#/definitions/exchangeContext"
+    },
+    "payload": {
+      "$ref": "#/definitions/exchangePayload"
+    },
+    "response": {
+      "$ref": "#/definitions/exchangeResponse"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "priority": {
+          "type": "string",
+          "enum": ["critical", "high", "normal", "low"]
+        },
+        "timeout_seconds": {
+          "type": "integer"
+        },
+        "retry_count": {
+          "type": "integer",
+          "default": 0
+        }
+      }
+    }
+  },
+  "definitions": {
+    "aiParticipant": {
+      "type": "object",
+      "required": ["ai_type", "role"],
+      "properties": {
+        "ai_type": {
+          "type": "string",
+          "enum": ["gemini", "claude", "codex"]
+        },
+        "model": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "requirement-capture",
+            "plan-architect",
+            "tdd-generator",
+            "implementation-executor",
+            "design-reviewer",
+            "qa-validator",
+            "finalize-reporter",
+            "orchestrator"
+          ]
+        }
+      }
+    },
+    "exchangeContext": {
+      "type": "object",
+      "description": "교환 컨텍스트",
+      "properties": {
+        "session_id": {
+          "type": "string"
+        },
+        "phase": {
+          "type": "string"
+        },
+        "related_blocks": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "baton_ref": {
+          "type": "string",
+          "description": "Context Baton 파일 경로"
+        }
+      }
+    },
+    "exchangePayload": {
+      "type": "object",
+      "description": "교환 페이로드 (요청 내용)",
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "요청 액션",
+          "enum": [
+            "analyze",
+            "design",
+            "generate",
+            "review",
+            "validate",
+            "approve",
+            "implement",
+            "test",
+            "report"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "description": "대상 (파일 경로, 코드 블록 등)"
+        },
+        "instructions": {
+          "type": "string",
+          "description": "상세 지시사항"
+        },
+        "constraints": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "expected_output": {
+          "type": "string",
+          "description": "기대하는 출력 형식"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string" },
+              "path": { "type": "string" },
+              "content": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "exchangeResponse": {
+      "type": "object",
+      "description": "교환 응답",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["success", "partial", "failed", "pending"]
+        },
+        "result": {
+          "type": "object",
+          "description": "결과 데이터"
+        },
+        "feedback": {
+          "type": "string",
+          "description": "피드백 또는 코멘트"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "severity": { "type": "string" },
+              "message": { "type": "string" },
+              "suggestion": { "type": "string" }
+            }
+          }
+        },
+        "next_steps": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

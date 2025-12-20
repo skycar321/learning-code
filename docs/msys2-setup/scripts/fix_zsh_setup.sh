@@ -135,7 +135,7 @@ echo ""
 echo "🔄 .bashrc 설정 중..."
 if ! grep -q "exec zsh" ~/.bashrc 2>/dev/null; then
     echo 'exec zsh' >> ~/.bashrc
-    echo "✅ .bashrc에 zsh 자동 실행 추가"
+    echo "✅ .bashrc에 zsh 자동 실행 추가dd"
 else
     echo "✅ .bashrc 이미 설정됨"
 fi

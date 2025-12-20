@@ -1,0 +1,177 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gcx.dev/schemas/result_block.schema.json",
+  "title": "GCX v6 Result Block Schema",
+  "description": "AI 작업 결과 블록의 표준 양식 - 모든 AI 출력물의 공통 구조",
+  "type": "object",
+  "required": ["block_id", "type", "ai_source", "timestamp", "status"],
+  "properties": {
+    "block_id": {
+      "type": "string",
+      "description": "결과 블록 고유 ID (rb_XXXXXXXX 형식)",
+      "pattern": "^rb_[a-z0-9]{8}$"
+    },
+    "type": {
+      "type": "string",
+      "description": "결과 블록 타입",
+      "enum": [
+        "requirement",
+        "planning",
+        "test_spec",
+        "implementation",
+        "design_review",
+        "qa_report",
+        "final_report"
+      ]
+    },
+    "ai_source": {
+      "$ref": "#/definitions/aiSource"
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "생성 시간 (ISO 8601 KST)",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "pending_review", "approved", "rejected", "final"]
+    },
+    "content": {
+      "$ref": "#/definitions/resultContent"
+    },
+    "validation": {
+      "$ref": "#/definitions/validationInfo"
+    },
+    "references": {
+      "type": "array",
+      "description": "참조 파일/블록 목록",
+      "items": {
+        "$ref": "#/definitions/reference"
+      }
+    },
+    "next_action": {
+      "$ref": "#/definitions/nextAction"
+    }
+  },
+  "definitions": {
+    "aiSource": {
+      "type": "object",
+      "description": "AI 소스 정보",
+      "required": ["ai_type", "model"],
+      "properties": {
+        "ai_type": {
+          "type": "string",
+          "enum": ["gemini", "claude", "codex"]
+        },
+        "model": {
+          "type": "string",
+          "description": "사용된 모델 ID (예: gemini-2.5-pro)"
+        },
+        "role": {
+          "type": "string",
+          "description": "AI 역할",
+          "enum": [
+            "requirement-capture",
+            "plan-architect",
+            "tdd-generator",
+            "implementation-executor",
+            "design-reviewer",
+            "qa-validator",
+            "finalize-reporter"
+          ]
+        }
+      }
+    },
+    "resultContent": {
+      "type": "object",
+      "description": "결과 콘텐츠",
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "결과 요약 (1-2문장)"
+        },
+        "details": {
+          "type": "object",
+          "description": "상세 결과 (타입별 다른 구조)"
+        },
+        "artifacts": {
+          "type": "array",
+          "description": "생성된 산출물",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": { "type": "string" },
+              "type": { "type": "string", "enum": ["file", "directory", "config"] },
+              "description": { "type": "string" }
+            },
+            "required": ["path", "type"]
+          }
+        }
+      }
+    },
+    "validationInfo": {
+      "type": "object",
+      "description": "검증 정보",
+      "properties": {
+        "validated_by": {
+          "type": ["string", "null"],
+          "description": "검증 수행 AI (예: codex, gemini)"
+        },
+        "validation_status": {
+          "type": "string",
+          "enum": ["pending", "pass", "fail", "warning"]
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "severity": {
+                "type": "string",
+                "enum": ["critical", "high", "medium", "low"]
+              },
+              "message": { "type": "string" },
+              "location": { "type": "string" }
+            },
+            "required": ["severity", "message"]
+          }
+        }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "description": "참조 정보",
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "enum": ["block", "file", "url", "baton"]
+        },
+        "ref_id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "required": ["ref_type", "ref_id"]
+    },
+    "nextAction": {
+      "type": "object",
+      "description": "다음 액션 정보",
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "다음 수행할 작업"
+        },
+        "target_agent": {
+          "type": "string",
+          "description": "다음 담당 Agent"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["immediate", "normal", "low"]
+        }
+      }
+    }
+  }
+}

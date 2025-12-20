@@ -484,6 +484,8 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
 
 | 버전 | 날짜       | 변경 내용                                                            |
 | ---- | ---------- | -------------------------------------------------------------------- |
+| v6.2 | 2025-12-20 | 스키마 체계 완성 (result_block, phase_output, ai_exchange, request_batch) |
+| v6.2 | 2025-12-20 | Hook Windows 호환성 수정 (Python 내부 환경변수 처리)                 |
 | v6.1 | 2025-12-19 | 터미널 설정 섹션 추가 (zsh 기본, bash 차선)                          |
 | v6.1 | 2025-12-19 | 모델 설정 분리 섹션 추가 (models.json)                               |
 | v6.1 | 2025-12-19 | Hook 경로를 $CLAUDE_PROJECT_DIR 사용으로 변경                        |
@@ -552,17 +554,30 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Task
 - [x] `.gcx/schemas/models.schema.json`
 - [x] `.gcx/schemas/baton.schema.json`
 
+#### ✅ Phase 9: 스키마 체계 완성 (2025-12-20)
+- [x] `.gcx/schemas/result_block.schema.json` - AI 결과 블록 표준 양식
+- [x] `.gcx/schemas/phase_output.schema.json` - Phase 출력 문서 표준 양식
+- [x] `.gcx/schemas/ai_exchange.schema.json` - AI간 문서 교환 표준 양식
+- [x] `.gcx/schemas/request_batch.schema.json` - 요청 배치(그룹화) 스키마
+- [x] `.gcx/schemas/README.md` - 스키마 사용법 문서
+
+#### ✅ Phase 10: Hook Windows 호환성 수정 (2025-12-20)
+- [x] `.claude/settings.json` Hook 환경변수 처리 수정
+  - `$CLAUDE_PROJECT_DIR` → Python 내부에서 `os.environ.get()` 사용
+  - 모든 Hook 명령어 패턴 통일
+
 ### 구현 완료 요약
 
 ```
-총 파일 생성: 23개
+총 파일 생성: 29개
 - 라이브러리: 6개 (.claude/lib/)
 - Hook: 4개 (.claude/hooks/)
 - Subagent: 6개 (.claude/agents/)
 - Skill: 2개 (.claude/skills/gcx-project-v6/)
 - 설정: 2개 (.claude/config/, .claude/settings.json)
 - Template: 1개 (.claude/templates/)
-- Schema: 2개 (.gcx/schemas/)
+- Schema: 7개 (.gcx/schemas/) - 신규 5개 추가
+- 문서: 1개 (.gcx/schemas/README.md)
 ```
 
 ### 다음 단계 (미구현)
