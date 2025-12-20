@@ -1,3 +1,38 @@
+## [2025-12-20 15:30:00 KST] GCX v6 스키마 체계 완성 및 Hook 오류 수정
+
+**Type**: 생성/수정
+
+**Affected Files**:
+- `.claude/settings.json` (Hook 환경변수 수정)
+- `.gcx/schemas/result_block.schema.json` (신규)
+- `.gcx/schemas/phase_output.schema.json` (신규)
+- `.gcx/schemas/ai_exchange.schema.json` (신규)
+- `.gcx/schemas/request_batch.schema.json` (신규)
+- `.gcx/schemas/README.md` (신규)
+
+**Changes**:
+- Hook 명령어에서 `$CLAUDE_PROJECT_DIR` 환경변수가 Windows에서 인식되지 않는 문제 수정
+- Python 내부에서 환경변수 처리하도록 모든 Hook 명령어 통일
+- AI 결과 블록 표준 양식 스키마 추가 (`result_block.schema.json`)
+- Phase 출력 문서 표준 양식 스키마 추가 (`phase_output.schema.json`)
+- AI간 문서 교환 표준 양식 스키마 추가 (`ai_exchange.schema.json`)
+- 요청 배치(그룹화) 스키마 추가 (`request_batch.schema.json`)
+- 스키마 사용법 문서 추가 (`README.md`)
+
+**Reason**:
+- Windows 환경에서 Hook 실행 시 `$CLAUDE_PROJECT_DIR` 환경변수가 리터럴로 해석되어 경로 오류 발생
+- GCX v6 Integration Plan에 명시된 `result_block.schema.json` 누락 보완
+- AI간 문서 교환 양식의 일관성 확보 필요
+- 여러 요청을 묶어서 관리할 수 있는 구조 필요
+
+**AI Collaborator**:
+- 없음 (Claude 단독 작업)
+
+**Related Issue/Request**:
+GCX v6 구현 검증 및 문서 양식 통일 요청
+
+---
+
 ## [2025-12-20 09:18:14 KST] MSYS2 CLI Wrapper 동적 경로 감지로 수정
 
 **Type**: 수정

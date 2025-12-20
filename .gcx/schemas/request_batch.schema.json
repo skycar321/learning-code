@@ -1,0 +1,219 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gcx.dev/schemas/request_batch.schema.json",
+  "title": "GCX v6 Request Batch Schema",
+  "description": "여러 요청을 묶어서 관리하는 배치 스키마 - 요청 그룹화 및 추적",
+  "type": "object",
+  "required": ["batch_id", "created_at", "requests"],
+  "properties": {
+    "batch_id": {
+      "type": "string",
+      "description": "배치 ID (batch_YYYYMMDD_HHMMSS 형식)",
+      "pattern": "^batch_\\d{8}_\\d{6}$"
+    },
+    "created_at": {
+      "type": "string",
+      "description": "생성 시간 (YYYY-MM-DD HH:MM:SS KST)"
+    },
+    "updated_at": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "in_progress", "completed", "partial", "failed"],
+      "default": "pending"
+    },
+    "category": {
+      "type": "string",
+      "description": "요청 카테고리 (묶음 기준)",
+      "enum": [
+        "feature",
+        "bugfix",
+        "refactor",
+        "documentation",
+        "testing",
+        "infrastructure",
+        "mixed"
+      ]
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["critical", "high", "normal", "low"],
+      "default": "normal"
+    },
+    "description": {
+      "type": "string",
+      "description": "배치 설명"
+    },
+    "requests": {
+      "type": "array",
+      "description": "배치에 포함된 요청 목록",
+      "items": {
+        "$ref": "#/definitions/batchRequest"
+      },
+      "minItems": 1
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "요청간 의존성 정의",
+      "properties": {
+        "execution_order": {
+          "type": "string",
+          "enum": ["sequential", "parallel", "dependency-based"]
+        },
+        "dependency_graph": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "request_id": { "type": "string" },
+              "depends_on": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "progress": {
+      "$ref": "#/definitions/batchProgress"
+    },
+    "results": {
+      "$ref": "#/definitions/batchResults"
+    }
+  },
+  "definitions": {
+    "batchRequest": {
+      "type": "object",
+      "description": "배치 내 개별 요청",
+      "required": ["request_id", "type", "content"],
+      "properties": {
+        "request_id": {
+          "type": "string",
+          "description": "요청 ID (req_XXX 형식)",
+          "pattern": "^req_[a-z0-9]{6}$"
+        },
+        "type": {
+          "type": "string",
+          "description": "요청 타입",
+          "enum": [
+            "create",
+            "update",
+            "delete",
+            "review",
+            "validate",
+            "deploy",
+            "test"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "description": "대상 (파일, 기능, 모듈 등)"
+        },
+        "content": {
+          "type": "string",
+          "description": "요청 내용"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 5
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "in_progress", "completed", "skipped", "failed"],
+          "default": "pending"
+        },
+        "assigned_ai": {
+          "type": "string",
+          "enum": ["gemini", "claude", "codex", "auto"]
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "estimated_effort": {
+          "type": "string",
+          "enum": ["trivial", "small", "medium", "large", "xlarge"]
+        }
+      }
+    },
+    "batchProgress": {
+      "type": "object",
+      "description": "배치 진행 상황",
+      "properties": {
+        "total_requests": {
+          "type": "integer"
+        },
+        "completed": {
+          "type": "integer"
+        },
+        "in_progress": {
+          "type": "integer"
+        },
+        "pending": {
+          "type": "integer"
+        },
+        "failed": {
+          "type": "integer"
+        },
+        "skipped": {
+          "type": "integer"
+        },
+        "completion_percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "current_request_id": {
+          "type": ["string", "null"]
+        },
+        "estimated_remaining_time": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "batchResults": {
+      "type": "object",
+      "description": "배치 실행 결과",
+      "properties": {
+        "success_count": {
+          "type": "integer"
+        },
+        "failure_count": {
+          "type": "integer"
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "request_id": { "type": "string" },
+              "path": { "type": "string" },
+              "type": { "type": "string" }
+            }
+          }
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "request_id": { "type": "string" },
+              "severity": { "type": "string" },
+              "message": { "type": "string" }
+            }
+          }
+        },
+        "summary": {
+          "type": "string"
+        },
+        "completed_at": {
+          "type": ["string", "null"]
+        }
+      }
+    }
+  }
+}

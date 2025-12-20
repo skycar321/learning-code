@@ -1,0 +1,202 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gcx.dev/schemas/phase_output.schema.json",
+  "title": "GCX v6 Phase Output Schema",
+  "description": "각 Phase의 출력 문서 표준 양식 - 일관된 문서 구조 보장",
+  "type": "object",
+  "required": ["header", "phase_info", "output"],
+  "properties": {
+    "header": {
+      "$ref": "#/definitions/documentHeader"
+    },
+    "phase_info": {
+      "$ref": "#/definitions/phaseInfo"
+    },
+    "input_summary": {
+      "type": "object",
+      "description": "입력 데이터 요약",
+      "properties": {
+        "from_phase": {
+          "type": ["string", "null"],
+          "description": "이전 Phase 이름"
+        },
+        "key_inputs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "constraints": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "output": {
+      "$ref": "#/definitions/phaseOutput"
+    },
+    "quality_metrics": {
+      "$ref": "#/definitions/qualityMetrics"
+    },
+    "handover": {
+      "$ref": "#/definitions/handoverInfo"
+    }
+  },
+  "definitions": {
+    "documentHeader": {
+      "type": "object",
+      "description": "문서 헤더 정보",
+      "required": ["session_id", "created_at"],
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "pattern": "^\\d{8}_\\d{6}_[a-z0-9]{4}$"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "생성 시간 (YYYY-MM-DD HH:MM:SS KST)"
+        },
+        "updated_at": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string",
+          "default": "1.0"
+        }
+      }
+    },
+    "phaseInfo": {
+      "type": "object",
+      "description": "Phase 정보",
+      "required": ["phase_name", "phase_number", "ai_type", "model"],
+      "properties": {
+        "phase_name": {
+          "type": "string",
+          "enum": [
+            "requirement-capture",
+            "plan-architect",
+            "tdd-generator",
+            "implementation",
+            "design-review",
+            "qa-validator",
+            "finalize-reporter"
+          ]
+        },
+        "phase_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "ai_type": {
+          "type": "string",
+          "enum": ["gemini", "claude", "codex"]
+        },
+        "model": {
+          "type": "string"
+        },
+        "started_at": {
+          "type": "string"
+        },
+        "completed_at": {
+          "type": ["string", "null"]
+        },
+        "duration_seconds": {
+          "type": ["number", "null"]
+        }
+      }
+    },
+    "phaseOutput": {
+      "type": "object",
+      "description": "Phase 출력 데이터",
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "1-2문장 요약"
+        },
+        "sections": {
+          "type": "array",
+          "description": "섹션별 내용",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "content": { "type": "string" },
+              "priority": {
+                "type": "string",
+                "enum": ["must", "should", "nice-to-have"]
+              }
+            },
+            "required": ["title", "content"]
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": { "type": "string" },
+              "type": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "decisions": {
+          "type": "array",
+          "description": "주요 결정사항",
+          "items": {
+            "type": "object",
+            "properties": {
+              "decision": { "type": "string" },
+              "rationale": { "type": "string" },
+              "alternatives": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "qualityMetrics": {
+      "type": "object",
+      "description": "품질 지표",
+      "properties": {
+        "completeness": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "issues_count": {
+          "type": "object",
+          "properties": {
+            "critical": { "type": "integer" },
+            "high": { "type": "integer" },
+            "medium": { "type": "integer" },
+            "low": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "handoverInfo": {
+      "type": "object",
+      "description": "다음 Phase로의 전달 정보",
+      "properties": {
+        "next_phase": {
+          "type": "string"
+        },
+        "next_ai": {
+          "type": "string"
+        },
+        "key_deliverables": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "notes_for_next": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
