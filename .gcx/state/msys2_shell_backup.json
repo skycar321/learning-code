@@ -1,10 +1,10 @@
 ﻿{
     "env":  {
-                "PATH":  "C:\\Users\\Nam\\.cargo\\bin;C:\\Users\\Nam\\AppData\\Local\\Programs\\Python\\Python314\\Scripts\\;C:\\Users\\Nam\\AppData\\Local\\Programs\\Python\\Python314\\;C:\\Users\\Nam\\AppData\\Local\\Programs\\Python\\Launcher\\;C:\\Users\\Nam\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\Nam\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin;C:\\Users\\Nam\\AppData\\Roaming\\npm;C:\\Program Files\\Git\\usr\\bin;C:\\Users\\Nam\\AppData\\Local\\Python\\bin;C:\\Users\\Nam\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Program Files\\JetBrains\\IntelliJ IDEA Community Edition 2025.2.5\\bin;C:\\Users\\Nam\\Documents\\Cursor\\Workspace\\origin\\SuperCodex_Framework-main\\supercodex-env\\Scripts;C:\\Users\\Nam\\Documents\\Cursor\\Workspace\\origin\\SuperCodex_Framework-main\\supercodex-env\\Scripts;c:\\users\\nam\\appdata\\roaming\\python\\python314\\scripts;c:\\users\\nam\\.local\\bin;C:\\msys64\\usr\\bin;C:\\msys64\\ucrt64\\bin",
+                "PATH":  "C:\\Users\\Nam\\.cargo\\bin;C:\\Users\\Nam\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\;C:\\Users\\Nam\\AppData\\Local\\Programs\\Python\\Python313\\;C:\\Users\\Nam\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\Nam\\AppData\\Roaming\\npm;C:\\Program Files\\JetBrains\\IntelliJ IDEA Community Edition 2025.2.5\\bin;C:\\Users\\Nam\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\msys64\\usr\\bin;C:\\msys64\\ucrt64\\bin",
                 "CHERE_INVOKING":  "1",
                 "MSYSTEM":  "UCRT64",
                 "SHELL":  "C:\\msys64\\usr\\bin\\zsh.exe"
             },
-    "timestamp":  "2025-12-19 23:55:24",
-    "settingsBackup":  "C:\\Users\\Nam\\Documents\\Cursor\\Workspace\\origin\\learning-code\\.gcx\\state\\settings.json.bak-20251219_235524"
+    "timestamp":  "2025-12-20 09:22:45",
+    "settingsBackup":  "C:\\Users\\Nam\\Desktop\\Workspace\\learning-code\\.gcx\\state\\settings.json.bak-20251220_092245"
 }

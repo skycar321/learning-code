@@ -42,7 +42,7 @@ backup_file() {
 }
 
 # Backups (best-effort)
-backup_file "/etc/passwd"
+backup_file "$HOME/etc/passwd"
 backup_file "$HOME/.bashrc"
 backup_file "$HOME/.zshrc"
 backup_file "$HOME/.zprofile"
@@ -66,7 +66,7 @@ log "Backup directory: $BACKUP_DIR"
 if [[ ! -f /etc/passwd ]]; then
   if command -v mkpasswd >/dev/null 2>&1; then
     log "Creating /etc/passwd with mkpasswd"
-    mkpasswd -l -c > /etc/passwd
+    if touch /etc/.write_test 2>/dev/null; then rm -f /etc/.write_test; mkpasswd -l -c > /etc/passwd; else log "⚠️  /etc/passwd 생성 스킵 (권한 없음)"; fi
   else
     log "mkpasswd not found; /etc/passwd will remain missing"
   fi

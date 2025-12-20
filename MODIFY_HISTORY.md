@@ -1,3 +1,40 @@
+## [2025-12-20 09:18:14 KST] MSYS2 CLI Wrapper 동적 경로 감지로 수정
+
+**Type**: 수정
+
+**Affected Files**:
+- `/c/Users/Nam/AppData/Roaming/npm/claude` (wrapper 수정)
+- `/c/Users/Nam/AppData/Roaming/npm/gemini` (wrapper 수정)
+- `/c/Users/Nam/AppData/Roaming/npm/codex` (wrapper 수정)
+- `docs/msys2-setup/scripts/fix_claude_gemini_wrappers.sh` (스크립트 업데이트)
+- `docs/msys2-setup/scripts/fix_codex_wrapper.sh` (스크립트 업데이트)
+
+**Changes**:
+- npm wrapper 스크립트의 `cygpath -w` 사용 제거 (MSYS2에서 잘못된 경로 생성 원인)
+- MSYS2 스타일 경로 (`/c/Users/...`) 직접 사용으로 변경
+- 스크립트에 동적 Windows 사용자 감지 함수 `detect_win_user()` 추가
+- 두 대 이상의 컴퓨터에서 작동하도록 하드코딩된 경로 제거
+
+**Reason**:
+- claude, gemini, codex 명령어 실행 시 `MODULE_NOT_FOUND` 오류 발생
+- 원인: cygpath가 `/c/msys64/Users/...`와 같은 잘못된 경로 생성
+- 해결: MSYS2 네이티브 경로 `/c/Users/사용자명/...` 직접 사용
+
+**Verification**:
+```
+✓ claude: 2.0.74 (Claude Code)
+✓ gemini: 0.21.3
+✓ codex: codex-cli 0.75.0
+```
+
+**AI Collaborator**:
+- 없음 (Claude 단독 작업)
+
+**Related Issue/Request**:
+MSYS2 zsh에서 claude, gemini, codex CLI 실행 오류 수정 및 여러 컴퓨터 지원
+
+---
+
 ## [2025-12-19 22:21:27 KST] Claude Code 설정 스키마 URL 수정
 
 **Type**: 설정변경
