@@ -1,0 +1,12 @@
+=== set-msys2-zsh-default ===
+& "C:\Users\Nam\Documents\Cursor\Workspace\origin\learning-code\scripts\\set-msys2-zsh-default.ps1"
+
+
+=== apply-msys2-win-env ===
+& "C:\Users\Nam\Documents\Cursor\Workspace\origin\learning-code\scripts\\apply-msys2-win-env.ps1"
+
+
+=== gcx_msys2_optimize_v2 ===
+"C:\\msys64\\usr\\bin\\bash.exe" -lc "GCX_INCLUDE_INSTALL=1 GCX_FIX_VSCODE_DROP=1 'C:\Users\Nam\Documents\Cursor\Workspace\origin\learning-code\docs\\msys2-setup\\scripts\\gcx_msys2_optimize_v2.sh'"
+
+

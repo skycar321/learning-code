@@ -1,0 +1,41 @@
+{
+    "window.commandCenter": true,
+    "terminal.integrated.defaultProfile.windows": "MSYS2 UCRT64",
+    "terminal.integrated.scrollback": 10000,
+    "terminal.integrated.scrollbar.visible": true,
+    "terminal.integrated.scrollbar.style": "native",
+    "claudeCode.preferredLocation": "panel",
+
+    "terminal.integrated.profiles.windows": {
+        "MSYS2 UCRT64": {
+            "path": "C:\\msys64\\usr\\bin\\bash.exe",
+            "args": ["--login", "-i"],
+            "env": {
+                "MSYSTEM": "UCRT64",
+                "CHERE_INVOKING": "1",
+                "MSYS2_PATH_TYPE": "inherit",
+                "WSLENV": ""
+            },
+            "icon": "terminal-bash",
+            "overrideName": true
+        },
+        "MSYS2 MINGW64": {
+            "path": "C:\\msys64\\usr\\bin\\bash.exe",
+            "args": ["--login", "-i"],
+            "env": {
+                "MSYSTEM": "MINGW64",
+                "CHERE_INVOKING": "1",
+                "MSYS2_PATH_TYPE": "inherit",
+                "WSLENV": ""
+            },
+            "icon": "terminal-bash",
+            "overrideName": true
+        },
+        "Git Bash": {
+            "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+            "args": ["--login", "-i"],
+            "icon": "terminal-bash",
+            "overrideName": true
+        }
+    }
+}

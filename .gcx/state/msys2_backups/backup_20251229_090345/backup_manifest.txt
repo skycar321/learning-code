@@ -1,0 +1,2 @@
+/c/Users/Nam/.bashrc
+/c/Users/Nam/.zshrc

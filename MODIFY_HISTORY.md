@@ -1,3 +1,199 @@
+## [2025-12-30 20:29:58 KST] GCX v3.3 - Docker Desktop 설정 통합
+
+**Type**: 수정
+
+**Affected Files**:
+- `docs/msys2-setup/scripts/gcx_msys2_setup_v3.sh`
+
+**Changes**:
+- **Docker 설정 함수 추가** (`setup_docker()`):
+  - Docker Desktop 경로 자동 탐색
+  - docker.exe 직접 호출 alias 설정 (MSYS2 호환)
+  - 기존 docker alias 중복 제거 후 새 블록 추가
+  - docker, dc, dps, dpsa, di, drm, drmi, dstop, dclean alias 설정
+  - Docker Desktop 실행 상태 확인 및 안내
+- **환경 변수 추가**: `GCX_SKIP_DOCKER_SETUP=0`
+- **버전 업그레이드**: v3.2 → v3.3
+
+**Reason**:
+- MSYS2 UCRT64에서 `docker --version` 실행 시 `/usr/bin/env sh` 오류 발생
+- Docker의 wrapper script가 MSYS2와 호환되지 않음
+- gcx_msys2_setup_v3.sh 하나만 실행하면 모든 환경 설정 완료되도록 통합
+
+**AI Collaborator**:
+- 없음 (Claude 단독 작업)
+
+**Related Issue/Request**:
+"docker 설정을 포함해서 sh 구성해줘"
+
+---
+
+## [2025-12-30 20:21:11 KST] GCX v3.2 - PATH 깨짐 문제 해결 (oh-my-zsh 호환)
+
+**Type**: 수정
+
+**Affected Files**:
+- `~/.zshrc`
+- `docs/msys2-setup/scripts/gcx_msys2_setup_v3.sh`
+
+**Changes**:
+- **~/.zshrc 수정**:
+  - 파일 맨 앞에 기본 MSYS2 PATH 블록 추가 (oh-my-zsh 로드 전)
+  - `/usr/local/bin:/usr/bin:/bin:/c/Windows/system32:/c/Windows` 기본 경로 포함
+  - `/c/msys64/ucrt64/bin:/c/msys64/usr/bin` MSYS2 도구 경로 포함
+
+- **gcx_msys2_setup_v3.sh 업그레이드 (v3.1 → v3.2)**:
+  - `setup_msys2_path()` 함수 전면 재작성
+  - 기본 POSIX 경로 (`/usr/bin`, `/bin` 등) 명시적 포함
+  - PATH 블록을 .zshrc 맨 앞에 prepend 방식으로 삽입
+  - oh-my-zsh 로드 전에 mkdir, git, mv 등 기본 명령어 사용 가능하도록 보장
+
+**Reason**:
+- `source ~/.zshrc` 실행 시 PATH가 완전히 깨지는 치명적 버그
+- 증상: `mkdir: command not found`, `git: command not found`, `mv: command not found`
+- 원인: oh-my-zsh 로드 시점에 기본 PATH가 없어서 내부 스크립트 실행 실패
+- v3.1의 `setup_msys2_path()`가 기본 POSIX 경로를 누락하고, 파일 끝에만 추가했음
+
+**AI Collaborator**:
+- 없음 (Claude 단독 작업)
+
+**Related Issue/Request**:
+"gcx_msys2_setup_v3.sh v3 통합 스크립트가 잘못 만들어진 것 같다"
+
+---
+
+## [2025-12-29 10:10:45 KST] Ctrl+Enter 무시 + Python PATH 수정
+
+**Type**: 수정
+
+**Affected Files**:
+- `~/.zshrc`
+- `docs/msys2-setup/scripts/gcx_msys2_setup_v3.sh`
+
+**Changes**:
+- **zshrc 수정**:
+  - Ctrl+Enter CSI u 시퀀스(`[13;5u`) 무시 바인딩 추가
+  - Python PATH export 추가 (Python 3.14 경로)
+  - python/python3 alias를 python.exe로 설정
+- **gcx_msys2_setup_v3.sh 업데이트**:
+  - `setup_zsh_keybindings()` 함수 추가 (Ctrl+Enter 무시 설정)
+  - main() 함수에서 keybinding 설정 호출 추가
+
+**Reason**:
+- Windows Terminal에서 Ctrl+Enter 입력 시 `[13;5u` 문자가 그대로 출력되는 문제
+- zshrc에 Python PATH가 누락되어 `python --version` 실행 불가 문제
+- bashrc에는 GCX Python PATH 블록이 있었으나 zshrc에는 없었음
+
+**AI Collaborator**:
+- 없음 (Claude 단독 작업)
+
+**Related Issue/Request**:
+"hook 에러해결됐는지 테스트. 13;5u 문자 표시되는게 더 불편해. python --version 실행 안됨"
+
+---
+
+## [2025-12-29 09:23:31 KST] GCX MSYS2 v3 스크립트 테스트 및 수정
+
+**Type**: 수정
+
+**Affected Files**:
+- `docs/msys2-setup/scripts/gcx_msys2_setup_v3.sh`
+
+**Changes**:
+- **Python 경로 탐색 개선**: 정적 목록 → 동적 탐색 방식으로 변경
+  - Python 3.14+ 등 최신 버전 자동 감지
+  - glob 패턴으로 `/c/Users/$user/AppData/Local/Programs/Python/Python*` 탐색
+  - scoop 설치 Python 지원 추가
+- **오류 처리 강화**: 개별 함수 실패 시에도 스크립트 계속 진행
+  - `setup_python_path || log "..."` 패턴 적용
+  - `ensure_passwd || log "..."` 패턴 적용
+  - `setup_default_shell || log "..."` 패턴 적용
+- **테스트 결과**: Python 3.14 성공적으로 감지 및 PATH 추가됨
+
+**Reason**:
+- 초기 테스트에서 Python 3.14가 감지되지 않음 (정적 목록에 3.13까지만 포함)
+- zsh 미설치 등 오류 시 스크립트 중단 문제 해결
+
+**AI Collaborator**:
+- 없음 (Claude 단독 작업)
+
+**Related Issue/Request**:
+"잘동작되는지 테스트까지 진행하고, 수정보완 진행해줘"
+
+---
+
+## [2025-12-29 09:13:46 KST] GCX MSYS2 통합 설정 스크립트 v3.0 생성
+
+**Type**: 생성
+
+**Affected Files**:
+- `docs/msys2-setup/scripts/gcx_msys2_setup_v3.sh`
+
+**Changes**:
+- 세 개의 v2 스크립트를 하나의 통합 스크립트로 병합:
+  - `fix_default_shell_v2.sh` - zsh 기본 셸 설정
+  - `gcx_apply_all_v2.sh` - PowerShell 래퍼
+  - `gcx_msys2_optimize_v2.sh` - MSYS2 최적화 오케스트레이터
+- **Python 경로 자동 감지 및 PATH 추가 기능 신규 구현**:
+  - Windows Python 설치 경로 자동 탐색 (사용자별/시스템 전체)
+  - pyenv-win, Anaconda, Miniconda 지원
+  - ~/.zshrc 및 ~/.bashrc에 PATH 영구 추가
+  - python/pip 별칭 설정
+- 모든 기능을 모듈형 함수로 분리하여 유지보수성 향상
+- 환경 변수로 각 기능 on/off 제어 가능
+
+**Reason**:
+- 사용자 요청: 세 파일을 하나로 통합하여 실행 편의성 향상
+- MSYS2에서 Windows Python이 인식되지 않는 문제 해결
+- 하나의 스크립트로 전체 MSYS2 환경 설정 완료 가능
+
+**AI Collaborator**:
+- 없음 (Claude 단독 작업)
+
+**Related Issue/Request**:
+"세파일을 연결해서 v3로 만들어주고 하나의 쉘파일로 만들어줘 하나만 실행해도 될수있도록. 파이썬이 깔려있긴한데 msys2에서 인식을 못하는거같아"
+
+---
+
+## [2025-12-22 11:36:11 KST] Cursor 터미널 프로파일 수정 - MSYS2 WSL 오인식 방지
+
+**Type**: 수정
+
+**Affected Files**:
+- `C:/Users/Nam/AppData/Roaming/Cursor/User/settings.json`
+
+**Changes**:
+- Cursor 기본 터미널을 `MSYS2 UCRT64`로 변경
+- MSYS2 터미널 프로파일 명시적 정의 추가
+- `WSLENV=""` 환경변수 설정으로 WSL 감지 방지
+- MSYS2 UCRT64, MINGW64, Git Bash 프로파일 정의
+
+**Reason**:
+- Cursor가 `/c/Windows/system32/bash.exe` (WSL bash)의 존재를 감지
+- MSYS2 터미널을 WSL로 오인식하여 드래그 앤 드롭 시 `/mnt/c/` 경로 생성
+- `/mnt/c/` 경로는 실제로 존재하지 않아 성능 저하 및 오작동 유발
+- MSYS2를 명시적으로 정의하여 `/c/` 스타일 경로 사용
+
+**AI Collaborator**:
+- 없음 (Claude 단독 작업)
+
+**Related Issue/Request**:
+MSYS2 터미널에서 파일 드래그 앤 드롭 시 `/mnt/c/` 경로 생성 문제 해결
+
+---
+
+- Windows Terminal이 MSYS2를 WSL로 오인하여 드래그 앤 드롭 시 `/mnt/c/...` 경로를 생성
+- `/mnt/` 경로는 심볼릭 링크를 통한 간접 참조로 성능 저하 유발
+- Git Bash와 동일한 `/c/` 스타일로 통일하여 로딩 속도 개선
+
+**AI Collaborator**:
+- 없음 (Claude 단독 작업)
+
+**Related Issue/Request**:
+MSYS2 환경에서 파일 드래그 앤 드롭 시 /mnt/c/ 경로 문제 해결 요청
+
+---
+
 ## [2025-12-20 15:30:00 KST] GCX v6 스키마 체계 완성 및 Hook 오류 수정
 
 **Type**: 생성/수정

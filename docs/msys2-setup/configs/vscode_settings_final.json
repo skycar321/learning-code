@@ -105,6 +105,8 @@
 
     "terminal.integrated.copyOnSelection": true,
     "terminal.integrated.scrollback": 10000,
+    "terminal.integrated.scrollbar.visible": true,
+    "terminal.integrated.scrollbar.style": "native",
     "terminal.integrated.rightClickBehavior": "default",
     "terminal.integrated.splitCwd": "workspaceRoot",
     "terminal.integrated.confirmOnExit": "hasChildProcesses",

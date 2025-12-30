@@ -1,0 +1,5 @@
+/etc/passwd
+/home/Nam/.bashrc
+/home/Nam/.zshrc
+/c/Users/Nam/.claude/settings.json
+/home/Nam/.zshrc

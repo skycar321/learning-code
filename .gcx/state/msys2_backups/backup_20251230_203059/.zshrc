@@ -1,0 +1,325 @@
+# >>> GCX MSYS2 BASE PATH (oh-my-zsh 전에 필수)
+# 기본 POSIX 경로 (mkdir, git, mv 등 기본 명령어에 필요)
+export PATH="/usr/local/bin:/usr/bin:/bin:/c/Windows/system32:/c/Windows"
+# MSYS2 도구 경로 추가
+export PATH="/c/msys64/ucrt64/bin:/c/msys64/usr/bin:/c/msys64/mingw64/bin:$PATH"
+# <<< GCX MSYS2 BASE PATH
+
+
+
+# Enable Powerlevel10k instant prompt
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Path to your oh-my-zsh installation
+export ZSH="$HOME/.oh-my-zsh"
+
+# Theme
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+# Plugins
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  colored-man-pages
+  command-not-found
+  extract
+  sudo
+)
+
+# Load oh-my-zsh
+source $ZSH/oh-my-zsh.sh
+
+# ============================================================================
+# User Configuration
+# ============================================================================
+
+# UTF-8 설정
+export LANG=ko_KR.UTF-8
+export LC_ALL=ko_KR.UTF-8
+
+# Editor
+export EDITOR=vim
+export VISUAL=vim
+
+# ============================================================================
+# Aliases - 기본
+# ============================================================================
+
+# 디렉토리 리스팅
+alias ll='ls -alh --color=auto'
+alias la='ls -A --color=auto'
+alias l='ls -CF --color=auto'
+alias lt='ls -alht --color=auto'
+
+# 디렉토리 이동
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+
+# 색상 지원
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias diff='diff --color=auto'
+
+# 안전한 파일 조작
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# 유틸리티
+alias cls='clear'
+alias h='history'
+alias j='jobs -l'
+alias path='echo -e ${PATH//:/\\n}'
+alias now='date +"%Y-%m-%d %H:%M:%S"'
+alias ports='netstat -tulanp'
+
+# ============================================================================
+# Aliases - Git
+# ============================================================================
+
+alias gs='git status'
+alias ga='git add'
+alias gaa='git add --all'
+alias gc='git commit -m'
+alias gca='git commit --amend'
+alias gp='git push'
+alias gpl='git pull'
+alias gl='git log --oneline --graph --decorate --all'
+alias gd='git diff'
+alias gdc='git diff --cached'
+alias gco='git checkout'
+alias gb='git branch'
+alias gba='git branch -a'
+alias gbd='git branch -d'
+alias gm='git merge'
+alias gr='git remote -v'
+alias gf='git fetch'
+alias gst='git stash'
+alias gstp='git stash pop'
+
+# ============================================================================
+# Aliases - MSYS2 패키지 관리
+# ============================================================================
+
+alias update='pacman -Syu'
+alias install='pacman -S'
+alias pkgsearch='pacman -Ss'
+alias remove='pacman -R'
+alias autoremove='pacman -Rns $(pacman -Qtdq)'
+alias list-installed='pacman -Q'
+alias clean='pacman -Sc'
+
+# ============================================================================
+# Aliases - 디렉토리 단축
+# ============================================================================
+
+alias home='cd ~'
+alias downloads='cd /c/Users/$USER/Downloads'
+alias desktop='cd /c/Users/$USER/Desktop'
+alias documents='cd /c/Users/$USER/Documents'
+alias proj='cd /c/Users/$USER/Documents/Cursor/Workspace/origin/learning-code'
+
+# ============================================================================
+# Aliases - 개발 도구
+# ============================================================================
+
+# Python
+alias py='python'
+alias py3='python3'
+alias pip='python -m pip'
+
+# Node.js
+alias ni='npm install'
+alias nid='npm install --save-dev'
+alias nig='npm install -g'
+alias nr='npm run'
+alias ns='npm start'
+alias nt='npm test'
+
+# Docker (설치된 경우)
+
+# ============================================================================
+# Functions (alias 충돌 해결)
+# ============================================================================
+
+# 디렉토리 생성 후 이동
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# 파일 내용 검색 (alias 'search'를 함수로 대체)
+findtext() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: findtext <pattern> [path]"
+        return 1
+    fi
+    grep -r "$1" "${2:-.}"
+}
+
+# 압축 해제 (extract 플러그인도 사용 가능)
+unpack() {
+    if [ -f "$1" ]; then
+        case "$1" in
+            *.tar.bz2)   tar xjf "$1"     ;;
+            *.tar.gz)    tar xzf "$1"     ;;
+            *.bz2)       bunzip2 "$1"     ;;
+            *.rar)       unrar x "$1"     ;;
+            *.gz)        gunzip "$1"      ;;
+            *.tar)       tar xf "$1"      ;;
+            *.tbz2)      tar xjf "$1"     ;;
+            *.tgz)       tar xzf "$1"     ;;
+            *.zip)       unzip "$1"       ;;
+            *.Z)         uncompress "$1"  ;;
+            *.7z)        7z x "$1"        ;;
+            *)           echo "'$1' cannot be extracted" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+# 프로세스 검색
+psgrep() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: psgrep <process_name>"
+        return 1
+    fi
+    ps aux | grep -i "$1" | grep -v grep
+}
+
+# 프로세스 종료
+pskill() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: pskill <process_name>"
+        return 1
+    fi
+    ps aux | grep -i "$1" | grep -v grep | awk '{print $2}' | xargs kill -9
+}
+
+# 빠른 백업
+backup() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: backup <file>"
+        return 1
+    fi
+    cp "$1" "$1.backup.$(date +%Y%m%d_%H%M%S)"
+}
+
+# 파일 크기 확인
+filesize() {
+    if [ $# -eq 0 ]; then
+        du -sh * | sort -h
+    else
+        du -sh "$@"
+    fi
+}
+
+# Git 브랜치 정리
+git-clean-branches() {
+    git branch --merged | grep -v "\*" | grep -v "master" | grep -v "main" | xargs -n 1 git branch -d
+}
+
+# 빠른 서버 실행
+serve() {
+    local port="${1:-8000}"
+    python3 -m http.server "$port"
+}
+
+# JSON 포맷팅
+jsonformat() {
+    if [ $# -eq 0 ]; then
+        python3 -m json.tool
+    else
+        python3 -m json.tool "$1"
+    fi
+}
+
+# ============================================================================
+# History Configuration
+# ============================================================================
+
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_FIND_NO_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt HIST_IGNORE_SPACE
+setopt HIST_VERIFY
+
+# ============================================================================
+# Completion Configuration
+# ============================================================================
+
+autoload -Uz compinit && compinit
+
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' menu select
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
+zstyle ':completion:*:warnings' format '%F{red}-- no matches found --%f'
+
+# ============================================================================
+# Key Bindings
+# ============================================================================
+
+bindkey '^P' history-search-backward
+bindkey '^N' history-search-forward
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey '^[[3~' delete-char
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+
+# ============================================================================
+# Powerlevel10k Configuration
+# ============================================================================
+
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# ============================================
+# Windows PATH 통합 (Windows Terminal용)
+# ============================================
+
+# Windows Node.js 경로
+export PATH="/c/Program Files/nodejs:$PATH"
+
+# npm 전역 패키지 경로
+export PATH="$APPDATA/npm:$PATH"
+
+# 선택사항: 기타 Windows 도구
+# export PATH="/c/Program Files/Git/cmd:$PATH"
+
+
+# >>> GCX MSYS2 PATH
+export PATH="/c/msys64/usr/bin:/c/msys64/ucrt64/bin:$PATH"
+# <<< GCX MSYS2 PATH
+# >>> GCX Python PATH
+export PATH="/c/Users/Nam/AppData/Local/Programs/Python/Python314:/c/Users/Nam/AppData/Local/Programs/Python/Python314/Scripts:$PATH"
+command -v python.exe >/dev/null 2>&1 && { alias python='python.exe'; alias python3='python.exe'; alias pip='pip.exe'; }
+# <<< GCX Python PATH
+
+# >>> GCX Docker (MSYS2 호환)
+# Docker Desktop for Windows (MSYS2/Zsh 호환)
+# 참고: docker 래퍼 스크립트가 /usr/bin/env sh 오류 발생 → docker.exe 직접 호출
+alias docker='"/c/Program Files/Docker/Docker/resources/bin/docker.exe"'
+alias d='docker'
+alias dc='docker compose'
+alias docker-compose='docker compose'
+alias dps='docker ps'
+alias dpsa='docker ps -a'
+alias di='docker images'
+alias drm='docker rm'
+alias drmi='docker rmi'
+alias dstop='docker stop $(docker ps -aq) 2>/dev/null'
+alias dclean='docker system prune -af'
+# <<< GCX Docker

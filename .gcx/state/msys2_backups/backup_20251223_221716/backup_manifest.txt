@@ -1,0 +1,3 @@
+/etc/passwd
+/home/Nam/.bashrc
+/home/Nam/.zshrc
