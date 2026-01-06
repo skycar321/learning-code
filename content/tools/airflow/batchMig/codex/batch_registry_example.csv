@@ -1,0 +1,5 @@
+﻿job_id,job_type,schedule,command,timezone,depends_on,enabled
+streamset_001,shell,0 * * * *,/apps/streamset/run_streamset.sh,Asia/Seoul,,Y
+python_001,shell,5 * * * *,/apps/python/run_py.sh,Asia/Seoul,streamset_001,Y
+spring1_001,jar,0 1 * * *,/apps/spring/run_spring1.sh,Asia/Seoul,python_001,Y
+spring2_001,jar,30 1 * * *,/apps/spring/run_spring2.sh,Asia/Seoul,"spring1_001;python_001",Y

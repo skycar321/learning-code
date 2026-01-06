@@ -1,0 +1,2 @@
+/c/msys64/home/Nam/.bashrc
+/c/msys64/home/Nam/.zshrc

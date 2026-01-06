@@ -1,0 +1,2 @@
+/home/Nam/.bashrc
+/home/Nam/.zshrc
